@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Large source data files
+design-assets/katakana-data/
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# IDE
+*.swp
+*.swo
+*~
+.idea/
+*.code-workspace
+
+# Secrets
+.env
+*.pem
+*.p12
+*.mobileprovision
