@@ -4,8 +4,8 @@
 .LSOverride
 ._*
 
-# Large source data files
-design-assets/katakana-data/
+# Design working files (not included in app)
+design-assets/
 
 # Xcode
 build/
