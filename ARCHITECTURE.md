@@ -96,6 +96,154 @@ Layer design on top of the working prototype.
 └─────────────────────────────────────────────────────────┘
 ```
 
+## Data Schema
+
+Two JSON files for content:
+
+### words.json
+
+Curated katakana words extracted from JMdict with wasei-eigo detection.
+
+```json
+{
+  "id": "1049180",
+  "reading": "コーヒー",
+  "meanings": ["coffee"],
+  "sourceLanguage": "eng",
+  "sourceWord": "coffee",
+  "categories": ["food"],
+  "patterns": ["gojuon"]
+}
+```
+
+**Example with wasei-eigo flag:**
+```json
+{
+  "id": "1014740",
+  "reading": "アウトコース",
+  "meanings": ["outside track", "outside pitch"],
+  "sourceLanguage": "eng",
+  "sourceWord": "out course",
+  "categories": ["baseball"],
+  "patterns": ["gojuon"],
+  "wasei_eigo": true,
+  "wasei_info": {
+    "english_equivalent": "outside pitch (baseball), outer lane (racing)",
+    "wasei_meaning": "out course",
+    "notes": "In baseball English: 'outside pitch' or 'away'. In racing: 'outer lane'"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | JMdict entry ID (ent_seq). |
+| `reading` | string | Katakana word. |
+| `meanings` | string[] | English translations. |
+| `sourceLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
+| `sourceWord` | string | Original foreign word. |
+| `categories` | string[] | Semantic categories (food, technology, places, etc.). |
+| `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojuon, dakuon, and youon). |
+| `wasei_eigo` | boolean | **Optional.** True if this is a confirmed wasei-eigo (和製英語) - Japanese-coined pseudo-English that differs from actual English. |
+| `wasei_info` | object | **Optional.** Present when `wasei_eigo: true`. Contains `english_equivalent` (what English speakers actually say), `wasei_meaning` (the Japanese construction), and `notes` (explanation). |
+| `wasei_candidate` | boolean | **Optional.** True if this word is flagged as a potential wasei-eigo that needs human verification. |
+| `wasei_flags` | array | **Optional.** Present when `wasei_candidate: true`. List of detection flags explaining why it was flagged. |
+
+### katakana.json
+
+Reference data for individual katakana characters.
+
+```json
+{
+  "character": "カ",
+  "romaji": "ka",
+  "pattern": "gojuon"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `character` | string | Single katakana character. |
+| `romaji` | string | Romanized pronunciation. |
+| `pattern` | string | Phonetic pattern classification. |
+
+### Phonetic Patterns
+
+| Pattern | Description | Examples |
+|---------|-------------|----------|
+| `gojuon` | Basic 46 katakana | ア イ ウ エ オ, カ キ ク ケ コ |
+| `dakuon` | Voiced consonants (゛) | ガ ギ グ ゲ ゴ, ザ ジ ズ ゼ ゾ |
+| `handakuon` | P-sounds (゜) | パ ピ プ ペ ポ |
+| `youon` | Combination sounds (small ャュョ) | キャ, シュ, チョ |
+| `extended` | Modern additions for foreign sounds | ティ, ファ, ヴァ |
+
+### Filtering Logic
+
+User selects which patterns to practice (e.g., `[gojuon, youon]`).
+
+For words: Show words where `patterns` is a **subset** of user's selection. A word with `["gojuon", "dakuon"]` would not match `[gojuon, youon]` because it contains dakuon.
+
+For characters: Show characters matching user's selection directly.
+
+---
+
+## Content Curation Pipeline
+
+The word database is extracted and curated from JMdict using Python scripts in the `scripts/` directory.
+
+### Pipeline Overview
+
+```
+JMdict XML
+    ↓
+extract_katakana.py → words_raw.json (37,184 entries)
+    ↓
+curate_words.py → words.json (2,493 curated)
+    ├── words_excluded.json (61 excluded)
+    └── wasei_candidates_for_review.json (61 candidates)
+```
+
+### Wasei-Eigo Detection
+
+**What is wasei-eigo?** Wasei-eigo (和製英語) means "Japanese-made English" - words that appear to be English loanwords but are actually Japanese coinages. They either don't exist in English, have different meanings, or use non-standard constructions.
+
+**Why flag it?** Learners need to know when a katakana word won't be understood by English speakers, despite being written in katakana.
+
+**Detection Strategy:**
+
+1. **Tier 1: Known Database** (100% accuracy)
+   - `scripts/wasei_eigo_database.json` - Curated list of confirmed wasei-eigo
+   - Auto-flags words like アメリカンドッグ (corn dog), バージョンアップ (update)
+
+2. **Tier 2: Heuristic Detection** (70-80% accuracy)
+   - Pattern matching (e.g., "X-up/down" constructions)
+   - English phrase validation
+   - Flags candidates for human review
+
+3. **Tier 3: Human Review**
+   - Candidates exported to `wasei_candidates_for_review.json`
+   - Human reviewers verify and update database
+   - Continuous improvement of detection rules
+
+**Key Files:**
+
+| File | Purpose | Version Control |
+|------|---------|-----------------|
+| `scripts/wasei_eigo_database.json` | Permanent confirmed wasei-eigo database | ✓ Commit |
+| `scripts/detect_wasei_eigo.py` | Detection module (3-tier system) | ✓ Commit |
+| `scripts/curate_words.py` | Main curation script with wasei detection | ✓ Commit |
+| `data/wasei_candidates_for_review.json` | Temporary review queue | ✗ .gitignore |
+
+**Example Confirmed Wasei-Eigo:**
+
+- **アメリカンドッグ** (American dog) → corn dog
+- **バージョンアップ** (version up) → update/upgrade
+- **サインペン** (sign pen) → felt-tip pen
+- **ナイター** (nighter) → night game
+- **アウトコース** (out course) → outside pitch
+
+---
+
 ## Component Architecture
 
 *This section will expand as components are built during Phase 1.*
@@ -103,16 +251,40 @@ Layer design on top of the working prototype.
 ### Data Models
 
 ```swift
-// Content (from remote JSON)
+// Word (from words.json)
 struct Word: Codable, Identifiable {
     let id: String
-    let reading: String           // Katakana word
-    let meanings: [String]        // English definitions
-    let sourceLanguage: String?   // Origin language code
-    let sourceWord: String?       // Original word
-    let frequency: String?        // common, uncommon, etc.
-    let categories: [String]      // food, technology, etc.
-    let phoneticPattern: String?  // gojuon, dakuon, etc.
+    let reading: String
+    let meanings: [String]
+    let sourceLanguage: String?
+    let sourceWord: String?
+    let categories: [String]
+    let patterns: [String]
+
+    // Wasei-eigo detection (optional fields)
+    let waseiEigo: Bool?
+    let waseiInfo: WaseiInfo?
+    let waseiCandidate: Bool?
+    let waseiFlags: [WaseiFlag]?
+}
+
+struct WaseiInfo: Codable {
+    let englishEquivalent: String
+    let waseiMeaning: String
+    let notes: String
+}
+
+struct WaseiFlag: Codable {
+    let type: String
+    let detail: String
+}
+
+// Katakana character (from katakana.json)
+struct Katakana: Codable, Identifiable {
+    var id: String { character }
+    let character: String
+    let romaji: String
+    let pattern: String
 }
 
 // Theme (architecture only – values TBD in Phase 2)
@@ -165,11 +337,13 @@ Events to track (TBD during implementation):
 
 ## Roadmap
 
-### Immediate: Content Pipeline
+### ✓ Completed: Content Pipeline
 
-1. Define JSON schema for `words.json`.
-2. Write script to extract katakana entries from JMdict.
-3. Review output and define categorization.
+1. ✓ Define JSON schema for `words.json`.
+2. ✓ Write script to extract katakana entries from JMdict.
+3. ✓ Review output and define categorization.
+4. ✓ Implement wasei-eigo detection system.
+5. ✓ Generate curated dataset (2,493 words from 37,184 raw entries).
 
 ### Then: Project Setup
 
