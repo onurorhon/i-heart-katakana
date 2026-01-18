@@ -12,7 +12,7 @@ decision_maker: Onur (sole designer and developer)
 
 ## 1. Project Context
 
-This is an independent learning project with multiple objectives beyond shipping a useful app.
+This is an independent learning project with multiple objectives in addition to shipping a useful language app.
 
 ### Learning Objectives
 
@@ -48,7 +48,7 @@ This is an independent learning project with multiple objectives beyond shipping
 - Solo designer/developer.
 - Minimal budget (free/open-source resources only).
 - One-month target timeline.
-- iPhone and iPad only.
+- iOS only.
 
 ### Strategic Partnerships
 
@@ -60,7 +60,7 @@ This is an independent learning project with multiple objectives beyond shipping
 
 Many apps help learners memorise katakana characters. Far fewer help them practice reading real katakana words as they appear in everyday Japanese – across different typefaces, visual styles, and phonetic patterns.
 
-I ❤️ Katakana fills that gap: a focused, distraction-free environment for practicing katakana recognition with curated content and visual variety.
+I❤️Katakana fills that gap: a focused, distraction-free environment for practicing katakana recognition with curated content and visual variety.
 
 This is a free, non-profit iOS app developed independently.
 
@@ -131,10 +131,9 @@ Katakana character table. Additional reference content TBD.
 
 ## 7. Technical Constraints
 
-- iPhone and iPad.
+- iOS only (iPhone).
 - SwiftUI (native framework).
 - Minimum iOS 18.
-- Portrait orientation only (landscape support TBD).
 - Free, no in-app purchases.
 - Privacy-focused.
 

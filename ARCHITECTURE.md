@@ -237,14 +237,14 @@ curate_words.py → words.json
    - Human reviewers verify and update database
    - Continuous improvement of detection rules
 
-**Key Files:**
+**Key Files (in `i-heart-katakana-data` repo):**
 
-| File | Purpose | Version Control |
-|------|---------|-----------------|
-| `scripts/wasei_eigo_database.json` | Permanent confirmed wasei-eigo database | ✓ Commit |
-| `scripts/detect_wasei_eigo.py` | Detection module (3-tier system) | ✓ Commit |
-| `scripts/curate_words.py` | Main curation script with wasei detection | ✓ Commit |
-| `data/wasei_candidates_for_review.json` | Temporary review queue | ✗ .gitignore |
+| File | Purpose |
+|------|---------|
+| `scripts/wasei_eigo_database.json` | Permanent confirmed wasei-eigo database |
+| `scripts/detect_wasei_eigo.py` | Detection module (3-tier system) |
+| `scripts/curate_words.py` | Main curation script with wasei detection |
+| `data/wasei_candidates_for_review.json` | Temporary review queue (gitignored) |
 
 **Example Confirmed Wasei-Eigo:**
 
@@ -349,13 +349,7 @@ Events to track (TBD during implementation):
 
 ## Roadmap
 
-### Next: Project Setup
-
-1. Create Xcode project.
-2. Create `i-heart-katakana-data` public GitHub repo.
-3. Set up folder structure and initial files.
-
-### Then: Phase 1 Build
+### Next: Phase 1 Build
 
 Build functional prototype with SwiftUI defaults:
 - Data models (Word, Theme, AppFont).
