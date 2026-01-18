@@ -1,6 +1,6 @@
 ---
 document: Project Overview
-project: I ❤️ Katakana
+project: I❤️Katakana
 version: 1.0
 status: Draft
 last_updated: 2025-01-17
@@ -8,7 +8,7 @@ author: Onur
 decision_maker: Onur (sole designer and developer)
 ---
 
-# I ❤️ Katakana – Project Overview
+# I❤️Katakana – Project Overview
 
 ## 1. Project Context
 
@@ -48,7 +48,7 @@ This is an independent learning project with multiple objectives beyond shipping
 - Solo designer/developer.
 - Minimal budget (free/open-source resources only).
 - One-month target timeline.
-- iOS only.
+- iPhone and iPad only.
 
 ### Strategic Partnerships
 
@@ -131,9 +131,10 @@ Katakana character table. Additional reference content TBD.
 
 ## 7. Technical Constraints
 
-- iOS only (iPhone).
+- iPhone and iPad.
 - SwiftUI (native framework).
 - Minimum iOS 18.
+- Portrait orientation only (landscape support TBD).
 - Free, no in-app purchases.
 - Privacy-focused.
 
@@ -192,7 +193,7 @@ Target release: one month from project start.
 
 | Field | Status |
 |-------|--------|
-| App name | I ❤️ Katakana |
+| App name | I❤️Katakana |
 | Tagline | TBD |
 | Description | TBD |
 | Keywords | TBD |

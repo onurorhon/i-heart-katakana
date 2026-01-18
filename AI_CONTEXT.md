@@ -1,4 +1,4 @@
-# AI Context – I Heart Katakana
+# AI Context – I❤️Katakana
 
 ## Startup Workflow
 
@@ -41,13 +41,24 @@ If new rules discovered:
 - Update `RULES.md` with new never/always rules
 - Document new conventions
 
-**2. Git commit**
+**2. Run context-architect agent**
 
-Commit documentation updates (ARCHITECTURE.md, RULES.md) with a descriptive message.
+Before committing, run the `context-architect` agent to audit documentation for drift:
+- Catches statistics, checkmarks, historical reports that don't belong.
+- Reports violations with suggested fixes.
+- If violations found, fix them before proceeding.
 
-Code changes: discuss with user whether to commit or leave for review.
+**3. Git commit and push**
 
-**3. Session report**
+Commit all changes (documentation and code) with a descriptive message. Push to GitHub.
+
+```bash
+git add .
+git commit -m "<description of changes>"
+git push origin main
+```
+
+**4. Session report**
 
 Provide the user with:
 

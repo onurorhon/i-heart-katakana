@@ -44,7 +44,3 @@ Carthage/Build/
 *.pem
 *.p12
 *.mobileprovision
-
-# Generated content files (temporary/intermediate)
-scripts/words_raw.json
-data/wasei_candidates_for_review.json

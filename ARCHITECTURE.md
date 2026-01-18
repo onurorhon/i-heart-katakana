@@ -1,3 +1,13 @@
+<!--
+GUARDRAILS FOR THIS DOCUMENT:
+- No specific counts or statistics (e.g., "2,493 words", "37,184 entries").
+- No progress checkmarks or completion markers.
+- No session outputs or historical reports.
+- Forward-looking roadmap only – remove completed items, don't check them off.
+- Script details go in scripts/README.md, not here.
+See RULES.md > Documentation Boundaries for full policy.
+-->
+
 # Architecture & Technical Decisions
 
 ## Tech Stack
@@ -12,6 +22,8 @@
 | Area | Decision |
 |------|----------|
 | Framework | SwiftUI (native) |
+| Platforms | iPhone and iPad |
+| Orientation | Portrait only (landscape TBD) |
 | Minimum iOS | iOS 18 |
 | Content storage | Remote JSON (public GitHub repo: `i-heart-katakana-data`) with bundled fallback |
 | Content source | JMdict (open-source), extracted and curated |
@@ -196,11 +208,11 @@ The word database is extracted and curated from JMdict using Python scripts in t
 ```
 JMdict XML
     ↓
-extract_katakana.py → words_raw.json (37,184 entries)
+extract_katakana.py → words_raw.json
     ↓
-curate_words.py → words.json (2,493 curated)
-    ├── words_excluded.json (61 excluded)
-    └── wasei_candidates_for_review.json (61 candidates)
+curate_words.py → words.json
+    ├── words_excluded.json
+    └── wasei_candidates_for_review.json
 ```
 
 ### Wasei-Eigo Detection
@@ -337,15 +349,7 @@ Events to track (TBD during implementation):
 
 ## Roadmap
 
-### ✓ Completed: Content Pipeline
-
-1. ✓ Define JSON schema for `words.json`.
-2. ✓ Write script to extract katakana entries from JMdict.
-3. ✓ Review output and define categorization.
-4. ✓ Implement wasei-eigo detection system.
-5. ✓ Generate curated dataset (2,493 words from 37,184 raw entries).
-
-### Then: Project Setup
+### Next: Project Setup
 
 1. Create Xcode project.
 2. Create `i-heart-katakana-data` public GitHub repo.
@@ -363,6 +367,13 @@ Build functional prototype with SwiftUI defaults:
 - TTS playback.
 - TelemetryDeck integration.
 
+### Then: Content Finalization
+
+- Streamline JSON fields based on what the app actually uses.
+- Fix inconsistencies discovered during development.
+- Expand categories (technology, places, everyday objects).
+- Review wasei-eigo candidates.
+
 ### Then: Phase 2 Design
 
 - Final UI design in Figma.
@@ -375,7 +386,11 @@ Build functional prototype with SwiftUI defaults:
 
 - App Store metadata and screenshots.
 - Submit for review.
-- Create `i-heart-katakana-data` content if not already done.
+- Publish `i-heart-katakana-data` content.
+
+### Post-Launch
+
+- Evaluate git branching strategy (main + develop) if needed for safer releases.
 
 ---
 

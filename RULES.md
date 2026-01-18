@@ -15,6 +15,29 @@
 - **Always commit with descriptive messages** – No "fix" or "update" without context
 - **Always update ARCHITECTURE.md** – When patterns or components change
 
+## Documentation Boundaries
+
+**ARCHITECTURE.md** contains:
+- Technical decisions and rationale.
+- Data schemas and structures.
+- Component patterns and data flow.
+- Forward-looking roadmap (what's next).
+
+**ARCHITECTURE.md must NOT contain:**
+- Specific counts or statistics from script runs.
+- Progress checkmarks or completion status.
+- Session outputs or historical reports.
+- Script usage instructions (those go in `scripts/README.md`).
+
+**General principle:** Documentation describes *what the system is*, not *how we got here*.
+
+## Responsive Layout
+
+- Design for portrait orientation first.
+- Constrain content to readable width on larger screens (don't stretch edge-to-edge).
+- Use SwiftUI's adaptive layout (`.frame(maxWidth:)`, `ViewThatFits`, etc.).
+- Test on both iPhone and iPad simulators.
+
 ## Conventions
 
 *This section will expand as patterns emerge during development.*
