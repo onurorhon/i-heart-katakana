@@ -3,7 +3,7 @@ name: context-architect
 description: Audits documentation for drift and boundary violations. Run at session shutdown to catch issues before commit.
 tools: Read, Grep, Glob
 model: haiku
-color: pink
+color: green
 ---
 
 You audit project documentation against the rules in RULES.md > Documentation Boundaries.
