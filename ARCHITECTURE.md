@@ -4,7 +4,6 @@ GUARDRAILS FOR THIS DOCUMENT:
 - No progress checkmarks or completion markers.
 - No session outputs or historical reports.
 - Forward-looking roadmap only – remove completed items, don't check them off.
-- Script details go in scripts/README.md, not here.
 See RULES.md > Documentation Boundaries for full policy.
 -->
 
@@ -25,13 +24,46 @@ See RULES.md > Documentation Boundaries for full policy.
 | Platforms | iPhone and iPad |
 | Orientation | Portrait only (landscape TBD) |
 | Minimum iOS | iOS 18 |
-| Content storage | Remote JSON (public GitHub repo: `i-heart-katakana-data`) with bundled fallback |
+| Content storage | Bundled JSON (`data/`) with optional remote fallback |
 | Content source | JMdict (open-source), extracted and curated |
 | User data storage | SwiftData with iCloud sync |
 | Audio | On-device TTS (AVSpeechSynthesizer) |
 | Analytics | TelemetryDeck (free tier) |
 | Accessibility | SwiftUI defaults + light intentional pass |
 | Development environment | Cursor + Claude Code + Xcode |
+
+## Repository Structure
+
+The project spans two repositories:
+
+| Repository | Visibility | Purpose |
+|------------|------------|---------|
+| `i-heart-katakana` (this repo) | Public | iOS app, data, scripts, documentation |
+| `i-heart-katakana-assets` | Private | Fonts, design files |
+
+**This repository:**
+```
+i-heart-katakana/
+├── IHeartKatakana.xcodeproj    # Xcode project
+├── IHeartKatakana/             # App source (see RULES.md for structure conventions)
+├── IHeartKatakanaTests/
+├── IHeartKatakanaUITests/
+├── data/
+│   ├── words.json              # Curated word database
+│   └── katakana.json           # Katakana character reference
+├── scripts/                    # Python curation pipeline
+│   ├── extract_katakana.py
+│   ├── curate_words.py
+│   └── wasei_eigo_database.json
+├── .claude/                    # Claude Code agent configs
+└── *.md                        # Project documentation
+```
+
+**Assets repository:**
+```
+i-heart-katakana-assets/
+└── Fonts/                      # Licensed fonts (not redistributable)
+```
 
 ## Development Approach
 
@@ -74,18 +106,11 @@ Layer design on top of the working prototype.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Remote (GitHub)                      │
-│                  i-heart-katakana-data                  │
-│                      words.json                         │
-└─────────────────────┬───────────────────────────────────┘
-                      │ fetch on launch
-                      ▼
-┌─────────────────────────────────────────────────────────┐
 │                      App                                │
-│  ┌───────────────┐    ┌───────────────┐                │
-│  │ Bundled JSON  │◄───│ Fallback if   │                │
-│  │ (fallback)    │    │ fetch fails   │                │
-│  └───────────────┘    └───────────────┘                │
+│  ┌───────────────────────────────────────┐             │
+│  │         Bundled JSON                  │             │
+│  │         (data/words.json)             │             │
+│  └───────────────────────────────────────┘             │
 │           │                                             │
 │           ▼                                             │
 │  ┌───────────────────────────────────────┐             │
@@ -237,14 +262,13 @@ curate_words.py → words.json
    - Human reviewers verify and update database
    - Continuous improvement of detection rules
 
-**Key Files (in `i-heart-katakana-data` repo):**
+**Key Files:**
 
 | File | Purpose |
 |------|---------|
 | `scripts/wasei_eigo_database.json` | Permanent confirmed wasei-eigo database |
 | `scripts/detect_wasei_eigo.py` | Detection module (3-tier system) |
 | `scripts/curate_words.py` | Main curation script with wasei detection |
-| `data/wasei_candidates_for_review.json` | Temporary review queue (gitignored) |
 
 **Example Confirmed Wasei-Eigo:**
 
@@ -337,7 +361,7 @@ class UserPreferences {
 
 TelemetryDeck integration for privacy-focused usage tracking.
 
-- **App ID:** `80F89D4F-DD50-4D9D-98B2-DE9298E16F71`
+- **App ID:** Configure in `Secrets.swift` (see `Secrets.example.swift`)
 - **Org namespace:** `com.onurorhon`
 
 Events to track (TBD during implementation):
@@ -388,12 +412,10 @@ Build functional prototype with SwiftUI defaults:
 
 ---
 
-## Remote Content
+## Remote Content (Future)
 
-Public GitHub repo: `i-heart-katakana-data`
-
-Purpose: Anything updatable without an App Store release.
-- `words.json` – Word database
-- `fonts.json` – Font metadata (future)
-- `themes.json` – Theme definitions (future)
-- `config.json` – Feature flags (future)
+Content is currently bundled with the app. Future versions may fetch updates from a remote source to enable content updates without App Store releases:
+- Word database updates
+- Font metadata
+- Theme definitions
+- Feature flags

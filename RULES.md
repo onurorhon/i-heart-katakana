@@ -27,7 +27,7 @@
 - Specific counts or statistics from script runs.
 - Progress checkmarks or completion status.
 - Session outputs or historical reports.
-- Script usage instructions (those go in `scripts/README.md`).
+- Script usage instructions (those go in the `i-heart-katakana-data` repo).
 
 **General principle:** Documentation describes *what the system is*, not *how we got here*.
 

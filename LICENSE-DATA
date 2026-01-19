@@ -1,0 +1,36 @@
+Data License
+============
+
+The word data in this project (`data/words.json`, `data/katakana.json`) is derived
+from JMdict, a free Japanese-English dictionary project.
+
+JMdict License
+--------------
+
+JMdict is the property of the Electronic Dictionary Research and Development Group
+(EDRDG), and is used in conformance with the Group's licence.
+
+The JMdict dictionary files are made available under the Creative Commons
+Attribution-ShareAlike License (V4.0):
+
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Attribution
+-----------
+
+This project uses data from:
+- JMdict (Japanese-Multilingual Dictionary) by the EDRDG
+- https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project
+
+The original JMdict data has been processed and curated for this application.
+Modifications include:
+- Extraction of katakana-only entries
+- Addition of phonetic pattern classifications
+- Wasei-eigo detection and annotation
+- Categorization for learning purposes
+
+Curation Scripts License
+------------------------
+
+The Python scripts in the `scripts/` directory used to process JMdict data are
+released under the MIT License (same as the main application code).

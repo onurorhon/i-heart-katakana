@@ -144,21 +144,13 @@ Katakana character table. Additional reference content TBD.
 | Katakana content | Remote JSON with bundled fallback | You push updates; users pull on launch. |
 | User data (likes, future features) | SwiftData with iCloud | Apple handles sync via user's iCloud account. |
 
-**Remote content hosting:** Public GitHub repo (`i-heart-katakana-data`). App fetches raw file URLs. This repo holds anything that should be updatable without an App Store release:
-
-- Word database (`words.json`).
-- Font metadata (`fonts.json`) – names, display order, groupings.
-- Theme definitions (`themes.json`) – colors, background styles.
-- App announcements (`announcements.json`) – in-app messages, tips.
-- Feature flags (`config.json`) – toggle features remotely.
-
-Not all of these are needed for v1, but the repo provides a place for them.
+**Bundled content:** Word database and katakana reference are bundled with the app in `data/`. Python curation scripts are in `scripts/`. Future versions may support remote content updates.
 
 ### 7.2 Analytics
 
 TelemetryDeck (privacy-focused, no personal data collected).
 
-- App ID: `80F89D4F-DD50-4D9D-98B2-DE9298E16F71`
+- App ID: Configure in `Secrets.swift` (see `Secrets.example.swift`)
 - Org namespace: `com.onurorhon`
 
 ### 7.3 Accessibility

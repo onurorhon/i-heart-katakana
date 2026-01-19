@@ -44,3 +44,7 @@ Carthage/Build/
 *.pem
 *.p12
 *.mobileprovision
+Secrets.swift
+
+# Fonts (stored in private assets repo)
+**/Fonts/
