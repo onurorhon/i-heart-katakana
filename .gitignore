@@ -4,9 +4,6 @@
 .LSOverride
 ._*
 
-# Design working files (not included in app)
-design-assets/
-
 # Xcode
 build/
 DerivedData/
