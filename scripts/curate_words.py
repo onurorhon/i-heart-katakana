@@ -17,6 +17,7 @@ Outputs:
 import json
 from collections import defaultdict
 from detect_wasei_eigo import detect_wasei_eigo_candidates, format_for_review
+from katakana_to_romaji import katakana_to_romaji
 
 # Exclusion patterns based on curation reports
 EXCLUDE_CATEGORIES = {
@@ -164,6 +165,9 @@ def main():
             if not word.get('sourceLanguage'):
                 word['sourceLanguage'] = infer_source_language(word)
 
+            # Generate romaji from katakana reading
+            word['romaji'] = katakana_to_romaji(word['reading'])
+
             # ===================================================================
             # WASEI-EIGO DETECTION
             # ===================================================================
@@ -242,9 +246,9 @@ def main():
         print(f"  {pattern}: {count}")
 
     # Write output files
-    with open('../words.json', 'w') as f:
+    with open('../data/words.json', 'w') as f:
         json.dump(curated, f, ensure_ascii=False, indent=2)
-    print(f"\nWritten {len(curated)} entries to ../words.json")
+    print(f"\nWritten {len(curated)} entries to ../data/words.json")
 
     with open('../words_excluded.json', 'w') as f:
         json.dump(excluded, f, ensure_ascii=False, indent=2)

@@ -3,6 +3,7 @@ import Foundation
 struct Word: Codable, Identifiable {
     let id: String
     let reading: String
+    let romaji: String
     let meanings: [String]
     let sourceLanguage: String?
     let sourceWord: String?
@@ -16,7 +17,7 @@ struct Word: Codable, Identifiable {
     let waseiFlags: [WaseiFlag]?
 
     enum CodingKeys: String, CodingKey {
-        case id, reading, meanings, sourceLanguage, sourceWord, categories, patterns
+        case id, reading, romaji, meanings, sourceLanguage, sourceWord, categories, patterns
         case waseiEigo = "wasei_eigo"
         case waseiInfo = "wasei_info"
         case waseiCandidate = "wasei_candidate"

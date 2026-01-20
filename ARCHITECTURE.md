@@ -145,6 +145,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 {
   "id": "1049180",
   "reading": "コーヒー",
+  "romaji": "koohii",
   "meanings": ["coffee"],
   "sourceLanguage": "eng",
   "sourceWord": "coffee",
@@ -158,6 +159,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 {
   "id": "1014740",
   "reading": "アウトコース",
+  "romaji": "autokoosu",
   "meanings": ["outside track", "outside pitch"],
   "sourceLanguage": "eng",
   "sourceWord": "out course",
@@ -176,6 +178,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 |-------|------|-------------|
 | `id` | string | JMdict entry ID (ent_seq). |
 | `reading` | string | Katakana word. |
+| `romaji` | string | Romanized pronunciation (generated from katakana). |
 | `meanings` | string[] | English translations. |
 | `sourceLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
 | `sourceWord` | string | Original foreign word. |
@@ -192,7 +195,7 @@ Reference data for individual katakana characters.
 
 ```json
 {
-  "character": "カ",
+  "kana": "カ",
   "romaji": "ka",
   "pattern": "gojuon"
 }
@@ -200,7 +203,7 @@ Reference data for individual katakana characters.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `character` | string | Single katakana character. |
+| `kana` | string | Single katakana character. |
 | `romaji` | string | Romanized pronunciation. |
 | `pattern` | string | Phonetic pattern classification. |
 
@@ -291,6 +294,7 @@ curate_words.py → words.json
 struct Word: Codable, Identifiable {
     let id: String
     let reading: String
+    let romaji: String
     let meanings: [String]
     let sourceLanguage: String?
     let sourceWord: String?
@@ -316,9 +320,9 @@ struct WaseiFlag: Codable {
 }
 
 // Katakana character (from kana.json)
-struct Katakana: Codable, Identifiable {
-    var id: String { character }
-    let character: String
+struct Kana: Codable, Identifiable {
+    var id: String { kana }
+    let kana: String
     let romaji: String
     let pattern: String
 }
@@ -357,7 +361,7 @@ class LikedWord {
 @Model
 class UserPreferences {
     var selectedColorThemeId: String
-    var selectedFontId: String
+    var selectedPracticeFontId: String
 }
 ```
 
@@ -381,7 +385,7 @@ Events to track (TBD during implementation):
 
 Build functional prototype with SwiftUI defaults:
 - Data models (Word, ColorTheme, PracticeFont).
-- Remote JSON fetching with bundled fallback.
+- Bundled JSON loading.
 - Basic practice view (display word, reveal answer).
 - Likes (SwiftData + iCloud sync).
 - Categories and filtering.
@@ -391,6 +395,7 @@ Build functional prototype with SwiftUI defaults:
 
 ### Then: Content Finalization
 
+- Remote JSON fetching with bundled fallback.
 - Streamline JSON fields based on what the app actually uses.
 - Fix inconsistencies discovered during development.
 - Expand categories (technology, places, everyday objects).
@@ -416,9 +421,9 @@ Build functional prototype with SwiftUI defaults:
 
 ---
 
-## Remote Content (Future)
+## Remote Content
 
-Content is currently bundled with the app. Future versions may fetch updates from a remote source to enable content updates without App Store releases:
+Content is bundled with the app as fallback. Remote fetching (added in Content Finalization phase) enables content updates without App Store releases:
 - Word database updates
 - Font metadata
 - ColorTheme definitions
