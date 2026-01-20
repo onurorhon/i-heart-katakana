@@ -146,11 +146,27 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
   "id": "1049180",
   "word": "コーヒー",
   "romaji": "koohii",
-  "meanings": ["coffee"],
-  "originLanguage": "eng",
   "originalWord": "coffee",
+  "originalWordInferred": null,
+  "originLanguage": "eng",
+  "meanings": ["coffee"],
   "categories": ["food"],
   "patterns": ["gojuon"]
+}
+```
+
+**Example with inferred original word:**
+```json
+{
+  "id": "1013950",
+  "word": "アイシング",
+  "romaji": "aishingu",
+  "originalWord": null,
+  "originalWordInferred": "icing",
+  "originLanguage": "eng",
+  "meanings": ["icing", "frosting"],
+  "categories": ["food, cooking", "sports"],
+  "patterns": ["dakuon", "gojuon"]
 }
 ```
 
@@ -160,9 +176,10 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
   "id": "1014740",
   "word": "アウトコース",
   "romaji": "autokoosu",
-  "meanings": ["outside track", "outside pitch"],
-  "originLanguage": "eng",
   "originalWord": "out course",
+  "originalWordInferred": null,
+  "originLanguage": "eng",
+  "meanings": ["outside track", "outside pitch"],
   "categories": ["baseball"],
   "patterns": ["gojuon"],
   "wasei_eigo": true,
@@ -179,9 +196,10 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | `id` | string | JMdict entry ID (ent_seq). |
 | `word` | string | Katakana word. |
 | `romaji` | string | Romanized pronunciation (generated from katakana). |
-| `meanings` | string[] | English translations. |
+| `originalWord` | string? | Original foreign word from JMdict (authoritative). |
+| `originalWordInferred` | string? | Inferred original word (cleaned first meaning). Present when `originalWord` is null. |
 | `originLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
-| `originalWord` | string | Original foreign word. |
+| `meanings` | string[] | English translations. |
 | `categories` | string[] | Semantic categories (food, technology, places, etc.). |
 | `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojuon, dakuon, and youon). |
 | `wasei_eigo` | boolean | **Optional.** True if this is a confirmed wasei-eigo (和製英語) - Japanese-coined pseudo-English that differs from actual English. |
@@ -285,9 +303,10 @@ struct Word: Codable, Identifiable {
     let id: String
     let word: String
     let romaji: String
-    let meanings: [String]
+    let originalWord: String?           // From JMdict (authoritative)
+    let originalWordInferred: String?   // Cleaned first meaning when JMdict lacks source
     let originLanguage: String?
-    let originalWord: String?
+    let meanings: [String]
     let categories: [String]
     let patterns: [String]
 
