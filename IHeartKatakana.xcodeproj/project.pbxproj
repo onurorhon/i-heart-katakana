@@ -29,9 +29,22 @@
 		09FFCAF92F1D750F00BA2D21 /* IHeartKatakanaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IHeartKatakanaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		098085ED2F1EBDC100692BAA /* Exceptions for "IHeartKatakana" folder in "IHeartKatakana" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Secrets.example.swift,
+			);
+			target = 09FFCADF2F1D750D00BA2D21 /* IHeartKatakana */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		09FFCAE22F1D750D00BA2D21 /* IHeartKatakana */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				098085ED2F1EBDC100692BAA /* Exceptions for "IHeartKatakana" folder in "IHeartKatakana" target */,
+			);
 			path = IHeartKatakana;
 			sourceTree = "<group>";
 		};

@@ -50,7 +50,7 @@ i-heart-katakana/
 ├── IHeartKatakanaUITests/
 ├── data/
 │   ├── words.json              # Curated word database
-│   └── katakana.json           # Katakana character reference
+│   └── characters.json           # Katakana character reference
 ├── scripts/                    # Python curation pipeline
 │   ├── extract_katakana.py
 │   ├── curate_words.py
@@ -186,7 +186,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | `wasei_candidate` | boolean | **Optional.** True if this word is flagged as a potential wasei-eigo that needs human verification. |
 | `wasei_flags` | array | **Optional.** Present when `wasei_candidate: true`. List of detection flags explaining why it was flagged. |
 
-### katakana.json
+### characters.json
 
 Reference data for individual katakana characters.
 
@@ -315,7 +315,7 @@ struct WaseiFlag: Codable {
     let detail: String
 }
 
-// Katakana character (from katakana.json)
+// Katakana character (from characters.json)
 struct Katakana: Codable, Identifiable {
     var id: String { character }
     let character: String
