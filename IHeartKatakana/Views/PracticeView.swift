@@ -86,7 +86,7 @@ struct PracticeView: View {
         case .word:
             guard currentIndex < filteredWords.count else { return nil }
             let word = filteredWords[currentIndex]
-            return (word.reading, word.meanings.joined(separator: ", "))
+            return (word.word, word.meanings.joined(separator: ", "))
         case .kana:
             guard currentIndex < filteredKana.count else { return nil }
             let kana = filteredKana[currentIndex]

@@ -2,26 +2,23 @@ import Foundation
 
 struct Word: Codable, Identifiable {
     let id: String
-    let reading: String
+    let word: String
     let romaji: String
     let meanings: [String]
-    let sourceLanguage: String?
-    let sourceWord: String?
+    let originLanguage: String?
+    let originalWord: String?          // From JMdict (authoritative)
+    let originalWordInferred: String?  // Our inference (first meaning for English)
     let categories: [String]
     let patterns: [String]
 
-    // Wasei-eigo fields (optional)
+    // Wasei-eigo fields (optional, from curated database)
     let waseiEigo: Bool?
     let waseiInfo: WaseiInfo?
-    let waseiCandidate: Bool?
-    let waseiFlags: [WaseiFlag]?
 
     enum CodingKeys: String, CodingKey {
-        case id, reading, romaji, meanings, sourceLanguage, sourceWord, categories, patterns
+        case id, word, romaji, meanings, originLanguage, originalWord, originalWordInferred, categories, patterns
         case waseiEigo = "wasei_eigo"
         case waseiInfo = "wasei_info"
-        case waseiCandidate = "wasei_candidate"
-        case waseiFlags = "wasei_flags"
     }
 }
 
@@ -37,7 +34,3 @@ struct WaseiInfo: Codable {
     }
 }
 
-struct WaseiFlag: Codable {
-    let type: String
-    let detail: String
-}

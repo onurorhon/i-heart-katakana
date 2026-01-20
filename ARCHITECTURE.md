@@ -144,11 +144,11 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 ```json
 {
   "id": "1049180",
-  "reading": "コーヒー",
+  "word": "コーヒー",
   "romaji": "koohii",
   "meanings": ["coffee"],
-  "sourceLanguage": "eng",
-  "sourceWord": "coffee",
+  "originLanguage": "eng",
+  "originalWord": "coffee",
   "categories": ["food"],
   "patterns": ["gojuon"]
 }
@@ -158,11 +158,11 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 ```json
 {
   "id": "1014740",
-  "reading": "アウトコース",
+  "word": "アウトコース",
   "romaji": "autokoosu",
   "meanings": ["outside track", "outside pitch"],
-  "sourceLanguage": "eng",
-  "sourceWord": "out course",
+  "originLanguage": "eng",
+  "originalWord": "out course",
   "categories": ["baseball"],
   "patterns": ["gojuon"],
   "wasei_eigo": true,
@@ -177,17 +177,15 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | string | JMdict entry ID (ent_seq). |
-| `reading` | string | Katakana word. |
+| `word` | string | Katakana word. |
 | `romaji` | string | Romanized pronunciation (generated from katakana). |
 | `meanings` | string[] | English translations. |
-| `sourceLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
-| `sourceWord` | string | Original foreign word. |
+| `originLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
+| `originalWord` | string | Original foreign word. |
 | `categories` | string[] | Semantic categories (food, technology, places, etc.). |
 | `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojuon, dakuon, and youon). |
 | `wasei_eigo` | boolean | **Optional.** True if this is a confirmed wasei-eigo (和製英語) - Japanese-coined pseudo-English that differs from actual English. |
 | `wasei_info` | object | **Optional.** Present when `wasei_eigo: true`. Contains `english_equivalent` (what English speakers actually say), `wasei_meaning` (the Japanese construction), and `notes` (explanation). |
-| `wasei_candidate` | boolean | **Optional.** True if this word is flagged as a potential wasei-eigo that needs human verification. |
-| `wasei_flags` | array | **Optional.** Present when `wasei_candidate: true`. List of detection flags explaining why it was flagged. |
 
 ### kana.json
 
@@ -239,9 +237,16 @@ JMdict XML
 extract_katakana.py → words_raw.json
     ↓
 curate_words.py → words.json
-    ├── words_excluded.json
-    └── wasei_candidates_for_review.json
+    └── words_excluded.json
 ```
+
+**Processing steps:**
+1. Extract katakana-only entries from JMdict
+2. Filter by categories and apply exclusions
+3. Infer origin language for entries missing it
+4. Generate romaji from katakana
+5. Auto-backfill `originalWord` for high-confidence English entries
+6. Flag confirmed wasei-eigo from curated database
 
 ### Wasei-Eigo Detection
 
@@ -249,31 +254,16 @@ curate_words.py → words.json
 
 **Why flag it?** Learners need to know when a katakana word won't be understood by English speakers, despite being written in katakana.
 
-**Detection Strategy:**
+**Detection approach:** Database lookup only (no heuristics). The `scripts/wasei_eigo_database.json` file contains a curated list of confirmed wasei-eigo terms. Words are only flagged if they appear in this database, ensuring high accuracy.
 
-1. **Tier 1: Known Database** (100% accuracy)
-   - `scripts/wasei_eigo_database.json` - Curated list of confirmed wasei-eigo
-   - Auto-flags words like アメリカンドッグ (corn dog), バージョンアップ (update)
-
-2. **Tier 2: Heuristic Detection** (70-80% accuracy)
-   - Pattern matching (e.g., "X-up/down" constructions)
-   - English phrase validation
-   - Flags candidates for human review
-
-3. **Tier 3: Human Review**
-   - Candidates exported to `wasei_candidates_for_review.json`
-   - Human reviewers verify and update database
-   - Continuous improvement of detection rules
-
-**Key Files:**
+**Key files:**
 
 | File | Purpose |
 |------|---------|
-| `scripts/wasei_eigo_database.json` | Permanent confirmed wasei-eigo database |
-| `scripts/detect_wasei_eigo.py` | Detection module (3-tier system) |
-| `scripts/curate_words.py` | Main curation script with wasei detection |
+| `scripts/wasei_eigo_database.json` | Curated database of confirmed wasei-eigo |
+| `scripts/detect_wasei_eigo.py` | Simple database lookup module |
 
-**Example Confirmed Wasei-Eigo:**
+**Example confirmed wasei-eigo:**
 
 - **アメリカンドッグ** (American dog) → corn dog
 - **バージョンアップ** (version up) → update/upgrade
@@ -293,30 +283,23 @@ curate_words.py → words.json
 // Word (from words.json)
 struct Word: Codable, Identifiable {
     let id: String
-    let reading: String
+    let word: String
     let romaji: String
     let meanings: [String]
-    let sourceLanguage: String?
-    let sourceWord: String?
+    let originLanguage: String?
+    let originalWord: String?
     let categories: [String]
     let patterns: [String]
 
-    // Wasei-eigo detection (optional fields)
+    // Wasei-eigo (optional, from curated database)
     let waseiEigo: Bool?
     let waseiInfo: WaseiInfo?
-    let waseiCandidate: Bool?
-    let waseiFlags: [WaseiFlag]?
 }
 
 struct WaseiInfo: Codable {
     let englishEquivalent: String
     let waseiMeaning: String
     let notes: String
-}
-
-struct WaseiFlag: Codable {
-    let type: String
-    let detail: String
 }
 
 // Katakana character (from kana.json)

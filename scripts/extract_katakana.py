@@ -183,10 +183,10 @@ def parse_jmdict(filepath):
 
         word_entry = {
             'id': ent_seq,
-            'reading': reading,
+            'word': reading,
             'meanings': meanings[:5],  # Limit to 5 meanings
-            'sourceLanguage': source_language,
-            'sourceWord': source_word,
+            'originLanguage': source_language,
+            'originalWord': source_word,
             'categories': sorted(categories),
             'patterns': patterns
         }
@@ -216,7 +216,7 @@ def print_stats(words):
     # Source language distribution
     lang_counts = defaultdict(int)
     for word in words:
-        lang = word['sourceLanguage'] or 'unknown'
+        lang = word['originLanguage'] or 'unknown'
         lang_counts[lang] += 1
 
     print("\nTop source languages:")
@@ -226,7 +226,7 @@ def print_stats(words):
     # Word length distribution
     length_counts = defaultdict(int)
     for word in words:
-        length_counts[len(word['reading'])] += 1
+        length_counts[len(word['word'])] += 1
 
     print("\nWord length distribution:")
     for length, count in sorted(length_counts.items()):
@@ -266,11 +266,11 @@ def main():
     # Show a few examples
     print("\n=== Sample entries ===")
     for word in words[:5]:
-        print(f"\n{word['reading']}")
+        print(f"\n{word['word']}")
         print(f"  meanings: {word['meanings'][:2]}")
         print(f"  patterns: {word['patterns']}")
-        if word['sourceLanguage']:
-            print(f"  source: {word['sourceLanguage']} ({word['sourceWord']})")
+        if word['originLanguage']:
+            print(f"  source: {word['originLanguage']} ({word['originalWord']})")
 
 if __name__ == '__main__':
     main()

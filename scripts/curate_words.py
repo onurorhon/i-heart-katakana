@@ -3,20 +3,20 @@
 Curate extracted katakana words into final words.json.
 
 Combines gold set + category-only batch, applies exclusions, infers source languages,
-and detects wasei-eigo (Japanese-coined pseudo-English).
+backfills original words, and detects wasei-eigo.
 
 Usage:
     python curate_words.py
 
 Outputs:
-    ../words.json - Final curated dataset
-    ../words_excluded.json - Excluded entries for future review
-    ../wasei_candidates_for_review.json - Wasei-eigo candidates needing human review
+    ../data/words.json - Final curated dataset
+    ../words_excluded.json - Excluded entries for reference
 """
 
 import json
+import re
 from collections import defaultdict
-from detect_wasei_eigo import detect_wasei_eigo_candidates, format_for_review
+from detect_wasei_eigo import detect_wasei_eigo
 from katakana_to_romaji import katakana_to_romaji
 
 # Exclusion patterns based on curation reports
@@ -25,7 +25,7 @@ EXCLUDE_CATEGORIES = {
     'psychoanalysis',  # Too specialized
 }
 
-EXCLUDE_READINGS = {
+EXCLUDE_WORDS = {
     # League names (proper nouns)
     'アメリカンリーグ', 'ナショナルリーグ', 'イースタンリーグ', 'ウエスタンリーグ',
 
@@ -61,20 +61,21 @@ EXCLUDE_READINGS = {
     'デュナミス', 'エネルゲイア', 'ノマドロジー', 'ヌーメノン', 'アナムネーシス',
 }
 
-# Patterns that suggest English source (for entries missing sourceLanguage)
+# Patterns that suggest English source (for entries missing originLanguage)
 ENGLISH_INDICATORS = {
     # Common English suffixes in katakana
     'ション', 'ティー', 'リー', 'ター', 'ナー', 'カー', 'ング', 'メント',
     'ネス', 'フル', 'レス', 'アブル', 'イブ',
 }
 
+
 def should_exclude(word):
     """Check if word should be excluded."""
-    reading = word['reading']
+    word_text = word['word']
     categories = word.get('categories', [])
 
-    # Exclude by reading
-    if reading in EXCLUDE_READINGS:
+    # Exclude by word
+    if word_text in EXCLUDE_WORDS:
         return True, 'explicit_exclusion'
 
     # Exclude by category
@@ -83,18 +84,18 @@ def should_exclude(word):
             return True, f'category:{cat}'
 
     # Exclude very long words (15+ chars) that are technical
-    if len(reading) >= 15:
+    if len(word_text) >= 15:
         return True, 'too_long'
 
     return False, None
 
-def infer_source_language(word):
-    """Infer source language for entries missing it."""
-    if word.get('sourceLanguage'):
-        return word['sourceLanguage']
 
-    reading = word['reading']
-    meanings = word.get('meanings', [])
+def infer_origin_language(word):
+    """Infer origin language for entries missing it."""
+    if word.get('originLanguage'):
+        return word['originLanguage']
+
+    word_text = word['word']
 
     # Most katakana loanwords in food/sports/music are English
     categories = word.get('categories', [])
@@ -106,15 +107,98 @@ def infer_source_language(word):
 
     # Check for English-like patterns
     for indicator in ENGLISH_INDICATORS:
-        if indicator in reading:
+        if indicator in word_text:
             return 'eng'
 
     # Food category - mostly English but some exceptions
     if 'food, cooking' in categories:
-        # Could be French, Italian, etc. but default to English
         return 'eng'
 
     return None  # Keep as unknown
+
+
+def clean_inferred_original(meaning):
+    """
+    Clean a meaning to extract just the source word.
+
+    JMdict meanings often include parenthetical context like:
+    - "away (game, goal, etc.)" → "away"
+    - "(ship's) anchor" → "anchor"
+    - "Sachertorte (chocolate cake...)" → "Sachertorte"
+
+    Returns cleaned string or None if result seems like a definition.
+    """
+    # Remove all parenthetical content (including leading parentheticals)
+    cleaned = re.sub(r'\s*\([^)]+\)\s*', ' ', meaning)
+
+    # Clean up whitespace
+    cleaned = ' '.join(cleaned.split()).strip()
+
+    # If result is suspiciously long, it's probably a definition
+    # Most source words are under 35 chars (e.g., "Sachertorte", "acqua pazza")
+    if len(cleaned) > 35:
+        return None
+
+    # Flag if contains definition markers (these are descriptions, not source words)
+    definition_markers = [
+        'type of', 'kind of', 'used for', 'consisting of',
+        'made with', 'containing', 'mixture of', 'style of',
+        'form of', 'piece of', 'game of', 'method of'
+    ]
+    if any(marker in cleaned.lower() for marker in definition_markers):
+        return None
+
+    return cleaned if cleaned else None
+
+
+def infer_original_word(word):
+    """
+    Infer originalWord for entries missing it.
+
+    If originalWord is not set, use the first meaning as our best guess.
+    The first meaning in JMdict is typically the source word (for any language).
+
+    Returns the cleaned/inferred value or None.
+    """
+    # Skip if already has originalWord from JMdict
+    if word.get('originalWord'):
+        return None
+
+    meanings = word.get('meanings', [])
+    if not meanings:
+        return None
+
+    # Clean the first meaning to extract just the source word
+    return clean_inferred_original(meanings[0])
+
+
+def build_output_entry(word):
+    """
+    Build the final output entry with proper field ordering.
+
+    Order: id, word, romaji, originalWord, originalWordInferred, originLanguage,
+           meanings, categories, patterns, [wasei_eigo, wasei_info]
+    """
+    entry = {
+        'id': word['id'],
+        'word': word['word'],
+        'romaji': word['romaji'],
+        'originalWord': word.get('originalWord'),
+        'originalWordInferred': word.get('originalWordInferred'),
+        'originLanguage': word.get('originLanguage'),
+        'meanings': word['meanings'],
+        'categories': word['categories'],
+        'patterns': word['patterns'],
+    }
+
+    # Add wasei-eigo fields if present
+    if word.get('wasei_eigo'):
+        entry['wasei_eigo'] = word['wasei_eigo']
+    if word.get('wasei_info'):
+        entry['wasei_info'] = word['wasei_info']
+
+    return entry
+
 
 def main():
     # Load raw data
@@ -124,17 +208,17 @@ def main():
     print(f"Loaded {len(all_words)} total entries")
 
     # Build gold set (category + source)
-    gold = [w for w in all_words if w['categories'] and w['sourceLanguage']]
+    gold = [w for w in all_words if w['categories'] and w['originLanguage']]
     print(f"Gold set: {len(gold)}")
 
-    # Build category-only set (food/sports/music without source)
-    target_cats = {'food, cooking', 'sports', 'music', 'baseball', 'golf',
-                   'skiing', 'boxing', 'professional wrestling', 'figure skating',
-                   'motorsport', 'clothing', 'trademark'}
+    # Build category-only set (categories to include even without originLanguage)
+    # Note: Niche categories (baseball, golf, computing, etc.) come via gold set only
+    target_cats = {'food, cooking', 'sports', 'music', 'clothing', 'trademark',
+                   'business', 'medicine', 'film', 'photography'}
 
     cat_only = [w for w in all_words
                 if w['categories']
-                and not w['sourceLanguage']
+                and not w['originLanguage']
                 and any(cat in target_cats for cat in w['categories'])]
     print(f"Category-only batch: {len(cat_only)}")
 
@@ -145,14 +229,13 @@ def main():
 
     print(f"Combined (deduplicated): {len(combined)}")
 
-    # Apply exclusions, infer source languages, and detect wasei-eigo
+    # Process words
     curated = []
     excluded = []
-    wasei_candidates = []  # For human review
 
-    # Counters for wasei-eigo detection statistics
-    wasei_confirmed_count = 0
-    wasei_candidate_count = 0
+    # Counters
+    wasei_count = 0
+    inferred_count = 0
 
     for word in combined.values():
         exclude, reason = should_exclude(word)
@@ -161,59 +244,50 @@ def main():
             word['exclusion_reason'] = reason
             excluded.append(word)
         else:
-            # Infer source language if missing
-            if not word.get('sourceLanguage'):
-                word['sourceLanguage'] = infer_source_language(word)
+            # Infer origin language if missing
+            if not word.get('originLanguage'):
+                word['originLanguage'] = infer_origin_language(word)
 
-            # Generate romaji from katakana reading
-            word['romaji'] = katakana_to_romaji(word['reading'])
+            # Generate romaji from katakana
+            word['romaji'] = katakana_to_romaji(word['word'])
 
-            # ===================================================================
-            # WASEI-EIGO DETECTION
-            # ===================================================================
-            # Wasei-eigo (和製英語) are Japanese-coined "English" words that
-            # either don't exist in English or have different meanings.
-            # Examples: "salary man", "version up", "American dog"
-            #
-            # We detect these to flag them for learners, since they won't be
-            # understood by English speakers despite being written in katakana.
-            # ===================================================================
+            # Infer originalWord for English entries missing it
+            inferred = infer_original_word(word)
+            if inferred:
+                word['originalWordInferred'] = inferred
+                inferred_count += 1
 
-            wasei_status, wasei_info = detect_wasei_eigo_candidates(word)
-
-            if wasei_status == 'confirmed_wasei_eigo':
-                # This is a known wasei-eigo from our database
-                # Auto-flag it for learners
+            # Check for confirmed wasei-eigo (database lookup only)
+            wasei_info = detect_wasei_eigo(word['word'])
+            if wasei_info:
                 word['wasei_eigo'] = True
                 word['wasei_info'] = wasei_info
-                wasei_confirmed_count += 1
+                wasei_count += 1
 
-            elif wasei_status == 'candidate_wasei_eigo':
-                # This MIGHT be wasei-eigo based on heuristics
-                # Flag for human review
-                word['wasei_candidate'] = True
-                word['wasei_flags'] = wasei_info
-                wasei_candidate_count += 1
-
-                # Add to review queue
-                wasei_candidates.append(format_for_review(word, wasei_info))
-
-            # Add to curated list regardless of wasei-eigo status
-            curated.append(word)
+            # Exclude words without any original word (can't show learners the source)
+            if not word.get('originalWord') and not word.get('originalWordInferred'):
+                word['exclusion_reason'] = 'no_original_word'
+                excluded.append(word)
+            else:
+                curated.append(word)
 
     print(f"\nCurated: {len(curated)}")
     print(f"Excluded: {len(excluded)}")
 
-    # Print wasei-eigo detection statistics
-    print(f"\n=== Wasei-Eigo Detection ===")
-    print(f"Confirmed wasei-eigo: {wasei_confirmed_count}")
-    print(f"Candidates for review: {wasei_candidate_count}")
-    if wasei_candidate_count > 0:
-        print(f"  → See ../wasei_candidates_for_review.json for human review")
+    # Print processing statistics
+    print(f"\n=== Processing Statistics ===")
+    print(f"Wasei-eigo flagged: {wasei_count}")
+    print(f"Original words inferred: {inferred_count}")
 
-    # Sort by reading for consistent output
-    curated.sort(key=lambda w: w['reading'])
-    excluded.sort(key=lambda w: w['reading'])
+    # Count originalWord coverage
+    has_original = sum(1 for w in curated if w.get('originalWord'))
+    has_inferred = sum(1 for w in curated if w.get('originalWordInferred'))
+    print(f"With originalWord (from JMdict): {has_original}")
+    print(f"With originalWordInferred: {has_inferred}")
+
+    # Sort by word for consistent output
+    curated.sort(key=lambda w: w['word'])
+    excluded.sort(key=lambda w: w['word'])
 
     # Print category distribution
     print("\n=== Category Distribution ===")
@@ -226,10 +300,10 @@ def main():
         print(f"  {cat}: {count}")
 
     # Print source language distribution
-    print("\n=== Source Language Distribution ===")
+    print("\n=== Origin Language Distribution ===")
     lang_counts = defaultdict(int)
     for w in curated:
-        lang = w.get('sourceLanguage') or 'unknown'
+        lang = w.get('originLanguage') or 'unknown'
         lang_counts[lang] += 1
 
     for lang, count in sorted(lang_counts.items(), key=lambda x: -x[1])[:10]:
@@ -245,47 +319,33 @@ def main():
     for pattern, count in sorted(pattern_counts.items()):
         print(f"  {pattern}: {count}")
 
+    # Build output with proper field ordering
+    output = [build_output_entry(w) for w in curated]
+
     # Write output files
     with open('../data/words.json', 'w') as f:
-        json.dump(curated, f, ensure_ascii=False, indent=2)
-    print(f"\nWritten {len(curated)} entries to ../data/words.json")
+        json.dump(output, f, ensure_ascii=False, indent=2)
+    print(f"\nWritten {len(output)} entries to ../data/words.json")
 
     with open('../words_excluded.json', 'w') as f:
         json.dump(excluded, f, ensure_ascii=False, indent=2)
     print(f"Written {len(excluded)} excluded entries to ../words_excluded.json")
 
-    # ===================================================================
-    # WASEI-EIGO CANDIDATES FOR REVIEW
-    # ===================================================================
-    # Export wasei-eigo candidates to a review file for human curation.
-    # Human reviewers should:
-    #   1. Review each candidate and its detection flags
-    #   2. Set "decision" to: "confirmed", "rejected", or "uncertain"
-    #   3. Add any notes about why it is/isn't wasei-eigo
-    #   4. Feed confirmed decisions back into wasei_eigo_database.json
-    # ===================================================================
-    if wasei_candidates:
-        # Sort candidates by flag count (most suspicious first)
-        wasei_candidates.sort(key=lambda c: c['flagCount'], reverse=True)
-
-        with open('../wasei_candidates_for_review.json', 'w') as f:
-            json.dump(wasei_candidates, f, ensure_ascii=False, indent=2)
-        print(f"Written {len(wasei_candidates)} wasei-eigo candidates to ../wasei_candidates_for_review.json")
-
     # Show some samples
     print("\n=== Sample Curated Entries ===")
-    for w in curated[:5]:
-        print(f"{w['reading']} ({w.get('sourceLanguage', '?')}) → {w['meanings'][0]} [{', '.join(w['categories'])}]")
+    for w in output[:5]:
+        orig = w.get('originalWord') or '?'
+        print(f"{w['word']} ({orig}) → {w['meanings'][0]}")
 
-    # Show confirmed wasei-eigo samples
-    if wasei_confirmed_count > 0:
-        print("\n=== Confirmed Wasei-Eigo (auto-flagged) ===")
-        wasei_confirmed = [w for w in curated if w.get('wasei_eigo')]
-        for w in wasei_confirmed[:5]:
-            wasei_note = w.get('wasei_info', {}).get('notes', '')
-            print(f"{w['reading']} → {w['meanings'][0]}")
-            if wasei_note:
-                print(f"  Note: {wasei_note}")
+    # Show wasei-eigo samples
+    if wasei_count > 0:
+        print("\n=== Wasei-Eigo Entries ===")
+        wasei_entries = [w for w in output if w.get('wasei_eigo')]
+        for w in wasei_entries[:5]:
+            print(f"{w['word']} → {w['meanings'][0]}")
+            if w.get('wasei_info', {}).get('notes'):
+                print(f"  Note: {w['wasei_info']['notes']}")
+
 
 if __name__ == '__main__':
     main()

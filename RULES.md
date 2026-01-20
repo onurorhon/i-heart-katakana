@@ -6,7 +6,7 @@
 - **Never commit credentials** – API keys, tokens go in environment variables
 - **Never edit bundled JSON for content updates** – Update source repo instead
 - **Never skip Xcode Preview testing** – Verify changes render correctly
-- **Never add co-authored-by messages** – Keep commit messages clean. No 🤖 Generated with messages.
+- **Never include "Generated with Claude Code" or similar AI disclaimers** – Keep commit messages clean. No 🤖 Generated with messages.
 
 ## Always
 
