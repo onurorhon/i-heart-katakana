@@ -39,7 +39,7 @@ Evaluate rendering concerns:
 
 - **Extended katakana:** Does the word use ティ, ファ, ヴ, etc. that need font coverage verification?
 - **Character combinations:** Any problematic sequences for certain typefaces?
-- **Length:** Does word length work for quiz display? Flag unusually long entries.
+- **Length:** Does word length work for practice display? Flag unusually long entries.
 - **Ambiguous characters:** シ/ツ, ソ/ン distinctions that might cause learner confusion (note as learning opportunity, not exclusion).
 
 ## Output Format

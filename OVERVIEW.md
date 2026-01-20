@@ -80,7 +80,7 @@ This is a free, non-profit iOS app developed independently.
 
 ### 4.1 Practice Experience
 
-Self-assessment quiz for recognising katakana characters and words. Users see content, attempt to read it, reveal the answer, and optionally mark their response.
+Self-assessment practice for recognising katakana characters and words. Users see content, attempt to read it, reveal the answer, and optionally mark their response.
 
 ### 4.2 Likes
 

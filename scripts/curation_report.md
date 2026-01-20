@@ -144,7 +144,7 @@ Many of the 228 music entries are Italian tempo/expression markings suitable onl
 
 ### C. Very Long Words (Display Concerns)
 
-Words over 12 characters may have display/quiz interface issues:
+Words over 12 characters may have display/practice interface issues:
 
 | Reading | Length | Meaning | Recommendation |
 |---------|--------|---------|----------------|
@@ -162,7 +162,7 @@ Words over 12 characters may have display/quiz interface issues:
 | ルンペンプロレタリアート | 13 | lumpenproletariat | EXCLUDE - Specialized political science |
 | コミュニケーションコスト | 13 | communication cost | REVIEW - Business jargon |
 
-**Display Recommendation:** Test these in the quiz interface. If they don't fit well, consider excluding the most specialized ones.
+**Display Recommendation:** Test these in the practice interface. If they don't fit well, consider excluding the most specialized ones.
 
 ---
 
@@ -361,7 +361,7 @@ To balance the dataset for intermediate learners, prioritize adding:
 
 2. **Technical testing required for:**
    - Extended katakana font rendering
-   - Long word display in quiz interface
+   - Long word display in practice interface
    - Mobile display of 12+ character words
 
 3. **Pedagogical review:**

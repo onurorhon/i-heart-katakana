@@ -72,6 +72,6 @@ git push origin main
 
 ## Commit Message Guidelines
 
-- Be descriptive: "Add quiz view with word display" not "update."
+- Be descriptive: "Add practice view with word display" not "update."
 - Reference what changed: "Fix TTS not playing on reveal."
 - No AI disclaimers: Never include "Generated with Claude" or similar.

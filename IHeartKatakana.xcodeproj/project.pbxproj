@@ -425,6 +425,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/IHeartKatakana/Models";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onurorhon.IHeartKatakana;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -460,6 +461,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/IHeartKatakana/Models";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onurorhon.IHeartKatakana;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -482,6 +484,7 @@
 				DEVELOPMENT_TEAM = U39XCRLW64;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/IHeartKatakana/Models";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onurorhon.IHeartKatakanaTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -504,6 +507,7 @@
 				DEVELOPMENT_TEAM = U39XCRLW64;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/IHeartKatakana/Models";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onurorhon.IHeartKatakanaTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -524,6 +528,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U39XCRLW64;
 				GENERATE_INFOPLIST_FILE = YES;
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/IHeartKatakana/Models";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onurorhon.IHeartKatakanaUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -544,6 +549,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = U39XCRLW64;
 				GENERATE_INFOPLIST_FILE = YES;
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/IHeartKatakana/Models";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onurorhon.IHeartKatakanaUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -49,8 +49,8 @@ i-heart-katakana/
 ├── IHeartKatakanaTests/
 ├── IHeartKatakanaUITests/
 ├── data/
-│   ├── words.json              # Curated word database
-│   └── characters.json           # Katakana character reference
+│   ├── words.json              # Curated word database (UI label: "Word")
+│   └── kana.json                 # Katakana character reference (UI label: "Kana")
 ├── scripts/                    # Python curation pipeline
 │   ├── extract_katakana.py
 │   ├── curate_words.py
@@ -72,9 +72,9 @@ i-heart-katakana-assets/
 Build core functionality using SwiftUI defaults. No custom styling – generic iOS appearance. Focus on architecture and behavior.
 
 **In scope:**
-- Core quiz flow (display word, reveal answer, navigate).
+- Core practice flow (display word, reveal answer, navigate).
 - Likes (save, filter, iCloud sync).
-- Theme system architecture (switching, persistence) – placeholder values.
+- ColorTheme system architecture (switching, persistence) – placeholder values.
 - Font system architecture (loading, switching) – system font initially.
 - Categories and filtering.
 - TTS playback.
@@ -119,7 +119,7 @@ Layer design on top of the working prototype.
 │           │                                             │
 │           ▼                                             │
 │  ┌───────────────────────────────────────┐             │
-│  │            Quiz View                  │             │
+│  │            Practice View                  │             │
 │  │   (displays words, themes, fonts)     │             │
 │  └───────────────────────────────────────┘             │
 │                                                         │
@@ -186,7 +186,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | `wasei_candidate` | boolean | **Optional.** True if this word is flagged as a potential wasei-eigo that needs human verification. |
 | `wasei_flags` | array | **Optional.** Present when `wasei_candidate: true`. List of detection flags explaining why it was flagged. |
 
-### characters.json
+### kana.json
 
 Reference data for individual katakana characters.
 
@@ -315,7 +315,7 @@ struct WaseiFlag: Codable {
     let detail: String
 }
 
-// Katakana character (from characters.json)
+// Katakana character (from kana.json)
 struct Katakana: Codable, Identifiable {
     var id: String { character }
     let character: String
@@ -323,17 +323,21 @@ struct Katakana: Codable, Identifiable {
     let pattern: String
 }
 
-// Theme (architecture only – values TBD in Phase 2)
-struct Theme: Identifiable {
+// ColorTheme (architecture only – values TBD in Phase 2)
+// Each theme defines both light and dark mode colors
+struct ColorTheme: Identifiable {
     let id: String
     let name: String
-    let backgroundColor: Color
-    let textColor: Color
-    let accentColor: Color
+    let backgroundColorLight: Color
+    let textColorLight: Color
+    let accentColorLight: Color
+    let backgroundColorDark: Color
+    let textColorDark: Color
+    let accentColorDark: Color
 }
 
 // Font (architecture only – values TBD in Phase 2)
-struct AppFont: Identifiable {
+struct PracticeFont: Identifiable {
     let id: String
     let name: String
     let displayName: String
@@ -352,7 +356,7 @@ class LikedWord {
 
 @Model
 class UserPreferences {
-    var selectedThemeId: String
+    var selectedColorThemeId: String
     var selectedFontId: String
 }
 ```
@@ -367,7 +371,7 @@ TelemetryDeck integration for privacy-focused usage tracking.
 Events to track (TBD during implementation):
 - Category viewed
 - Word liked/unliked
-- Theme changed
+- ColorTheme changed
 - Font changed
 - TTS played
 
@@ -376,12 +380,12 @@ Events to track (TBD during implementation):
 ### Next: Phase 1 Build
 
 Build functional prototype with SwiftUI defaults:
-- Data models (Word, Theme, AppFont).
+- Data models (Word, ColorTheme, PracticeFont).
 - Remote JSON fetching with bundled fallback.
-- Basic quiz view (display word, reveal answer).
+- Basic practice view (display word, reveal answer).
 - Likes (SwiftData + iCloud sync).
 - Categories and filtering.
-- Theme/font switching (architecture only, placeholder values).
+- ColorTheme/font switching (architecture only, placeholder values).
 - TTS playback.
 - TelemetryDeck integration.
 
@@ -417,5 +421,5 @@ Build functional prototype with SwiftUI defaults:
 Content is currently bundled with the app. Future versions may fetch updates from a remote source to enable content updates without App Store releases:
 - Word database updates
 - Font metadata
-- Theme definitions
+- ColorTheme definitions
 - Feature flags

@@ -1,7 +1,7 @@
 Data License
 ============
 
-The word data in this project (`data/words.json`, `data/characters.json`) is derived
+The word data in this project (`data/words.json`, `data/kana.json`) is derived
 from JMdict, a free Japanese-English dictionary project.
 
 JMdict License

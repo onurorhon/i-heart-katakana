@@ -63,6 +63,6 @@ IHeartKatakana/
 
 ### Naming
 
-- Views: `[Name]View.swift` (e.g., `QuizView.swift`)
+- Views: `[Name]View.swift` (e.g., `PracticeView.swift`)
 - Models: `[Name].swift` (e.g., `Word.swift`)
 - Services: `[Name]Service.swift` (e.g., `ContentService.swift`)

@@ -357,7 +357,7 @@ Examples:
 - グレコローマンスタイル (12 chars)
 - アベレージゴルファー (10 chars)
 
-**Recommendation:** Test these in quiz UI. Consider excluding 11+ character compounds.
+**Recommendation:** Test these in practice UI. Consider excluding 11+ character compounds.
 
 ---
 
@@ -548,7 +548,7 @@ Format: [ID1] Term1 vs [ID2] Term2
 ### Technical Tasks
 1. Batch add `sourceLanguage: "eng"` to ~1,150 entries
 2. Verify extended katakana font support (95 entries affected)
-3. Test long-word display in quiz UI (15 entries 10+ chars)
+3. Test long-word display in practice UI (15 entries 10+ chars)
 
 ---
 
