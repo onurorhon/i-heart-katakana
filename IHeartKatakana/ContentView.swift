@@ -10,8 +10,8 @@ enum ActiveMenu {
 struct ContentView: View {
     @State private var activeMenu: ActiveMenu = .none
     @State private var settings = PracticeSettings()
-    @State private var isPracticing = false
     @State private var contentService = ContentService()
+    @State private var refreshTrigger = 0
 
     var body: some View {
         ZStack {
@@ -45,17 +45,13 @@ struct ContentView: View {
 
                 Spacer()
 
-                // Center content
-                if isPracticing {
-                    PracticeView(
-                        settings: settings,
-                        contentService: contentService,
-                        onExit: { isPracticing = false }
-                    )
-                } else {
-                    Text("I❤️Katakana")
-                        .font(.largeTitle)
-                }
+                // Always show practice view
+                PracticeView(
+                    settings: settings,
+                    contentService: contentService,
+                    onExit: {}
+                )
+                .id(refreshTrigger) // Force refresh when trigger changes
 
                 Spacer()
             }
@@ -66,9 +62,7 @@ struct ContentView: View {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation {
-                            activeMenu = .none
-                        }
+                        closeMenu()
                     }
 
                 // Menu positioning
@@ -77,12 +71,7 @@ struct ContentView: View {
                         if activeMenu == .actions {
                             ActionsMenu(
                                 settings: settings,
-                                onClose: { withAnimation { activeMenu = .none } },
-                                onStart: {
-                                    withAnimation { activeMenu = .none }
-                                    contentService.load()
-                                    isPracticing = true
-                                },
+                                onClose: { closeMenu() },
                                 onCategoryTap: {
                                     // TODO: Show category submenu
                                 }
@@ -93,7 +82,8 @@ struct ContentView: View {
                         if activeMenu == .hamburger {
                             Spacer()
                             HamburgerMenu(
-                                onClose: { withAnimation { activeMenu = .none } },
+                                settings: settings,
+                                onClose: { closeMenu() },
                                 onItemTap: { item in
                                     // TODO: Handle menu item taps
                                     print("Tapped: \(item)")
@@ -108,6 +98,19 @@ struct ContentView: View {
                 }
             }
         }
+        .onAppear {
+            contentService.load()
+        }
+    }
+
+    // MARK: - Menu Actions
+
+    private func closeMenu() {
+        withAnimation {
+            activeMenu = .none
+        }
+        // Trigger practice view refresh after menu closes
+        refreshTrigger += 1
     }
 }
 

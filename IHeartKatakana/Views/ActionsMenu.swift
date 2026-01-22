@@ -3,7 +3,6 @@ import SwiftUI
 struct ActionsMenu: View {
     @Bindable var settings: PracticeSettings
     let onClose: () -> Void
-    let onStart: () -> Void
     let onCategoryTap: () -> Void
 
     var body: some View {
@@ -39,18 +38,6 @@ struct ActionsMenu: View {
                     }
                     .padding(.top, 8)
                 }
-
-                // Start button
-                Button(action: onStart) {
-                    Text("Start · スタート")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding(.top, 16)
             }
         }
     }
@@ -60,7 +47,6 @@ struct ActionsMenu: View {
     ActionsMenu(
         settings: PracticeSettings(),
         onClose: {},
-        onStart: {},
         onCategoryTap: {}
     )
 }

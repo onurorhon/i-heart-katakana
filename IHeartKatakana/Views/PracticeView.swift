@@ -5,108 +5,281 @@ struct PracticeView: View {
     let contentService: ContentService
     let onExit: () -> Void
 
-    @State private var currentIndex = 0
     @State private var isAnswerRevealed = false
 
+    // History-based navigation (random order, unlimited back)
+    @State private var history: [Int] = []
+    @State private var currentPage: Int? = 0
+    @State private var pendingNextIndex: Int? = nil
+
+    // Cached filter criteria - only updates on refresh
+    @State private var activeContentType: PracticeSettings.ContentType = .word
+    @State private var activePatterns: [String] = ["gojuon"]
+    @State private var activePeekHintType: PracticeSettings.PeekHintType = .romaji
+
+    // Pull to peek state
+    @State private var peekDragOffset: CGFloat = 0
+    @State private var isPeeking = false
+
+    private let peekThreshold: CGFloat = 100
+
     var body: some View {
-        VStack(spacing: 32) {
-            // Current item display
-            if let currentItem = currentItem {
-                VStack(spacing: 16) {
-                    // Question (the katakana)
-                    Text(currentItem.question)
-                        .font(.system(size: 72))
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
 
-                    // Answer (revealed on tap)
-                    if isAnswerRevealed {
-                        Text(currentItem.answer)
-                            .font(.title)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("Tap to reveal")
-                            .font(.title3)
-                            .foregroundColor(.secondary)
+            VStack(spacing: 32) {
+                // Paging ScrollView carousel
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 0) {
+                        ForEach(0..<pageCount, id: \.self) { pageIndex in
+                            cardView(for: itemForPage(pageIndex))
+                                .frame(width: screenWidth)
+                                .id(pageIndex)
+                        }
                     }
+                    .scrollTargetLayout()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .contentShape(Rectangle())
+                .scrollTargetBehavior(.paging)
+                .scrollPosition(id: $currentPage)
+                .frame(maxHeight: .infinity)
                 .onTapGesture {
-                    if isAnswerRevealed {
-                        nextItem()
-                    } else {
-                        isAnswerRevealed = true
+                    isAnswerRevealed.toggle()
+                }
+                .onChange(of: currentPage) { oldValue, newValue in
+                    if let newValue = newValue {
+                        handlePageChange(from: oldValue ?? 0, to: newValue)
                     }
                 }
-            } else {
-                Text("No content available")
+
+                // Progress indicator
+                Text("\((currentPage ?? 0) + 1) seen")
                     .foregroundColor(.secondary)
-            }
-
-            // Navigation
-            HStack(spacing: 32) {
-                Button("Previous") {
-                    previousItem()
-                }
-                .disabled(currentIndex == 0)
-
-                Text("\(currentIndex + 1) / \(totalItems)")
-                    .foregroundColor(.secondary)
-
-                Button("Next") {
-                    nextItem()
-                }
-                .disabled(currentIndex >= totalItems - 1)
+                    .padding(.bottom)
             }
         }
-        .padding()
+        .onAppear {
+            refreshFromSettings()
+        }
+        .gesture(peekGesture)
     }
 
-    // MARK: - Computed Properties
+    // MARK: - Page Management
+
+    private var pageCount: Int {
+        // Always have one more page available for "next"
+        max(history.count + 1, 1)
+    }
+
+    private func itemForPage(_ page: Int) -> (question: String, answer: String)? {
+        if page < history.count {
+            return itemAt(index: history[page])
+        }
+        // This is the "next" page - use pre-generated pending index
+        if page == history.count, let pending = pendingNextIndex {
+            return itemAt(index: pending)
+        }
+        return nil
+    }
+
+    private func handlePageChange(from oldValue: Int, to newValue: Int) {
+        isAnswerRevealed = false
+
+        // If swiped forward past current history, commit pending and generate new
+        if newValue >= history.count, let pending = pendingNextIndex {
+            history.append(pending)
+            generatePendingNext()
+        }
+    }
+
+    private func generatePendingNext() {
+        guard totalItems > 0 else {
+            pendingNextIndex = nil
+            return
+        }
+        pendingNextIndex = Int.random(in: 0..<totalItems)
+    }
+
+    // MARK: - Card View
+
+    @ViewBuilder
+    private func cardView(for item: (question: String, answer: String)?) -> some View {
+        if let item = item {
+            VStack(spacing: 16) {
+                // Peek hint area (words only)
+                if activeContentType == .word {
+                    peekHintView
+                }
+
+                // Question (the katakana)
+                Text(item.question)
+                    .font(.system(size: 72))
+
+                // Answer
+                Text(item.answer)
+                    .font(.title)
+                    .foregroundColor(.secondary)
+                    .opacity(isAnswerRevealed ? 1 : 0)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            Color.clear
+        }
+    }
+
+    // MARK: - Peek Gesture
+
+    private var peekGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                let vertical = value.translation.height
+                if vertical > 0 && activeContentType == .word {
+                    isPeeking = true
+                    peekDragOffset = vertical
+                }
+            }
+            .onEnded { _ in
+                if isPeeking {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        peekDragOffset = 0
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        isPeeking = false
+                    }
+                }
+            }
+    }
+
+    // MARK: - Refresh
+
+    func refreshFromSettings() {
+        let oldContentType = activeContentType
+        let oldPatterns = activePatterns
+
+        activeContentType = settings.contentType
+        activePatterns = settings.enabledPatterns
+        activePeekHintType = settings.peekHintType
+
+        if oldContentType != activeContentType || oldPatterns != activePatterns || history.isEmpty {
+            resetHistory()
+        }
+    }
+
+    private func resetHistory() {
+        history = []
+        pendingNextIndex = nil
+        isAnswerRevealed = false
+
+        // Start with first random item
+        guard totalItems > 0 else { return }
+        let firstIndex = Int.random(in: 0..<totalItems)
+        history.append(firstIndex)
+        currentPage = 0
+        generatePendingNext()
+    }
+
+    // MARK: - Peek Hint View
+
+    @ViewBuilder
+    private var peekHintView: some View {
+        let hintText = currentPeekHint ?? "—"
+        let revealProgress = min(1.0, max(0.0, peekDragOffset / peekThreshold))
+        let promptOpacity = max(0.0, 1.0 - (revealProgress * 4.0))
+
+        ZStack {
+            Text("Pull down to peek")
+                .font(.title2)
+                .foregroundColor(.secondary)
+                .opacity(promptOpacity)
+
+            LetterRevealText(text: hintText, revealProgress: revealProgress)
+                .font(.title2)
+                .foregroundColor(.secondary)
+        }
+        .frame(height: 34)
+    }
+
+    private var currentPeekHint: String? {
+        guard activeContentType == .word,
+              let page = currentPage,
+              page >= 0,
+              page < history.count else { return nil }
+
+        let index = history[page]
+        guard index < filteredWords.count else { return nil }
+        let word = filteredWords[index]
+
+        switch activePeekHintType {
+        case .romaji:
+            return word.romaji
+        case .originalWord:
+            return word.originalWord ?? word.originalWordInferred
+        }
+    }
+
+    // MARK: - Data
+
+    private func itemAt(index: Int) -> (question: String, answer: String)? {
+        switch activeContentType {
+        case .word:
+            guard index < filteredWords.count else { return nil }
+            let word = filteredWords[index]
+            return (word.word, word.meanings.joined(separator: ", "))
+        case .kana:
+            guard index < filteredKana.count else { return nil }
+            let kana = filteredKana[index]
+            return (kana.kana, kana.romaji)
+        }
+    }
 
     private var filteredWords: [Word] {
-        let enabledSet = Set(settings.enabledPatterns)
+        let enabledSet = Set(activePatterns)
         return contentService.words.filter { word in
-            // Show words that contain ANY of the enabled patterns
             !Set(word.patterns).isDisjoint(with: enabledSet)
         }
     }
 
     private var filteredKana: [Kana] {
         contentService.kana.filter { kana in
-            settings.enabledPatterns.contains(kana.pattern)
+            activePatterns.contains(kana.pattern)
         }
     }
 
     private var totalItems: Int {
-        settings.contentType == .word ? filteredWords.count : filteredKana.count
+        activeContentType == .word ? filteredWords.count : filteredKana.count
     }
+}
 
-    private var currentItem: (question: String, answer: String)? {
-        switch settings.contentType {
-        case .word:
-            guard currentIndex < filteredWords.count else { return nil }
-            let word = filteredWords[currentIndex]
-            return (word.word, word.meanings.joined(separator: ", "))
-        case .kana:
-            guard currentIndex < filteredKana.count else { return nil }
-            let kana = filteredKana[currentIndex]
-            return (kana.kana, kana.romaji)
+// MARK: - Letter Reveal Text
+
+struct LetterRevealText: View {
+    let text: String
+    let revealProgress: Double
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(text.enumerated()), id: \.offset) { index, character in
+                Text(String(character))
+                    .opacity(characterOpacity(at: index))
+            }
         }
     }
 
-    // MARK: - Actions
+    private func characterOpacity(at index: Int) -> Double {
+        let charCount = Double(text.count)
+        guard charCount > 0 else { return 0 }
 
-    private func nextItem() {
-        if currentIndex < totalItems - 1 {
-            currentIndex += 1
-            isAnswerRevealed = false
-        }
-    }
+        let charPosition = Double(index) / charCount
+        let revealWindow = 0.3
 
-    private func previousItem() {
-        if currentIndex > 0 {
-            currentIndex -= 1
-            isAnswerRevealed = false
+        let startReveal = charPosition * (1.0 - revealWindow)
+        let endReveal = startReveal + revealWindow
+
+        if revealProgress <= startReveal {
+            return 0
+        } else if revealProgress >= endReveal {
+            return 1
+        } else {
+            return (revealProgress - startReveal) / revealWindow
         }
     }
 }
