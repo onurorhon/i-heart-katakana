@@ -151,6 +151,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
   "originLanguage": "eng",
   "meanings": ["coffee"],
   "categories": ["food"],
+  "parentCategory": "Everyday Life",
   "patterns": ["gojuon"]
 }
 ```
@@ -200,7 +201,8 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | `originalWordInferred` | string? | Inferred original word (cleaned first meaning). Present when `originalWord` is null. |
 | `originLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
 | `meanings` | string[] | English translations. |
-| `categories` | string[] | Semantic categories (food, technology, places, etc.). |
+| `categories` | string[] | Fine-grained semantic categories from JMdict. |
+| `parentCategory` | string | Broad category for UI filtering (Everyday Life, Sports & Recreation, Arts & Entertainment, Health & Medicine, Technology, Academic & Humanities, Business & Finance, Science & Nature, Military & Aviation). |
 | `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojuon, dakuon, and youon). |
 | `wasei_eigo` | boolean | **Optional.** True if this is a confirmed wasei-eigo (和製英語) - Japanese-coined pseudo-English that differs from actual English. |
 | `wasei_info` | object | **Optional.** Present when `wasei_eigo: true`. Contains `english_equivalent` (what English speakers actually say), `wasei_meaning` (the Japanese construction), and `notes` (explanation). |
@@ -293,7 +295,17 @@ curate_words.py → words.json
 
 ## Component Architecture
 
-*This section will expand as components are built during Phase 1.*
+### Menu System
+
+Menus use a **floating card pattern** inspired by Apple TV. Each control group is a separate card with `.regularMaterial` background, stacked vertically with gaps between them so the practice content remains visible behind. This avoids a heavy modal feel.
+
+**Components:**
+- `FloatingCard` – Wraps content with padding, material background, and rounded corners
+- `FloatingCloseButton` / `FloatingBackButton` – Circular material buttons for navigation
+- `ActionsMenu` – Left menu with Word/Kana toggle, Level filters, Category submenu
+- `HamburgerMenu` – Right menu with Pull to Peek submenu, Font, Colors, About
+
+**Submenu pattern:** Menus with submenus (Category, Pull to Peek) use internal `@State` to swap between main menu and submenu views, keeping both within the same floating card container.
 
 ### Data Models
 
@@ -308,6 +320,7 @@ struct Word: Codable, Identifiable {
     let originLanguage: String?
     let meanings: [String]
     let categories: [String]
+    let parentCategory: String          // Broad category for UI filtering
     let patterns: [String]
 
     // Wasei-eigo (optional, from curated database)
