@@ -8,6 +8,8 @@ class ContentService {
     private(set) var loadError: Error?
 
     func load() {
+        guard !isLoaded else { return }
+
         do {
             words = try loadBundledJSON("words")
             kana = try loadBundledJSON("kana")

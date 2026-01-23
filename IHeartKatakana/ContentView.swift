@@ -11,7 +11,12 @@ struct ContentView: View {
     @State private var activeMenu: ActiveMenu = .none
     @State private var settings = PracticeSettings()
     @State private var contentService = ContentService()
-    @State private var refreshTrigger = 0
+    @State private var settingsVersion = 0
+
+    // Snapshot of settings when menu opens (to detect changes)
+    @State private var snapshotContentType: PracticeSettings.ContentType = .word
+    @State private var snapshotPatterns: [String] = []
+    @State private var snapshotPeekHintType: PracticeSettings.PeekHintType = .romaji
 
     var body: some View {
         ZStack {
@@ -21,8 +26,10 @@ struct ContentView: View {
                 HStack {
                     // Actions menu trigger (top left)
                     Button {
-                        withAnimation {
-                            activeMenu = activeMenu == .actions ? .none : .actions
+                        if activeMenu == .actions {
+                            closeMenu()
+                        } else {
+                            openMenu(.actions)
                         }
                     } label: {
                         Image(systemName: "bolt.fill")
@@ -33,8 +40,10 @@ struct ContentView: View {
 
                     // Hamburger menu trigger (top right)
                     Button {
-                        withAnimation {
-                            activeMenu = activeMenu == .hamburger ? .none : .hamburger
+                        if activeMenu == .hamburger {
+                            closeMenu()
+                        } else {
+                            openMenu(.hamburger)
                         }
                     } label: {
                         Image(systemName: "line.3.horizontal")
@@ -49,9 +58,9 @@ struct ContentView: View {
                 PracticeView(
                     settings: settings,
                     contentService: contentService,
+                    settingsVersion: settingsVersion,
                     onExit: {}
                 )
-                .id(refreshTrigger) // Force refresh when trigger changes
 
                 Spacer()
             }
@@ -105,12 +114,30 @@ struct ContentView: View {
 
     // MARK: - Menu Actions
 
+    private func openMenu(_ menu: ActiveMenu) {
+        // Snapshot current settings before opening menu
+        snapshotContentType = settings.contentType
+        snapshotPatterns = settings.enabledPatterns
+        snapshotPeekHintType = settings.peekHintType
+
+        withAnimation {
+            activeMenu = menu
+        }
+    }
+
     private func closeMenu() {
         withAnimation {
             activeMenu = .none
         }
-        // Trigger practice view refresh after menu closes
-        refreshTrigger += 1
+
+        // Check if settings changed while menu was open
+        let settingsChanged = settings.contentType != snapshotContentType
+            || settings.enabledPatterns != snapshotPatterns
+            || settings.peekHintType != snapshotPeekHintType
+
+        if settingsChanged {
+            settingsVersion += 1
+        }
     }
 }
 

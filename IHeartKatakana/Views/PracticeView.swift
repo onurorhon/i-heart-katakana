@@ -3,6 +3,7 @@ import SwiftUI
 struct PracticeView: View {
     let settings: PracticeSettings
     let contentService: ContentService
+    let settingsVersion: Int
     let onExit: () -> Void
 
     @State private var isAnswerRevealed = false
@@ -16,6 +17,10 @@ struct PracticeView: View {
     @State private var activeContentType: PracticeSettings.ContentType = .word
     @State private var activePatterns: [String] = ["gojuon"]
     @State private var activePeekHintType: PracticeSettings.PeekHintType = .romaji
+
+    // Cached filtered content - avoids recomputing on every access
+    @State private var cachedFilteredWords: [Word] = []
+    @State private var cachedFilteredKana: [Kana] = []
 
     // Pull to peek state
     @State private var peekDragOffset: CGFloat = 0
@@ -60,7 +65,10 @@ struct PracticeView: View {
         .onAppear {
             refreshFromSettings()
         }
-        .gesture(peekGesture)
+        .onChange(of: settingsVersion) { _, _ in
+            refreshFromSettings()
+        }
+        .simultaneousGesture(peekGesture)
     }
 
     // MARK: - Page Management
@@ -159,8 +167,20 @@ struct PracticeView: View {
         activePatterns = settings.enabledPatterns
         activePeekHintType = settings.peekHintType
 
+        // Rebuild filtered caches when criteria change
         if oldContentType != activeContentType || oldPatterns != activePatterns || history.isEmpty {
+            rebuildFilteredCache()
             resetHistory()
+        }
+    }
+
+    private func rebuildFilteredCache() {
+        let enabledSet = Set(activePatterns)
+        cachedFilteredWords = contentService.words.filter { word in
+            word.patterns.contains { enabledSet.contains($0) }
+        }
+        cachedFilteredKana = contentService.kana.filter { kana in
+            enabledSet.contains(kana.pattern)
         }
     }
 
@@ -232,20 +252,15 @@ struct PracticeView: View {
     }
 
     private var filteredWords: [Word] {
-        let enabledSet = Set(activePatterns)
-        return contentService.words.filter { word in
-            !Set(word.patterns).isDisjoint(with: enabledSet)
-        }
+        cachedFilteredWords
     }
 
     private var filteredKana: [Kana] {
-        contentService.kana.filter { kana in
-            activePatterns.contains(kana.pattern)
-        }
+        cachedFilteredKana
     }
 
     private var totalItems: Int {
-        activeContentType == .word ? filteredWords.count : filteredKana.count
+        activeContentType == .word ? cachedFilteredWords.count : cachedFilteredKana.count
     }
 }
 
@@ -288,6 +303,7 @@ struct LetterRevealText: View {
     PracticeView(
         settings: PracticeSettings(),
         contentService: ContentService(),
+        settingsVersion: 0,
         onExit: {}
     )
 }

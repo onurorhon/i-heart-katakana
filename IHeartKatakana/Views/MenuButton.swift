@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct MenuButton: View {
     let label: String
@@ -10,7 +9,7 @@ struct MenuButton: View {
             Text(label)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color(uiColor: .systemGray5))
+                .background(Color(.systemGray5))
                 .cornerRadius(8)
         }
         .buttonStyle(.plain)
@@ -24,7 +23,7 @@ struct MenuToggle: View {
     var body: some View {
         Toggle(label, isOn: $isOn)
             .padding()
-            .background(Color(uiColor: .systemGray5))
+            .background(Color(.systemGray5))
             .cornerRadius(8)
     }
 }
@@ -41,7 +40,7 @@ struct MenuSegmentedToggle: View {
         }
         .pickerStyle(.segmented)
         .padding()
-        .background(Color(uiColor: .systemGray5))
+        .background(Color(.systemGray5))
         .cornerRadius(8)
     }
 }

@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct MenuContainer<Content: View>: View {
     let alignment: HorizontalAlignment
@@ -44,8 +43,10 @@ struct MenuContainer<Content: View>: View {
             content()
         }
         .padding()
-        .frame(width: UIScreen.main.bounds.width * 0.67)
-        .background(Color(uiColor: .systemBackground))
+        .containerRelativeFrame(.horizontal) { width, _ in
+            width * 0.67
+        }
+        .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(radius: 8)
     }
