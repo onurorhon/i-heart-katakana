@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var snapshotContentType: PracticeSettings.ContentType = .word
     @State private var snapshotPatterns: [String] = []
     @State private var snapshotPeekHintType: PracticeSettings.PeekHintType = .romaji
+    @State private var snapshotSelectedCategory: String? = nil
 
     var body: some View {
         ZStack {
@@ -80,10 +81,8 @@ struct ContentView: View {
                         if activeMenu == .actions {
                             ActionsMenu(
                                 settings: settings,
-                                onClose: { closeMenu() },
-                                onCategoryTap: {
-                                    // TODO: Show category submenu
-                                }
+                                availableCategories: contentService.availableParentCategories,
+                                onClose: { closeMenu() }
                             )
                             Spacer()
                         }
@@ -119,6 +118,7 @@ struct ContentView: View {
         snapshotContentType = settings.contentType
         snapshotPatterns = settings.enabledPatterns
         snapshotPeekHintType = settings.peekHintType
+        snapshotSelectedCategory = settings.selectedCategory
 
         withAnimation {
             activeMenu = menu
@@ -134,6 +134,7 @@ struct ContentView: View {
         let settingsChanged = settings.contentType != snapshotContentType
             || settings.enabledPatterns != snapshotPatterns
             || settings.peekHintType != snapshotPeekHintType
+            || settings.selectedCategory != snapshotSelectedCategory
 
         if settingsChanged {
             settingsVersion += 1

@@ -68,6 +68,106 @@ ENGLISH_INDICATORS = {
     'ネス', 'フル', 'レス', 'アブル', 'イブ',
 }
 
+# Parent category mapping: fine-grained → broad category
+PARENT_CATEGORY_MAP = {
+    # Everyday Life
+    'food, cooking': 'Everyday Life',
+    'clothing': 'Everyday Life',
+    'trademark': 'Everyday Life',
+
+    # Sports & Recreation
+    'sports': 'Sports & Recreation',
+    'baseball': 'Sports & Recreation',
+    'golf': 'Sports & Recreation',
+    'boxing': 'Sports & Recreation',
+    'skiing': 'Sports & Recreation',
+    'martial arts': 'Sports & Recreation',
+    'professional wrestling': 'Sports & Recreation',
+    'card games': 'Sports & Recreation',
+    'mahjong': 'Sports & Recreation',
+    'hanafuda': 'Sports & Recreation',
+    'motorsport': 'Sports & Recreation',
+    'horse racing': 'Sports & Recreation',
+    'fishing': 'Sports & Recreation',
+
+    # Science & Nature
+    'chemistry': 'Science & Nature',
+    'biology': 'Science & Nature',
+    'geology': 'Science & Nature',
+    'physics': 'Science & Nature',
+    'astronomy': 'Science & Nature',
+    'botany': 'Science & Nature',
+    'zoology': 'Science & Nature',
+    'meteorology': 'Science & Nature',
+    'agriculture': 'Science & Nature',
+
+    # Technology
+    'computing': 'Technology',
+    'video games': 'Technology',
+    'Internet': 'Technology',
+    'electronics': 'Technology',
+    'telecommunications': 'Technology',
+    'electricity, elec. eng.': 'Technology',
+    'engineering': 'Technology',
+    'civil engineering': 'Technology',
+    'railway': 'Technology',
+    'mining': 'Technology',
+
+    # Health & Medicine
+    'medicine': 'Health & Medicine',
+    'pharmacology': 'Health & Medicine',
+    'anatomy': 'Health & Medicine',
+    'surgery': 'Health & Medicine',
+    'dentistry': 'Health & Medicine',
+    'genetics': 'Health & Medicine',
+    'biochemistry': 'Health & Medicine',
+    'psychology': 'Health & Medicine',
+
+    # Business & Finance
+    'business': 'Business & Finance',
+    'finance': 'Business & Finance',
+    'economics': 'Business & Finance',
+    'stock market': 'Business & Finance',
+    'law': 'Business & Finance',
+    'politics': 'Business & Finance',
+
+    # Arts & Entertainment
+    'music': 'Arts & Entertainment',
+    'film': 'Arts & Entertainment',
+    'photography': 'Arts & Entertainment',
+    'art, aesthetics': 'Arts & Entertainment',
+    'architecture': 'Arts & Entertainment',
+    'printing': 'Arts & Entertainment',
+    'television': 'Arts & Entertainment',
+
+    # Academic & Humanities
+    'linguistics': 'Academic & Humanities',
+    'Greek mythology': 'Academic & Humanities',
+    'Roman mythology': 'Academic & Humanities',
+    'Christianity': 'Academic & Humanities',
+    'Buddhism': 'Academic & Humanities',
+    'archeology': 'Academic & Humanities',
+    'statistics': 'Academic & Humanities',
+    'mathematics': 'Academic & Humanities',
+
+    # Military & Aviation
+    'military': 'Military & Aviation',
+    'aviation': 'Military & Aviation',
+}
+
+
+def get_parent_category(word):
+    """
+    Determine the parent category for a word.
+
+    Uses the first matching category from PARENT_CATEGORY_MAP.
+    Falls back to 'Other' if no categories match.
+    """
+    for cat in word.get('categories', []):
+        if cat in PARENT_CATEGORY_MAP:
+            return PARENT_CATEGORY_MAP[cat]
+    return 'Other'
+
 
 def should_exclude(word):
     """Check if word should be excluded."""
@@ -177,7 +277,7 @@ def build_output_entry(word):
     Build the final output entry with proper field ordering.
 
     Order: id, word, romaji, originalWord, originalWordInferred, originLanguage,
-           meanings, categories, patterns, [wasei_eigo, wasei_info]
+           meanings, categories, parentCategory, patterns, [wasei_eigo, wasei_info]
     """
     entry = {
         'id': word['id'],
@@ -188,6 +288,7 @@ def build_output_entry(word):
         'originLanguage': word.get('originLanguage'),
         'meanings': word['meanings'],
         'categories': word['categories'],
+        'parentCategory': get_parent_category(word),
         'patterns': word['patterns'],
     }
 
@@ -298,6 +399,15 @@ def main():
 
     for cat, count in sorted(cat_counts.items(), key=lambda x: -x[1])[:15]:
         print(f"  {cat}: {count}")
+
+    # Print parent category distribution
+    print("\n=== Parent Category Distribution ===")
+    parent_counts = defaultdict(int)
+    for w in curated:
+        parent_counts[get_parent_category(w)] += 1
+
+    for parent, count in sorted(parent_counts.items(), key=lambda x: -x[1]):
+        print(f"  {parent}: {count}")
 
     # Print source language distribution
     print("\n=== Origin Language Distribution ===")

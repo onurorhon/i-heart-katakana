@@ -1,11 +1,22 @@
 import Foundation
 
+@MainActor
 @Observable
 class ContentService {
     private(set) var words: [Word] = []
     private(set) var kana: [Kana] = []
     private(set) var isLoaded = false
     private(set) var loadError: Error?
+
+    var availableCategories: [String] {
+        let allCategories = words.flatMap { $0.categories }
+        return Array(Set(allCategories)).sorted()
+    }
+
+    var availableParentCategories: [String] {
+        let parentCategories = words.map { $0.parentCategory }
+        return Array(Set(parentCategories)).sorted()
+    }
 
     func load() {
         guard !isLoaded else { return }

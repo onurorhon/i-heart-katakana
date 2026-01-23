@@ -17,6 +17,7 @@ struct PracticeView: View {
     @State private var activeContentType: PracticeSettings.ContentType = .word
     @State private var activePatterns: [String] = ["gojuon"]
     @State private var activePeekHintType: PracticeSettings.PeekHintType = .romaji
+    @State private var activeSelectedCategory: String? = nil
 
     // Cached filtered content - avoids recomputing on every access
     @State private var cachedFilteredWords: [Word] = []
@@ -113,10 +114,8 @@ struct PracticeView: View {
     private func cardView(for item: (question: String, answer: String)?) -> some View {
         if let item = item {
             VStack(spacing: 16) {
-                // Peek hint area (words only)
-                if activeContentType == .word {
-                    peekHintView
-                }
+                // Peek hint area
+                peekHintView
 
                 // Question (the katakana)
                 Text(item.question)
@@ -140,7 +139,7 @@ struct PracticeView: View {
         DragGesture()
             .onChanged { value in
                 let vertical = value.translation.height
-                if vertical > 0 && activeContentType == .word {
+                if vertical > 0 {
                     isPeeking = true
                     peekDragOffset = vertical
                 }
@@ -162,13 +161,19 @@ struct PracticeView: View {
     func refreshFromSettings() {
         let oldContentType = activeContentType
         let oldPatterns = activePatterns
+        let oldCategory = activeSelectedCategory
 
         activeContentType = settings.contentType
         activePatterns = settings.enabledPatterns
         activePeekHintType = settings.peekHintType
+        activeSelectedCategory = settings.selectedCategory
 
         // Rebuild filtered caches when criteria change
-        if oldContentType != activeContentType || oldPatterns != activePatterns || history.isEmpty {
+        let filterCriteriaChanged = oldContentType != activeContentType
+            || oldPatterns != activePatterns
+            || oldCategory != activeSelectedCategory
+
+        if filterCriteriaChanged || history.isEmpty {
             rebuildFilteredCache()
             resetHistory()
         }
@@ -176,9 +181,16 @@ struct PracticeView: View {
 
     private func rebuildFilteredCache() {
         let enabledSet = Set(activePatterns)
+
+        // Filter words by patterns and optionally by parent category
         cachedFilteredWords = contentService.words.filter { word in
-            word.patterns.contains { enabledSet.contains($0) }
+            let matchesPattern = word.patterns.contains { enabledSet.contains($0) }
+            let matchesCategory = activeSelectedCategory == nil
+                || word.parentCategory == activeSelectedCategory
+            return matchesPattern && matchesCategory
         }
+
+        // Kana don't have categories, only filter by pattern
         cachedFilteredKana = contentService.kana.filter { kana in
             enabledSet.contains(kana.pattern)
         }
@@ -219,20 +231,26 @@ struct PracticeView: View {
     }
 
     private var currentPeekHint: String? {
-        guard activeContentType == .word,
-              let page = currentPage,
+        guard let page = currentPage,
               page >= 0,
               page < history.count else { return nil }
 
         let index = history[page]
-        guard index < filteredWords.count else { return nil }
-        let word = filteredWords[index]
 
-        switch activePeekHintType {
-        case .romaji:
-            return word.romaji
-        case .originalWord:
-            return word.originalWord ?? word.originalWordInferred
+        switch activeContentType {
+        case .word:
+            guard index < filteredWords.count else { return nil }
+            let word = filteredWords[index]
+            switch activePeekHintType {
+            case .romaji:
+                return word.romaji
+            case .originalWord:
+                return word.originalWord ?? word.originalWordInferred
+            }
+        case .kana:
+            guard index < filteredKana.count else { return nil }
+            let kana = filteredKana[index]
+            return kana.romaji
         }
     }
 

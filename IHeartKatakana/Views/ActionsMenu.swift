@@ -2,51 +2,182 @@ import SwiftUI
 
 struct ActionsMenu: View {
     @Bindable var settings: PracticeSettings
+    let availableCategories: [String]
     let onClose: () -> Void
-    let onCategoryTap: () -> Void
+
+    @State private var showingCategories = false
 
     var body: some View {
-        MenuContainer(alignment: .leading, onClose: onClose) {
-            VStack(spacing: 12) {
-                // Word / Kana toggle
+        if showingCategories {
+            categorySubmenu
+        } else {
+            mainMenu
+        }
+    }
+
+    private var mainMenu: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Close button
+            FloatingCloseButton(action: onClose)
+
+            // Word / Kana toggle
+            FloatingCard {
                 Picker("", selection: $settings.contentType) {
                     ForEach(PracticeSettings.ContentType.allCases, id: \.self) { type in
                         Text(type.rawValue).tag(type)
                     }
                 }
                 .pickerStyle(.segmented)
+            }
 
-                // Level heading
-                Text("Level")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 8)
+            // Level toggles
+            FloatingCard {
+                VStack(spacing: 0) {
+                    Text("Level")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 8)
 
-                // Level checkboxes
-                VStack(spacing: 8) {
-                    MenuToggle(label: "Gojūon (basic)", isOn: $settings.gojuonEnabled)
-                    MenuToggle(label: "Dakuon", isOn: $settings.dakuonEnabled)
-                    MenuToggle(label: "Handakuon", isOn: $settings.handakuonEnabled)
-                    MenuToggle(label: "Yōon", isOn: $settings.youonEnabled)
-                    MenuToggle(label: "Extended", isOn: $settings.extendedEnabled)
-                }
-
-                // Category button (only for words)
-                if settings.contentType == .word {
-                    MenuButton(label: "Category") {
-                        onCategoryTap()
+                    VStack(spacing: 12) {
+                        Toggle("Gojūon (basic)", isOn: $settings.gojuonEnabled)
+                        Toggle("Dakuon", isOn: $settings.dakuonEnabled)
+                        Toggle("Handakuon", isOn: $settings.handakuonEnabled)
+                        Toggle("Yōon", isOn: $settings.youonEnabled)
+                        Toggle("Extended", isOn: $settings.extendedEnabled)
                     }
-                    .padding(.top, 8)
+                }
+            }
+
+            // Category button (only for words)
+            if settings.contentType == .word {
+                FloatingCard {
+                    Button {
+                        showingCategories = true
+                    } label: {
+                        HStack {
+                            Text(categoryButtonLabel)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
+        .frame(width: 220)
+    }
+
+    private var categorySubmenu: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Back and close buttons
+            HStack {
+                FloatingBackButton {
+                    showingCategories = false
+                }
+                Spacer()
+                FloatingCloseButton(action: onClose)
+            }
+
+            // Category list as floating card
+            FloatingCard {
+                VStack(spacing: 0) {
+                    Text("Category")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 8)
+
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            // "All" option
+                            CategoryRow(
+                                label: "All",
+                                isSelected: settings.selectedCategory == nil,
+                                action: {
+                                    settings.selectedCategory = nil
+                                    showingCategories = false
+                                }
+                            )
+
+                            Divider()
+                                .padding(.leading, 28)
+
+                            // Individual categories
+                            ForEach(Array(availableCategories.enumerated()), id: \.element) { index, category in
+                                CategoryRow(
+                                    label: category,
+                                    isSelected: settings.selectedCategory == category,
+                                    action: {
+                                        settings.selectedCategory = category
+                                        showingCategories = false
+                                    }
+                                )
+
+                                if index < availableCategories.count - 1 {
+                                    Divider()
+                                        .padding(.leading, 28)
+                                }
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 300)
+                }
+            }
+        }
+        .frame(width: 220)
+    }
+
+    private var categoryButtonLabel: String {
+        if let category = settings.selectedCategory {
+            return "Category: \(category)"
+        }
+        return "Category: All"
+    }
+}
+
+struct CategoryRow: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark")
+                    .foregroundColor(.accentColor)
+                    .opacity(isSelected ? 1 : 0)
+                    .frame(width: 20)
+
+                Text(label)
+                    .foregroundColor(.primary)
+
+                Spacer()
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
-    ActionsMenu(
-        settings: PracticeSettings(),
-        onClose: {},
-        onCategoryTap: {}
-    )
+    ZStack {
+        Color.gray.opacity(0.5)
+            .ignoresSafeArea()
+
+        VStack {
+            HStack {
+                ActionsMenu(
+                    settings: PracticeSettings(),
+                    availableCategories: ["Everyday Life", "Sports & Recreation", "Technology"],
+                    onClose: {}
+                )
+                Spacer()
+            }
+            .padding()
+            Spacer()
+        }
+    }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 @Observable
 class PracticeSettings {
     enum ContentType: String, CaseIterable {

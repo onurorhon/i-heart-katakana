@@ -9,6 +9,7 @@ struct Word: Codable, Identifiable {
     let originalWord: String?          // From JMdict (authoritative)
     let originalWordInferred: String?  // Our inference (first meaning for English)
     let categories: [String]
+    let parentCategory: String         // Broad category for filtering (e.g., "Everyday Life")
     let patterns: [String]
 
     // Wasei-eigo fields (optional, from curated database)
@@ -16,7 +17,8 @@ struct Word: Codable, Identifiable {
     let waseiInfo: WaseiInfo?
 
     enum CodingKeys: String, CodingKey {
-        case id, word, romaji, meanings, originLanguage, originalWord, originalWordInferred, categories, patterns
+        case id, word, romaji, meanings, originLanguage, originalWord, originalWordInferred
+        case categories, parentCategory, patterns
         case waseiEigo = "wasei_eigo"
         case waseiInfo = "wasei_info"
     }
