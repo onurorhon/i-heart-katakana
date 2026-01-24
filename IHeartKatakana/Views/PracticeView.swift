@@ -73,16 +73,18 @@ struct PracticeView: View {
                 }
                 .ignoresSafeArea()
 
-                // Progress indicator (floating)
+                // Progress indicator (floating, fades out on end card)
                 VStack {
                     Spacer()
-                    Text("\(history.count) of \(totalItems)")
+                    Text("\(min((currentPage ?? 0) + 1, totalItems)) of \(totalItems)")
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(.ultraThinMaterial, in: Capsule())
                 }
                 .safeAreaPadding()
+                .opacity(isDeckExhausted && currentPage == history.count ? 0 : 1)
+                .animation(.easeOut(duration: 0.3), value: currentPage)
             }
         }
         .onAppear {
@@ -127,13 +129,47 @@ struct PracticeView: View {
             return
         }
 
-        // If deck is exhausted, reshuffle for the next round
+        // If deck is exhausted, don't generate next - show end card instead
         if deckPosition >= shuffledDeck.count {
-            reshuffleDeck()
+            pendingNextIndex = nil
+            return
         }
 
         pendingNextIndex = shuffledDeck[deckPosition]
         deckPosition += 1
+    }
+
+    private var isDeckExhausted: Bool {
+        deckPosition >= shuffledDeck.count && pendingNextIndex == nil
+    }
+
+    private func restartSameOrder() {
+        guard !shuffledDeck.isEmpty else { return }
+
+        // Reset to beginning of same shuffled order
+        deckPosition = 0
+        history = []
+
+        // Draw first item from same deck
+        let firstIndex = shuffledDeck[deckPosition]
+        deckPosition += 1
+        history.append(firstIndex)
+        currentPage = 0
+        generatePendingNext()
+    }
+
+    private func shuffleAndRestart() {
+        guard totalItems > 0 else { return }
+
+        reshuffleDeck()
+        history = []
+
+        // Draw first item from fresh deck
+        let firstIndex = shuffledDeck[deckPosition]
+        deckPosition += 1
+        history.append(firstIndex)
+        currentPage = 0
+        generatePendingNext()
     }
 
     private func reshuffleDeck() {
@@ -175,8 +211,47 @@ struct PracticeView: View {
                 .padding(.top, 20 + safeAreaInsets.top)
                 .padding(.bottom, 20 + safeAreaInsets.bottom)
             }
+        } else if isDeckExhausted && pageIndex == history.count {
+            // End card - shown when all items have been seen
+            endCardView(safeAreaInsets: safeAreaInsets)
         } else {
             Color.clear
+        }
+    }
+
+    @ViewBuilder
+    private func endCardView(safeAreaInsets: EdgeInsets) -> some View {
+        ZStack {
+            #if DEBUG
+            Color.gray.opacity(0.15)
+            #endif
+
+            HStack(spacing: 40) {
+                // Restart button - repeat same order
+                Button {
+                    restartSameOrder()
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 32))
+                        .frame(width: 80, height: 80)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+
+                // Shuffle button - reshuffle and restart
+                Button {
+                    shuffleAndRestart()
+                } label: {
+                    Image(systemName: "shuffle")
+                        .font(.system(size: 32))
+                        .frame(width: 80, height: 80)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.leading, 20 + safeAreaInsets.leading)
+            .padding(.trailing, 20 + safeAreaInsets.trailing)
+            .padding(.top, 20 + safeAreaInsets.top)
+            .padding(.bottom, 20 + safeAreaInsets.bottom)
         }
     }
 

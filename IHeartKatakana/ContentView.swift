@@ -109,7 +109,7 @@ struct ContentView: View {
                 }
             }
         }
-        .onAppear {
+        .task {
             contentService.load()
         }
     }

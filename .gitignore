@@ -45,3 +45,8 @@ Secrets.swift
 
 # Fonts (stored in private assets repo)
 **/fonts/
+
+# CodeStory
+.social-draft-*.md
+.codestory-backup-*/
+.codestory-version

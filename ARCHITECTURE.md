@@ -307,6 +307,21 @@ Menus use a **floating card pattern** inspired by Apple TV. Each control group i
 
 **Submenu pattern:** Menus with submenus (Category, Pull to Peek) use internal `@State` to swap between main menu and submenu views, keeping both within the same floating card container.
 
+### Practice Flow
+
+Cards use a **shuffle-without-repeat** pattern for item presentation:
+
+- Items are shown in random order without repeats until all have been seen
+- A shuffled deck of indices is created on session start
+- User can swipe back through history indefinitely
+- When deck is exhausted, an **end card** appears with two options:
+  - **Restart** (↺) – Repeats the same shuffled order from card 1
+  - **Shuffle** (⤮) – Creates a new random order and starts from card 1
+
+**Progress indicator:** Shows current position as "X of Y", fades out on end card.
+
+**Card layout:** Full-screen cards using `ScrollView` with `.scrollTargetBehavior(.paging)`. Safe area insets captured before `.ignoresSafeArea()` to ensure content clears Dynamic Island.
+
 ### Data Models
 
 ```swift
