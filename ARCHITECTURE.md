@@ -67,7 +67,7 @@ i-heart-katakana-assets/
 
 ## Development Approach
 
-### Phase 1: Functional Prototype (~80%)
+### Phase 1: Functional Prototype
 
 Build core functionality using SwiftUI defaults. No custom styling – generic iOS appearance. Focus on architecture and behavior.
 
@@ -86,7 +86,7 @@ Build core functionality using SwiftUI defaults. No custom styling – generic i
 - Iterate using Xcode Previews and on-device testing.
 - Commit frequently via Git.
 
-### Phase 2: Design Application (~20%)
+### Phase 2: Design Application
 
 Layer design on top of the working prototype.
 

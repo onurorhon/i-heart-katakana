@@ -88,7 +88,7 @@ Users can like words. Liked words appear as a filterable category alongside sema
 
 ### 4.3 Content Scope
 
-**Target:** 1,000+ curated items spanning:
+**Target:** Comprehensive curated content spanning:
 
 - **Semantic categories:** food, places, technology, everyday objects, loanword origins.
 - **Phonetic patterns:** gojūon, dakuon, handakuon, yōon.
@@ -104,7 +104,7 @@ Users adjust practice via settings: font, theme, character type, word category, 
 
 ### 4.5 Visual Variety
 
-~20 fonts and ~20 themes reflecting varied Japanese typographic styles.
+Multiple fonts and themes reflecting varied Japanese typographic styles.
 
 ### 4.6 Audio
 
@@ -126,7 +126,7 @@ Katakana character table. Additional reference content TBD.
 | Asset | Source | Status |
 |-------|--------|--------|
 | Word database | JMdict (open-source) | Available. Extraction and curation needed. |
-| Fonts | Free/open-source (~20) | In progress. Must permit free distribution. |
+| Fonts | Free/open-source | In progress. Must permit free distribution. |
 | Audio | On-device TTS (AVSpeechSynthesizer) | Built-in. No licensing needed. |
 
 ## 7. Technical Constraints
