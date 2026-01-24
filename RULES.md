@@ -29,7 +29,14 @@
 - Session outputs or historical reports.
 - Script usage instructions (those go in the `i-heart-katakana-data` repo).
 
-**General principle:** Documentation describes *what the system is*, not *how we got here*.
+**OVERVIEW.md** may contain:
+- Aspirational targets (e.g., "1,000+ items", "~20 fonts").
+- Scope estimates (e.g., "Phase 1 (~80%)").
+- Success criteria with specific goals.
+
+These are product requirements, not statistics from actual runs.
+
+**General principle:** Documentation describes *what the system is* and *what we're building toward*, not *how we got here*.
 
 ## Responsive Layout
 
