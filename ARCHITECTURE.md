@@ -22,7 +22,7 @@ See RULES.md > Documentation Boundaries for full policy.
 |------|----------|
 | Framework | SwiftUI (native) |
 | Platforms | iPhone and iPad |
-| Orientation | Portrait only (landscape TBD) |
+| Orientation | Portrait and landscape |
 | Minimum iOS | iOS 18 |
 | Content storage | Bundled JSON (`data/`) with optional remote fallback |
 | Content source | JMdict (open-source), extracted and curated |

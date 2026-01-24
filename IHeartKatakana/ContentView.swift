@@ -22,7 +22,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             // Main content area
-            VStack {
+            VStack(spacing: 0) {
                 // Top bar with menu triggers
                 HStack {
                     // Actions menu trigger (top left)
@@ -51,9 +51,9 @@ struct ContentView: View {
                             .font(.title2)
                     }
                 }
-                .padding()
-
-                Spacer()
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
 
                 // Always show practice view
                 PracticeView(
@@ -62,8 +62,6 @@ struct ContentView: View {
                     settingsVersion: settingsVersion,
                     onExit: {}
                 )
-
-                Spacer()
             }
 
             // Menu overlays

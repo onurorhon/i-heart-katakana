@@ -31,37 +31,34 @@ struct PracticeView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let screenWidth = geometry.size.width
-
-            VStack(spacing: 32) {
-                // Paging ScrollView carousel
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 0) {
-                        ForEach(0..<pageCount, id: \.self) { pageIndex in
-                            cardView(for: itemForPage(pageIndex))
-                                .frame(width: screenWidth)
-                                .id(pageIndex)
-                        }
-                    }
-                    .scrollTargetLayout()
-                }
-                .scrollTargetBehavior(.paging)
-                .scrollPosition(id: $currentPage)
-                .frame(maxHeight: .infinity)
-                .onTapGesture {
-                    isAnswerRevealed.toggle()
-                }
-                .onChange(of: currentPage) { oldValue, newValue in
-                    if let newValue = newValue {
-                        handlePageChange(from: oldValue ?? 0, to: newValue)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    ForEach(0..<pageCount, id: \.self) { pageIndex in
+                        cardView(for: itemForPage(pageIndex), pageIndex: pageIndex)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .id(pageIndex)
                     }
                 }
-
-                // Progress indicator
-                Text("\((currentPage ?? 0) + 1) seen")
-                    .foregroundColor(.secondary)
-                    .padding(.bottom)
+                .scrollTargetLayout()
             }
+            .scrollTargetBehavior(.paging)
+            .scrollPosition(id: $currentPage)
+            .ignoresSafeArea()
+            .onTapGesture {
+                isAnswerRevealed.toggle()
+            }
+            .onChange(of: currentPage) { oldValue, newValue in
+                if let newValue = newValue, let oldValue = oldValue {
+                    handlePageChange(from: oldValue, to: newValue)
+                }
+            }
+            .simultaneousGesture(peekGesture)
+        }
+        .overlay(alignment: .bottom) {
+            // Progress indicator
+            Text("\((currentPage ?? 0) + 1) seen")
+                .foregroundColor(.secondary)
+                .padding(.bottom, 40)
         }
         .onAppear {
             refreshFromSettings()
@@ -69,7 +66,6 @@ struct PracticeView: View {
         .onChange(of: settingsVersion) { _, _ in
             refreshFromSettings()
         }
-        .simultaneousGesture(peekGesture)
     }
 
     // MARK: - Page Management
@@ -111,27 +107,45 @@ struct PracticeView: View {
     // MARK: - Card View
 
     @ViewBuilder
-    private func cardView(for item: (question: String, answer: String)?) -> some View {
+    private func cardView(for item: (question: String, answer: String)?, pageIndex: Int) -> some View {
         if let item = item {
-            VStack(spacing: 16) {
-                // Peek hint area
-                peekHintView
+            ZStack {
+                #if DEBUG
+                // Stable background color based on page index for debugging card boundaries
+                Color.gray.opacity(debugColorOpacity(for: pageIndex))
+                #endif
 
-                // Question (the katakana)
-                Text(item.question)
-                    .font(.system(size: 72))
+                VStack(spacing: 16) {
+                    // Peek hint area
+                    peekHintView
 
-                // Answer
-                Text(item.answer)
-                    .font(.title)
-                    .foregroundColor(.secondary)
-                    .opacity(isAnswerRevealed ? 1 : 0)
+                    // Question (the katakana)
+                    Text(item.question)
+                        .font(.system(size: 72))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.3)
+                        .padding(.horizontal, 20)
+
+                    // Answer
+                    Text(item.answer)
+                        .font(.title)
+                        .foregroundColor(.secondary)
+                        .opacity(isAnswerRevealed ? 1 : 0)
+                }
+                .safeAreaPadding()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             Color.clear
         }
     }
+
+    #if DEBUG
+    /// Generate a stable opacity value based on page index
+    private func debugColorOpacity(for pageIndex: Int) -> Double {
+        let hash = abs(pageIndex.hashValue)
+        return 0.1 + Double(hash % 20) / 100.0
+    }
+    #endif
 
     // MARK: - Peek Gesture
 

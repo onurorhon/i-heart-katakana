@@ -15,7 +15,21 @@ class ContentService {
 
     var availableParentCategories: [String] {
         let parentCategories = words.map { $0.parentCategory }
-        return Array(Set(parentCategories)).sorted()
+        let unique = Array(Set(parentCategories)).sorted()
+
+        #if DEBUG
+        // Put Typography Test at the top for easy access during development
+        if let testIndex = unique.firstIndex(of: "Typography Test") {
+            var reordered = unique
+            reordered.remove(at: testIndex)
+            reordered.insert("Typography Test", at: 0)
+            return reordered
+        }
+        return unique
+        #else
+        // Filter out test category in release builds (should never exist, but safety check)
+        return unique.filter { $0 != "Typography Test" }
+        #endif
     }
 
     func load() {
@@ -24,6 +38,12 @@ class ContentService {
         do {
             words = try loadBundledJSON("words")
             kana = try loadBundledJSON("kana")
+
+            #if DEBUG
+            // Add typography test words for UI testing (never in release builds)
+            words.append(contentsOf: TypographyTestData.words)
+            #endif
+
             isLoaded = true
         } catch {
             loadError = error
