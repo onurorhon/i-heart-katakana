@@ -21,9 +21,16 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            // Main content area
-            VStack(spacing: 0) {
-                // Top bar with menu triggers
+            // Practice view fills entire screen
+            PracticeView(
+                settings: settings,
+                contentService: contentService,
+                settingsVersion: settingsVersion,
+                onExit: {}
+            )
+
+            // Menu buttons overlay (top)
+            VStack {
                 HStack {
                     // Actions menu trigger (top left)
                     Button {
@@ -35,6 +42,8 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "bolt.fill")
                             .font(.title2)
+                            .padding(12)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
 
                     Spacer()
@@ -49,20 +58,16 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "line.3.horizontal")
                             .font(.title2)
+                            .padding(12)
+                            .background(.ultraThinMaterial, in: Circle())
                     }
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
-                .padding(.bottom, 4)
 
-                // Always show practice view
-                PracticeView(
-                    settings: settings,
-                    contentService: contentService,
-                    settingsVersion: settingsVersion,
-                    onExit: {}
-                )
+                Spacer()
             }
+            .safeAreaPadding()
 
             // Menu overlays
             if activeMenu != .none {

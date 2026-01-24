@@ -30,35 +30,47 @@ struct PracticeView: View {
     private let peekThreshold: CGFloat = 100
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    ForEach(0..<pageCount, id: \.self) { pageIndex in
-                        cardView(for: itemForPage(pageIndex), pageIndex: pageIndex)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                            .id(pageIndex)
+        // Capture safe area insets before ignoring them
+        GeometryReader { outerGeometry in
+            let safeInsets = outerGeometry.safeAreaInsets
+
+            ZStack {
+                GeometryReader { geometry in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 0) {
+                            ForEach(0..<pageCount, id: \.self) { pageIndex in
+                                cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets)
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .id(pageIndex)
+                            }
+                        }
+                        .scrollTargetLayout()
                     }
+                    .scrollTargetBehavior(.paging)
+                    .scrollPosition(id: $currentPage)
+                    .onTapGesture {
+                        isAnswerRevealed.toggle()
+                    }
+                    .onChange(of: currentPage) { oldValue, newValue in
+                        if let newValue = newValue, let oldValue = oldValue {
+                            handlePageChange(from: oldValue, to: newValue)
+                        }
+                    }
+                    .simultaneousGesture(peekGesture)
                 }
-                .scrollTargetLayout()
-            }
-            .scrollTargetBehavior(.paging)
-            .scrollPosition(id: $currentPage)
-            .ignoresSafeArea()
-            .onTapGesture {
-                isAnswerRevealed.toggle()
-            }
-            .onChange(of: currentPage) { oldValue, newValue in
-                if let newValue = newValue, let oldValue = oldValue {
-                    handlePageChange(from: oldValue, to: newValue)
+                .ignoresSafeArea()
+
+                // Progress indicator (floating)
+                VStack {
+                    Spacer()
+                    Text("\((currentPage ?? 0) + 1) of \(totalItems)")
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: Capsule())
                 }
+                .safeAreaPadding()
             }
-            .simultaneousGesture(peekGesture)
-        }
-        .overlay(alignment: .bottom) {
-            // Progress indicator
-            Text("\((currentPage ?? 0) + 1) seen")
-                .foregroundColor(.secondary)
-                .padding(.bottom, 40)
         }
         .onAppear {
             refreshFromSettings()
@@ -107,7 +119,7 @@ struct PracticeView: View {
     // MARK: - Card View
 
     @ViewBuilder
-    private func cardView(for item: (question: String, answer: String)?, pageIndex: Int) -> some View {
+    private func cardView(for item: (question: String, answer: String)?, pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         if let item = item {
             ZStack {
                 #if DEBUG
@@ -124,7 +136,6 @@ struct PracticeView: View {
                         .font(.system(size: 72))
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
-                        .padding(.horizontal, 20)
 
                     // Answer
                     Text(item.answer)
@@ -132,7 +143,12 @@ struct PracticeView: View {
                         .foregroundColor(.secondary)
                         .opacity(isAnswerRevealed ? 1 : 0)
                 }
-                .safeAreaPadding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Minimum 20px padding, plus safe area insets for Dynamic Island
+                .padding(.leading, max(20, safeAreaInsets.leading))
+                .padding(.trailing, max(20, safeAreaInsets.trailing))
+                .padding(.top, max(20, safeAreaInsets.top))
+                .padding(.bottom, max(20, safeAreaInsets.bottom))
             }
         } else {
             Color.clear
