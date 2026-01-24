@@ -8,10 +8,15 @@ struct PracticeView: View {
 
     @State private var isAnswerRevealed = false
 
-    // History-based navigation (random order, unlimited back)
+    // History-based navigation (shuffled order, unlimited back)
+    // Items are shown in random order without repeats until all have been seen
     @State private var history: [Int] = []
     @State private var currentPage: Int? = 0
     @State private var pendingNextIndex: Int? = nil
+
+    // Shuffled deck: indices drawn in order, reshuffled when exhausted
+    @State private var shuffledDeck: [Int] = []
+    @State private var deckPosition: Int = 0
 
     // Cached filter criteria - only updates on refresh
     @State private var activeContentType: PracticeSettings.ContentType = .word
@@ -36,34 +41,42 @@ struct PracticeView: View {
 
             ZStack {
                 GeometryReader { geometry in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 0) {
-                            ForEach(0..<pageCount, id: \.self) { pageIndex in
-                                cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets)
-                                    .frame(width: geometry.size.width, height: geometry.size.height)
-                                    .id(pageIndex)
+                    ScrollViewReader { proxy in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 0) {
+                                ForEach(0..<pageCount, id: \.self) { pageIndex in
+                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets)
+                                        .frame(width: geometry.size.width, height: geometry.size.height)
+                                        .id(pageIndex)
+                                }
+                            }
+                            .scrollTargetLayout()
+                        }
+                        .scrollTargetBehavior(.paging)
+                        .scrollPosition(id: $currentPage)
+                        .onTapGesture {
+                            isAnswerRevealed.toggle()
+                        }
+                        .onChange(of: currentPage) { oldValue, newValue in
+                            if let newValue = newValue, let oldValue = oldValue {
+                                handlePageChange(from: oldValue, to: newValue)
                             }
                         }
-                        .scrollTargetLayout()
-                    }
-                    .scrollTargetBehavior(.paging)
-                    .scrollPosition(id: $currentPage)
-                    .onTapGesture {
-                        isAnswerRevealed.toggle()
-                    }
-                    .onChange(of: currentPage) { oldValue, newValue in
-                        if let newValue = newValue, let oldValue = oldValue {
-                            handlePageChange(from: oldValue, to: newValue)
+                        .onChange(of: geometry.size) { _, _ in
+                            // Re-center on current page after orientation change
+                            if let page = currentPage {
+                                proxy.scrollTo(page, anchor: .center)
+                            }
                         }
+                        .simultaneousGesture(peekGesture)
                     }
-                    .simultaneousGesture(peekGesture)
                 }
                 .ignoresSafeArea()
 
                 // Progress indicator (floating)
                 VStack {
                     Spacer()
-                    Text("\((currentPage ?? 0) + 1) of \(totalItems)")
+                    Text("\(history.count) of \(totalItems)")
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
@@ -113,7 +126,19 @@ struct PracticeView: View {
             pendingNextIndex = nil
             return
         }
-        pendingNextIndex = Int.random(in: 0..<totalItems)
+
+        // If deck is exhausted, reshuffle for the next round
+        if deckPosition >= shuffledDeck.count {
+            reshuffleDeck()
+        }
+
+        pendingNextIndex = shuffledDeck[deckPosition]
+        deckPosition += 1
+    }
+
+    private func reshuffleDeck() {
+        shuffledDeck = Array(0..<totalItems).shuffled()
+        deckPosition = 0
     }
 
     // MARK: - Card View
@@ -144,11 +169,11 @@ struct PracticeView: View {
                         .opacity(isAnswerRevealed ? 1 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // Minimum 20px padding, plus safe area insets for Dynamic Island
-                .padding(.leading, max(20, safeAreaInsets.leading))
-                .padding(.trailing, max(20, safeAreaInsets.trailing))
-                .padding(.top, max(20, safeAreaInsets.top))
-                .padding(.bottom, max(20, safeAreaInsets.bottom))
+                // 20px base padding, plus safe area insets for Dynamic Island
+                .padding(.leading, 20 + safeAreaInsets.leading)
+                .padding(.trailing, 20 + safeAreaInsets.trailing)
+                .padding(.top, 20 + safeAreaInsets.top)
+                .padding(.bottom, 20 + safeAreaInsets.bottom)
             }
         } else {
             Color.clear
@@ -231,9 +256,13 @@ struct PracticeView: View {
         pendingNextIndex = nil
         isAnswerRevealed = false
 
-        // Start with first random item
+        // Initialize shuffled deck and start fresh
         guard totalItems > 0 else { return }
-        let firstIndex = Int.random(in: 0..<totalItems)
+        reshuffleDeck()
+
+        // Draw first item from deck
+        let firstIndex = shuffledDeck[deckPosition]
+        deckPosition += 1
         history.append(firstIndex)
         currentPage = 0
         generatePendingNext()
