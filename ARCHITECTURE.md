@@ -320,7 +320,21 @@ Cards use a **shuffle-without-repeat** pattern for item presentation:
 
 **Progress indicator:** Shows current position as "X of Y", fades out on end card.
 
-**Card layout:** Full-screen cards using `ScrollView` with `.scrollTargetBehavior(.paging)`. Safe area insets captured before `.ignoresSafeArea()` to ensure content clears Dynamic Island.
+**Card layout:** Full-screen cards using `ScrollView` with `.scrollTargetBehavior(.paging)` and `ScrollViewReader` for programmatic scrolling on orientation change.
+
+**Safe area handling:** Capture insets from outer `GeometryReader` BEFORE calling `.ignoresSafeArea()`, then apply as manual padding (20px base + insets). This ensures content clears Dynamic Island while cards remain edge-to-edge.
+
+### Content Loading
+
+`ContentService` uses `@MainActor` and `@Observable`. Load via `.task` (not `.onAppear`) to avoid Swift concurrency warnings about `unsafeForcedSync`.
+
+### DEBUG Test Data
+
+Typography edge cases are tested via `TypographyTestData.swift`:
+- `#if DEBUG` conditional compilation
+- Test words injected into `ContentService.words` at load time
+- "Typography Test" category appears at top of category list in DEBUG builds only
+- Never included in release builds
 
 ### Data Models
 
