@@ -67,7 +67,7 @@ i-heart-katakana-assets/
 
 ## Development Approach
 
-### Phase 1: Functional Prototype
+### Phase 1: Functional Prototype (~80%)
 
 Build core functionality using SwiftUI defaults. No custom styling – generic iOS appearance. Focus on architecture and behavior.
 
@@ -86,7 +86,7 @@ Build core functionality using SwiftUI defaults. No custom styling – generic i
 - Iterate using Xcode Previews and on-device testing.
 - Commit frequently via Git.
 
-### Phase 2: Design Application
+### Phase 2: Design Application (~20%)
 
 Layer design on top of the working prototype.
 
@@ -319,6 +319,8 @@ Cards use a **shuffle-without-repeat** pattern for item presentation:
   - **Shuffle** (⤮) – Creates a new random order and starts from card 1
 
 **Progress indicator:** Shows current position as "X of Y", fades out on end card.
+
+**Session persistence:** Practice session state (history, shuffled deck, position, current page) is saved to UserDefaults as JSON. On app launch, the saved session is restored if filter criteria (content type, patterns, category) still matches. If settings changed, a fresh session starts.
 
 **Card layout:** Full-screen cards using `ScrollView` with `.scrollTargetBehavior(.paging)` and `ScrollViewReader` for programmatic scrolling on orientation change.
 

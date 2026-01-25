@@ -1,5 +1,36 @@
 import SwiftUI
 
+// MARK: - Session State Persistence
+
+private struct SessionState: Codable {
+    let history: [Int]
+    let shuffledDeck: [Int]
+    let deckPosition: Int
+    let currentPage: Int
+
+    // Filter criteria when session was created (to detect changes)
+    let contentType: String
+    let patterns: [String]
+    let selectedCategory: String?
+
+    private static let key = "practiceSessionState"
+
+    static func load() -> SessionState? {
+        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+        return try? JSONDecoder().decode(SessionState.self, from: data)
+    }
+
+    func save() {
+        if let data = try? JSONEncoder().encode(self) {
+            UserDefaults.standard.set(data, forKey: Self.key)
+        }
+    }
+
+    static func clear() {
+        UserDefaults.standard.removeObject(forKey: Self.key)
+    }
+}
+
 struct PracticeView: View {
     let settings: PracticeSettings
     let contentService: ContentService
@@ -93,6 +124,11 @@ struct PracticeView: View {
         .onChange(of: settingsVersion) { _, _ in
             refreshFromSettings()
         }
+        .onChange(of: contentService.isLoaded) { _, isLoaded in
+            if isLoaded {
+                refreshFromSettings()
+            }
+        }
     }
 
     // MARK: - Page Management
@@ -121,6 +157,9 @@ struct PracticeView: View {
             history.append(pending)
             generatePendingNext()
         }
+
+        // Save session state after navigation
+        saveSessionState()
     }
 
     private func generatePendingNext() {
@@ -156,6 +195,7 @@ struct PracticeView: View {
         history.append(firstIndex)
         currentPage = 0
         generatePendingNext()
+        saveSessionState()
     }
 
     private func shuffleAndRestart() {
@@ -170,6 +210,7 @@ struct PracticeView: View {
         history.append(firstIndex)
         currentPage = 0
         generatePendingNext()
+        saveSessionState()
     }
 
     private func reshuffleDeck() {
@@ -305,8 +346,41 @@ struct PracticeView: View {
 
         if filterCriteriaChanged || history.isEmpty {
             rebuildFilteredCache()
-            resetHistory()
+
+            // Try to restore saved session if filter criteria matches
+            if let saved = SessionState.load(),
+               saved.contentType == activeContentType.rawValue,
+               Set(saved.patterns) == Set(activePatterns),
+               saved.selectedCategory == activeSelectedCategory,
+               !saved.history.isEmpty,
+               saved.history.allSatisfy({ $0 < totalItems }),
+               saved.shuffledDeck.count == totalItems {
+                // Restore saved session
+                history = saved.history
+                shuffledDeck = saved.shuffledDeck
+                deckPosition = saved.deckPosition
+                currentPage = saved.currentPage
+                generatePendingNext()
+            } else {
+                // Start fresh session
+                resetHistory()
+            }
         }
+    }
+
+    private func saveSessionState() {
+        guard !history.isEmpty else { return }
+
+        let state = SessionState(
+            history: history,
+            shuffledDeck: shuffledDeck,
+            deckPosition: deckPosition,
+            currentPage: currentPage ?? 0,
+            contentType: activeContentType.rawValue,
+            patterns: activePatterns,
+            selectedCategory: activeSelectedCategory
+        )
+        state.save()
     }
 
     private func rebuildFilteredCache() {
@@ -341,6 +415,7 @@ struct PracticeView: View {
         history.append(firstIndex)
         currentPage = 0
         generatePendingNext()
+        saveSessionState()
     }
 
     // MARK: - Peek Hint View

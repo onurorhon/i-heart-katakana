@@ -9,6 +9,7 @@ Execute in order when beginning a session.
 - `OVERVIEW.md` – Product requirements and scope
 - `ARCHITECTURE.md` – Technical decisions, component patterns, data flow
 - `RULES.md` – Never/always rules, conventions
+- `KNOWN_ISSUES.md` – Technical quirks to be aware of
 
 **2. Check recent work**
 ```bash
