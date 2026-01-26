@@ -1,6 +1,6 @@
 ---
 document: Project Overview
-project: I❤️Katakana
+project: I♥︎Katakana
 version: 1.0
 status: Draft
 last_updated: 2025-01-17
@@ -8,7 +8,7 @@ author: Onur
 decision_maker: Onur (sole designer and developer)
 ---
 
-# I❤️Katakana – Project Overview
+# I♥︎Katakana – Project Overview
 
 ## 1. Project Context
 
@@ -60,7 +60,7 @@ This is an independent learning project with multiple objectives in addition to 
 
 Many apps help learners memorise katakana characters. Far fewer help them practice reading real katakana words as they appear in everyday Japanese – across different typefaces, visual styles, and phonetic patterns.
 
-I❤️Katakana fills that gap: a focused, distraction-free environment for practicing katakana recognition with curated content and visual variety.
+I♥︎Katakana fills that gap: a focused, distraction-free environment for practicing katakana recognition with curated content and visual variety.
 
 This is a free, non-profit iOS app developed independently.
 
@@ -184,7 +184,7 @@ Target release: one month from project start.
 
 | Field | Status |
 |-------|--------|
-| App name | I❤️Katakana |
+| App name | I♥︎Katakana |
 | Tagline | TBD |
 | Description | TBD |
 | Keywords | TBD |

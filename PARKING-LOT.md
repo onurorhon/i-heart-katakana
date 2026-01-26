@@ -1,12 +1,12 @@
 ---
 document: Parking Lot
-project: I❤️Katakana
+project: I♥︎Katakana
 version: 1.0
 status: Living Document
 last_updated: 2025-01-17
 ---
 
-# I❤️Katakana – Parking Lot
+# I♥︎Katakana – Parking Lot
 
 Ideas and features deferred from v1 for future consideration.
 

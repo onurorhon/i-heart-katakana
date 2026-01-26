@@ -78,7 +78,7 @@ Build core functionality using SwiftUI defaults. No custom styling – generic i
 - Font system architecture (loading, switching) – system font initially.
 - Categories and filtering.
 - TTS playback.
-- Remote JSON fetching with bundled fallback.
+- Bundled JSON loading.
 - Analytics integration (TelemetryDeck).
 
 **Approach:**

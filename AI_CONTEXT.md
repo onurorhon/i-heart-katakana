@@ -1,4 +1,4 @@
-# AI Context – I❤️Katakana
+# AI Context – I♥︎Katakana
 
 ## Startup Workflow
 

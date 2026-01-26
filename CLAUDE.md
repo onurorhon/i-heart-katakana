@@ -2,44 +2,26 @@
 
 - Never hardcode design values (colors, fonts, spacing) during Phase 1. Use placeholder tokens or system defaults.
 - For content changes, update `data/words.json` via the curation scripts in `scripts/`.
-- Never commit API keys or sensitive credentials. Use environment variables.
 
-<!-- CODESTORY-START -->
-## CodeStory: Auto-Tracking & Trigger
+## MCP Tools
 
-### Live Session Tracking
+### sosumi (Apple Developer Documentation)
 
-While working on this project, automatically log notable moments to `.social-draft-Onur.md`:
+Use the `sosumi` MCP server to access Apple Developer documentation. Apple's documentation pages are JavaScript-rendered and cannot be fetched with standard web tools.
 
-**What to capture:**
-- Technical wins (clever solutions, performance improvements, clean refactors)
-- Progress milestones (features completed, bugs squashed, tests passing)
-- Lessons learned (debugging adventures, "aha" moments, things that surprised you)
-- Interesting decisions (architecture choices, tradeoffs you made, why you picked one approach over another)
-- Frustrations turned victories (that bug that took forever, the docs that were wrong)
+**Available tools:**
+- `mcp__sosumi__searchAppleDocumentation` - Search Apple docs by query
+- `mcp__sosumi__fetchAppleDocumentation` - Fetch a specific documentation page by path
 
-**Log format:**
+**Examples:**
 ```
-## Session: {DATE}
+# Search for documentation
+mcp__sosumi__searchAppleDocumentation(query: "SwiftUI State")
 
-{TIME} - Brief note about what just happened
-- Include relevant code snippets or commands when they add context
-- Keep it casual and authentic
-- Write like you are telling a friend about your day
+# Fetch a specific page
+mcp__sosumi__fetchAppleDocumentation(path: "/documentation/swift/array")
+mcp__sosumi__fetchAppleDocumentation(path: "/documentation/swiftui/view")
+mcp__sosumi__fetchAppleDocumentation(path: "design/human-interface-guidelines/foundations/color")
 ```
 
-**Example entry:**
-```
-## Session: 2024-01-15
-
-2:34 PM - Finally figured out why the auth was failing. Turns out the token was being URL-encoded twice. Classic.
-
-3:15 PM - Refactored the entire validation layer. Went from 400 lines to 120. Sometimes less really is more.
-
-4:02 PM - Added rate limiting. Used a sliding window approach instead of fixed buckets. Feels cleaner.
-```
-
-### Trigger Word
-
-When the user says "CodeStory" in conversation (e.g., "run CodeStory", "let's do CodeStory", "time for CodeStory"), run the `/CodeStory` skill to generate social media content.
-<!-- CODESTORY-END -->
+Use sosumi whenever you need to reference Apple documentation for Swift, SwiftUI, UIKit, or any Apple framework.
