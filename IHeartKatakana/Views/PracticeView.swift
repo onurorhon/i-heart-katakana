@@ -31,9 +31,19 @@ private struct SessionState: Codable {
     }
 }
 
+// MARK: - Card Data
+
+private struct CardData {
+    let question: String      // The katakana word/character
+    let romaji: String
+    let meaning: String
+    let originalWord: String? // Only for words, not kana
+}
+
 struct PracticeView: View {
     let settings: PracticeSettings
     let contentService: ContentService
+    let ttsService: TTSService
     let settingsVersion: Int
     let onExit: () -> Void
 
@@ -62,8 +72,14 @@ struct PracticeView: View {
     // Pull to peek state
     @State private var peekDragOffset: CGFloat = 0
     @State private var isPeeking = false
+    @State private var hasTriggeredPeekAudio = false
+    @AppStorage("hasUsedPullHint") private var hasUsedPullHint = false
 
-    private let peekThreshold: CGFloat = 100
+    // Voice hint alert
+    @State private var showVoiceHintAlert = false
+    @State private var pendingTTSText: String? = nil
+
+    private let peekThreshold: CGFloat = 150
 
     var body: some View {
         // Capture safe area insets before ignoring them
@@ -86,7 +102,9 @@ struct PracticeView: View {
                         .scrollTargetBehavior(.paging)
                         .scrollPosition(id: $currentPage)
                         .onTapGesture {
-                            isAnswerRevealed.toggle()
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                isAnswerRevealed.toggle()
+                            }
                         }
                         .onChange(of: currentPage) { oldValue, newValue in
                             if let newValue = newValue, let oldValue = oldValue {
@@ -129,6 +147,17 @@ struct PracticeView: View {
                 refreshFromSettings()
             }
         }
+        .alert("Better Voice Quality", isPresented: $showVoiceHintAlert) {
+            Button("Got it") {
+                ttsService.markVoiceHintShown()
+                if let text = pendingTTSText {
+                    ttsService.speak(text)
+                    pendingTTSText = nil
+                }
+            }
+        } message: {
+            Text("For clearer pronunciation, download an enhanced Japanese voice.\n\nOpen Settings, search for \"Japanese\" under Accessibility, and look for voices marked \"Enhanced\".")
+        }
     }
 
     // MARK: - Page Management
@@ -138,7 +167,7 @@ struct PracticeView: View {
         max(history.count + 1, 1)
     }
 
-    private func itemForPage(_ page: Int) -> (question: String, answer: String)? {
+    private func itemForPage(_ page: Int) -> CardData? {
         if page < history.count {
             return itemAt(index: history[page])
         }
@@ -221,8 +250,11 @@ struct PracticeView: View {
     // MARK: - Card View
 
     @ViewBuilder
-    private func cardView(for item: (question: String, answer: String)?, pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
+    private func cardView(for item: CardData?, pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         if let item = item {
+            // Only show revealed content on the current page
+            let showRevealed = isAnswerRevealed && pageIndex == currentPage
+
             ZStack {
                 #if DEBUG
                 // Stable background color based on page index for debugging card boundaries
@@ -230,8 +262,9 @@ struct PracticeView: View {
                 #endif
 
                 VStack(spacing: 16) {
-                    // Peek hint area
-                    peekHintView
+                    // Peek hint area (fades out when answer revealed, only active on current page)
+                    peekHintView(isCurrentPage: pageIndex == currentPage)
+                        .opacity(showRevealed ? 0 : 1)
 
                     // Question (the katakana)
                     Text(item.question)
@@ -239,11 +272,53 @@ struct PracticeView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
 
-                    // Answer
-                    Text(item.answer)
-                        .font(.title)
-                        .foregroundColor(.secondary)
-                        .opacity(isAnswerRevealed ? 1 : 0)
+                    // Action buttons (appear on reveal)
+                    HStack(spacing: 32) {
+                        Button {
+                            if ttsService.shouldShowVoiceHint {
+                                pendingTTSText = item.question
+                                showVoiceHintAlert = true
+                            } else {
+                                ttsService.speak(item.question)
+                            }
+                        } label: {
+                            Image(systemName: "speaker.wave.2")
+                                .font(.title2)
+                        }
+
+                        Button {
+                            // TODO: Toggle like
+                        } label: {
+                            Image(systemName: "heart")
+                                .font(.title2)
+                        }
+
+                        Button {
+                            // TODO: Bookmark
+                        } label: {
+                            Image(systemName: "bookmark")
+                                .font(.title2)
+                        }
+                    }
+                    .opacity(showRevealed ? 1 : 0)
+
+                    // Answer details (appear on reveal)
+                    VStack(spacing: 8) {
+                        Text(item.romaji)
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+
+                        Text(item.meaning)
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+
+                        if let originalWord = item.originalWord {
+                            Text(originalWord)
+                                .font(.body)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .opacity(showRevealed ? 1 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // 20px base padding, plus safe area insets for Dynamic Island
@@ -313,6 +388,19 @@ struct PracticeView: View {
                 if vertical > 0 {
                     isPeeking = true
                     peekDragOffset = vertical
+
+                    // Mark pull hint as used once threshold is reached
+                    if !hasUsedPullHint && vertical >= peekThreshold {
+                        hasUsedPullHint = true
+                    }
+
+                    // Trigger audio when threshold is reached (only once per pull)
+                    if activePeekHintType == .playAudio && !hasTriggeredPeekAudio && vertical >= peekThreshold {
+                        hasTriggeredPeekAudio = true
+                        if let question = currentQuestion {
+                            ttsService.speak(question)
+                        }
+                    }
                 }
             }
             .onEnded { _ in
@@ -322,6 +410,7 @@ struct PracticeView: View {
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         isPeeking = false
+                        hasTriggeredPeekAudio = false
                     }
                 }
             }
@@ -421,20 +510,30 @@ struct PracticeView: View {
     // MARK: - Peek Hint View
 
     @ViewBuilder
-    private var peekHintView: some View {
-        let hintText = currentPeekHint ?? "—"
-        let revealProgress = min(1.0, max(0.0, peekDragOffset / peekThreshold))
+    private func peekHintView(isCurrentPage: Bool) -> some View {
+        // Only show animated content on current page to avoid artifacts during swipe
+        let revealProgress = isCurrentPage ? min(1.0, max(0.0, peekDragOffset / peekThreshold)) : 0
         let promptOpacity = max(0.0, 1.0 - (revealProgress * 4.0))
 
         ZStack {
-            Text("Pull down to peek")
-                .font(.title2)
-                .foregroundColor(.secondary)
-                .opacity(promptOpacity)
+            if !hasUsedPullHint && isCurrentPage {
+                Text("Pull down for hint")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                    .opacity(promptOpacity)
+            }
 
-            LetterRevealText(text: hintText, revealProgress: revealProgress)
-                .font(.title2)
-                .foregroundColor(.secondary)
+            if activePeekHintType == .playAudio {
+                Image(systemName: "speaker.wave.2")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                    .opacity(revealProgress)
+            } else {
+                let hintText = currentPeekHint ?? "—"
+                LetterRevealText(text: hintText, revealProgress: revealProgress)
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+            }
         }
         .frame(height: 34)
     }
@@ -446,6 +545,11 @@ struct PracticeView: View {
 
         let index = history[page]
 
+        // Audio mode doesn't show text
+        if activePeekHintType == .playAudio {
+            return nil
+        }
+
         switch activeContentType {
         case .word:
             guard index < filteredWords.count else { return nil }
@@ -455,6 +559,8 @@ struct PracticeView: View {
                 return word.romaji
             case .originalWord:
                 return word.originalWord ?? word.originalWordInferred
+            case .playAudio:
+                return nil
             }
         case .kana:
             guard index < filteredKana.count else { return nil }
@@ -463,18 +569,45 @@ struct PracticeView: View {
         }
     }
 
+    private var currentQuestion: String? {
+        guard let page = currentPage,
+              page >= 0,
+              page < history.count else { return nil }
+
+        let index = history[page]
+
+        switch activeContentType {
+        case .word:
+            guard index < filteredWords.count else { return nil }
+            return filteredWords[index].word
+        case .kana:
+            guard index < filteredKana.count else { return nil }
+            return filteredKana[index].kana
+        }
+    }
+
     // MARK: - Data
 
-    private func itemAt(index: Int) -> (question: String, answer: String)? {
+    private func itemAt(index: Int) -> CardData? {
         switch activeContentType {
         case .word:
             guard index < filteredWords.count else { return nil }
             let word = filteredWords[index]
-            return (word.word, word.meanings.joined(separator: ", "))
+            return CardData(
+                question: word.word,
+                romaji: word.romaji,
+                meaning: word.meanings.joined(separator: ", "),
+                originalWord: word.originalWord ?? word.originalWordInferred
+            )
         case .kana:
             guard index < filteredKana.count else { return nil }
             let kana = filteredKana[index]
-            return (kana.kana, kana.romaji)
+            return CardData(
+                question: kana.kana,
+                romaji: kana.romaji,
+                meaning: kana.romaji, // For kana, meaning is just the romaji
+                originalWord: nil
+            )
         }
     }
 
@@ -530,6 +663,7 @@ struct LetterRevealText: View {
     PracticeView(
         settings: PracticeSettings(),
         contentService: ContentService(),
+        ttsService: TTSService(),
         settingsVersion: 0,
         onExit: {}
     )

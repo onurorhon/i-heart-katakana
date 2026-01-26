@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var activeMenu: ActiveMenu = .none
     @State private var settings = PracticeSettings()
     @State private var contentService = ContentService()
+    @State private var ttsService = TTSService()
     @State private var settingsVersion = 0
 
     // Snapshot of settings when menu opens (to detect changes)
@@ -25,6 +26,7 @@ struct ContentView: View {
             PracticeView(
                 settings: settings,
                 contentService: contentService,
+                ttsService: ttsService,
                 settingsVersion: settingsVersion,
                 onExit: {}
             )

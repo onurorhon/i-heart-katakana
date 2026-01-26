@@ -12,6 +12,7 @@ class PracticeSettings {
     enum PeekHintType: String, CaseIterable {
         case romaji = "Romaji"
         case originalWord = "Original Word"
+        case playAudio = "Audio"
     }
 
     private let defaults = UserDefaults.standard

@@ -26,13 +26,15 @@ struct HamburgerMenu: View {
             // Close button
             FloatingCloseButton(action: onClose)
 
-            // Pull to Peek button (opens submenu)
+            // Pull-down Hint button (opens submenu)
             FloatingCard {
                 Button {
                     showingPeekOptions = true
                 } label: {
                     HStack {
-                        Text("Pull to Peek: \(settings.peekHintType.rawValue)")
+                        Text("Pull-down Hint: \(settings.peekHintType.rawValue)")
+                            .lineLimit(1)
+                            .truncationMode(.tail)
                         Spacer()
                         Image(systemName: "chevron.right")
                             .foregroundColor(.secondary)
@@ -49,6 +51,7 @@ struct HamburgerMenu: View {
                     } label: {
                         HStack {
                             Text(item.rawValue)
+                                .lineLimit(1)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .foregroundColor(.secondary)
@@ -75,7 +78,7 @@ struct HamburgerMenu: View {
             // Peek options
             FloatingCard {
                 VStack(spacing: 0) {
-                    Text("Pull to Peek")
+                    Text("Pull-down Hint")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -94,6 +97,7 @@ struct HamburgerMenu: View {
 
                                 Text(option.rawValue)
                                     .foregroundColor(.primary)
+                                    .lineLimit(1)
 
                                 Spacer()
                             }
