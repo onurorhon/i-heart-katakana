@@ -385,7 +385,10 @@ struct PracticeView: View {
         DragGesture()
             .onChanged { value in
                 let vertical = value.translation.height
-                if vertical > 0 {
+                let horizontal = abs(value.translation.width)
+
+                // Only activate peek if pulling more down than sideways
+                if vertical > 0 && vertical > horizontal {
                     isPeeking = true
                     peekDragOffset = vertical
 
@@ -401,6 +404,9 @@ struct PracticeView: View {
                             ttsService.speak(question)
                         }
                     }
+                } else if horizontal > vertical {
+                    // Horizontal swipe - reset peek state
+                    peekDragOffset = 0
                 }
             }
             .onEnded { _ in
