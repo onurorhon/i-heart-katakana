@@ -1,0 +1,1020 @@
+[
+  {
+    "id": "1013960",
+    "word": "アイシングザパック",
+    "meanings": [
+      "icing the puck (ice hockey)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1014920",
+    "word": "アウフヘーベン",
+    "meanings": [
+      "sublation"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "aufheben",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2477980",
+    "word": "アナムネーシス",
+    "meanings": [
+      "anamnesis"
+    ],
+    "originLanguage": "gre",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2854820",
+    "word": "アブジェクション",
+    "meanings": [
+      "abjection"
+    ],
+    "originLanguage": "fre",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "extended",
+      "gojuon",
+      "youon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "1018200",
+    "word": "アプリオリ",
+    "meanings": [
+      "a priori"
+    ],
+    "originLanguage": "lat",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2434010",
+    "word": "アプリケーションフォーマット",
+    "meanings": [
+      "disk formatting"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "application format",
+    "categories": [
+      "computing"
+    ],
+    "patterns": [
+      "extended",
+      "gojuon",
+      "handakuon",
+      "youon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1018480",
+    "word": "アポステリオリ",
+    "meanings": [
+      "a posteriori"
+    ],
+    "originLanguage": "lat",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2810110",
+    "word": "アルケー",
+    "meanings": [
+      "arche",
+      "first principle"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2411030",
+    "word": "アンジッヒ",
+    "meanings": [
+      "in itself"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "an sich",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2835708",
+    "word": "アンスポーツマンライクファウル",
+    "meanings": [
+      "unsportsmanlike foul (basketball)",
+      "flagrant foul"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "extended",
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "too_long"
+  },
+  {
+    "id": "2583950",
+    "word": "アンダンスー",
+    "meanings": [
+      "fried mixture of minced pork, miso, mirin, etc. (Okinawan dish)"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "romaji": "a-n-da-n-suu",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "1020310",
+    "word": "アンチノミー",
+    "meanings": [
+      "antinomy"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "Antinomie",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1021470",
+    "word": "イデア",
+    "meanings": [
+      "idea (in Platonic thought)"
+    ],
+    "originLanguage": "gre",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "1021460",
+    "word": "イデー",
+    "meanings": [
+      "idea"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "Idee",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "1022950",
+    "word": "インターフェア",
+    "meanings": [
+      "interference"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "extended",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1027630",
+    "word": "エイト",
+    "meanings": [
+      "eight",
+      "eight (rowing boat)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2515500",
+    "word": "エイドス",
+    "meanings": [
+      "form (in Aristotelianism)",
+      "idea (in Platonism)"
+    ],
+    "originLanguage": "grc",
+    "originalWord": "eidos",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "1029060",
+    "word": "エッジボール",
+    "meanings": [
+      "edge ball (in table tennis)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2515460",
+    "word": "エネルゲイア",
+    "meanings": [
+      "energeia"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1030730",
+    "word": "エロス",
+    "meanings": [
+      "eros",
+      "sexual desire",
+      "physical love",
+      "Eros (god)",
+      "(Platonic) Eros"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "Greek mythology",
+      "astronomy",
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2515470",
+    "word": "エンテレケイア",
+    "meanings": [
+      "entelechy"
+    ],
+    "originLanguage": "grc",
+    "originalWord": "entelecheia",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2160930",
+    "word": "オントロギー",
+    "meanings": [
+      "ontology"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "Ontologie",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "1032620",
+    "word": "オーバーハンドスロー",
+    "meanings": [
+      "overhand throw",
+      "overarm throw"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1032630",
+    "word": "オーバーハンドパス",
+    "meanings": [
+      "overhead pass (in volleyball)",
+      "overhand pass"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1032730",
+    "word": "オーバーヘッドパス",
+    "meanings": [
+      "overhead pass (in basketball)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2860126",
+    "word": "カスケードスタイルシート",
+    "meanings": [
+      "cascading style sheets",
+      "CSS"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "cascade style sheet",
+    "categories": [
+      "computing"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1047620",
+    "word": "グレコローマンスタイル",
+    "meanings": [
+      "Greco-Roman wrestling",
+      "Greco-Roman style",
+      "classic wrestling"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1050320",
+    "word": "コックス",
+    "meanings": [
+      "cox",
+      "coxswain"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2678730",
+    "word": "コロッケパン",
+    "meanings": [
+      "bread roll sandwich with croquette filling"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "romaji": "ko-ro-kke-pa-n",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2851604",
+    "word": "シャンビリ",
+    "meanings": [
+      "tinnitus and tingling or shock-like sensations (as withdrawal symptoms from coming off antidepressants)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "medicine"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "youon"
+    ],
+    "romaji": "sha-n-bi-ri",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "1066650",
+    "word": "ジンテーゼ",
+    "meanings": [
+      "synthesis"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "Synthese",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2855482",
+    "word": "ストア",
+    "meanings": [
+      "stoa (classical Greek colonnade or portico)",
+      "Stoic (school)"
+    ],
+    "originLanguage": "gre",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "1073080",
+    "word": "スペシャルライセンスプレーヤー",
+    "meanings": [
+      "special license player (in soccer)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon",
+      "youon"
+    ],
+    "exclusion_reason": "too_long"
+  },
+  {
+    "id": "1073600",
+    "word": "スマック",
+    "meanings": [
+      "chocolate-coated ice cream on a stick",
+      "Smack (soft drink)",
+      "smack",
+      "heroin",
+      "sumac"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "romaji": "su-ma-kku",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "1073640",
+    "word": "スムージングオペレーション",
+    "meanings": [
+      "currency intervention (to stabilize exchange-rate volatility)"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "smoothing operation",
+    "categories": [
+      "economics"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon",
+      "youon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2678780",
+    "word": "ソーキ",
+    "meanings": [
+      "Okinawan-style stewed pork spare ribs"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "romaji": "soo-ki",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2859412",
+    "word": "ソースカツ",
+    "meanings": [
+      "breaded cutlet (e.g. tonkatsu) covered in Worcester sauce"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "romaji": "soo-su-ka-tsu",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2206560",
+    "word": "タナトス",
+    "meanings": [
+      "thanatos (death instinct)",
+      "Thanatos (personification of death)"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "Greek mythology",
+      "psychoanalysis"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "category:psychoanalysis"
+  },
+  {
+    "id": "2752750",
+    "word": "タンピン",
+    "meanings": [
+      "having no end tiles or honor tiles and pinfu (common pair of melds)"
+    ],
+    "originLanguage": "chi",
+    "originalWord": null,
+    "categories": [
+      "mahjong"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "romaji": "ta-n-pi-n",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2451570",
+    "word": "ダウンロードオンリーメンバー",
+    "meanings": [
+      "leecher",
+      "leech"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "download-only member",
+    "categories": [
+      "Internet"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2515450",
+    "word": "デュナミス",
+    "meanings": [
+      "dynamis",
+      "dunamis"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "extended",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1089190",
+    "word": "ドルフィンキック",
+    "meanings": [
+      "dolphin kick (swimming)"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "extended",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "1089510",
+    "word": "ドロンゲーム",
+    "meanings": [
+      "drawn game",
+      "tie game"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "sports"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2830024",
+    "word": "ヌーメノン",
+    "meanings": [
+      "noumenon"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2857098",
+    "word": "ノマドロジー",
+    "meanings": [
+      "nomadology"
+    ],
+    "originLanguage": "fre",
+    "originalWord": "nomadologie",
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2825843",
+    "word": "ハムカツサンド",
+    "meanings": [
+      "sandwich filled with a fried cake of layered slices of ham",
+      "ham cutlet sandwich"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "romaji": "ha-mu-ka-tsu-sa-n-do",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2554950",
+    "word": "バタピー",
+    "meanings": [
+      "shelled skinless peanuts prepared in butter"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon"
+    ],
+    "romaji": "ba-ta-pii",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2515490",
+    "word": "ヒュレー",
+    "meanings": [
+      "hyle",
+      "matter"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon",
+      "youon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2844519",
+    "word": "プネウマ",
+    "meanings": [
+      "pneuma",
+      "spirit",
+      "soul"
+    ],
+    "originLanguage": "grc",
+    "originalWord": null,
+    "categories": [
+      "philosophy"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "category:philosophy"
+  },
+  {
+    "id": "2331460",
+    "word": "マイナーバージョンアップ",
+    "meanings": [
+      "minor upgrade"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "minor version up",
+    "categories": [
+      "computing"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon",
+      "youon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2845419",
+    "word": "ミルクフランス",
+    "meanings": [
+      "breadstick filled with milk-flavored cream",
+      "cream-filled baguette"
+    ],
+    "originLanguage": "eng",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "romaji": "mi-ru-ku-fu-ra-n-su",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2333480",
+    "word": "メジャーバージョンアップ",
+    "meanings": [
+      "major upgrade (esp. software)",
+      "major update"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "major version up",
+    "categories": [
+      "computing"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon",
+      "handakuon",
+      "youon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2752760",
+    "word": "メンタンピン",
+    "meanings": [
+      "combination of rīchi, tanyao, and pinfu (common trio of yaku)"
+    ],
+    "originLanguage": "chi",
+    "originalWord": null,
+    "categories": [
+      "mahjong"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "romaji": "me-n-ta-n-pi-n",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2737270",
+    "word": "ルイベ",
+    "meanings": [
+      "salmon, saffron cod, etc. cut into thin slices while frozen"
+    ],
+    "originLanguage": "ain",
+    "originalWord": null,
+    "categories": [
+      "food, cooking"
+    ],
+    "patterns": [
+      "dakuon",
+      "gojuon"
+    ],
+    "romaji": "ru-i-be",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2860383",
+    "word": "ルンペンプロレタリアート",
+    "meanings": [
+      "lumpenproletariat"
+    ],
+    "originLanguage": "ger",
+    "originalWord": "Lumpenproletariat",
+    "categories": [
+      "politics"
+    ],
+    "patterns": [
+      "gojuon",
+      "handakuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  },
+  {
+    "id": "2843764",
+    "word": "ロコモ",
+    "meanings": [
+      "musculoskeletal deterioration in the elderly reducing locomotive ability"
+    ],
+    "originLanguage": null,
+    "originalWord": null,
+    "categories": [
+      "medicine"
+    ],
+    "patterns": [
+      "gojuon"
+    ],
+    "romaji": "ro-ko-mo",
+    "exclusion_reason": "no_original_word"
+  },
+  {
+    "id": "2843763",
+    "word": "ロコモティブシンドローム",
+    "meanings": [
+      "musculoskeletal deterioration in the elderly reducing locomotive ability"
+    ],
+    "originLanguage": "eng",
+    "originalWord": "locomotive syndrome",
+    "categories": [
+      "medicine"
+    ],
+    "patterns": [
+      "dakuon",
+      "extended",
+      "gojuon"
+    ],
+    "exclusion_reason": "explicit_exclusion"
+  }
+]
