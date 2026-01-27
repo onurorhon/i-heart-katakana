@@ -12,10 +12,16 @@ struct HamburgerMenu: View {
     let onItemTap: (HamburgerMenuItem) -> Void
 
     @State private var showingPeekOptions = false
+    @State private var showingColorOptions = false
+
+    // Theme names in display order
+    private let themeNames = ["Pink", "Blue", "Green", "Yellow", "Purple"]
 
     var body: some View {
         if showingPeekOptions {
             peekSubmenu
+        } else if showingColorOptions {
+            colorSubmenu
         } else {
             mainMenu
         }
@@ -47,7 +53,11 @@ struct HamburgerMenu: View {
             ForEach(HamburgerMenuItem.allCases, id: \.self) { item in
                 FloatingCard {
                     Button {
-                        onItemTap(item)
+                        if item == .colors {
+                            showingColorOptions = true
+                        } else {
+                            onItemTap(item)
+                        }
                     } label: {
                         HStack {
                             Text(item.rawValue)
@@ -107,6 +117,104 @@ struct HamburgerMenu: View {
                         .buttonStyle(.plain)
 
                         if index < PracticeSettings.PeekHintType.allCases.count - 1 {
+                            Divider()
+                                .padding(.leading, 28)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: 220)
+    }
+
+    private var colorSubmenu: some View {
+        VStack(alignment: .trailing, spacing: 12) {
+            // Back and close buttons
+            HStack {
+                FloatingBackButton {
+                    showingColorOptions = false
+                }
+                Spacer()
+                FloatingCloseButton(action: onClose)
+            }
+
+            // Color options
+            FloatingCard {
+                VStack(spacing: 0) {
+                    // Randomize toggle
+                    Toggle("Randomize", isOn: $settings.randomizeTheme)
+                        .padding(.bottom, 8)
+
+                    // Select all / Unselect all pill (only when randomize is on)
+                    if settings.randomizeTheme {
+                        let allSelected = settings.enabledThemeIndices.count == themeNames.count
+
+                        Button {
+                            if allSelected {
+                                // Unselect all but first
+                                settings.enabledThemeIndices = [0]
+                            } else {
+                                // Select all
+                                settings.enabledThemeIndices = Set(0..<themeNames.count)
+                            }
+                        } label: {
+                            Text(allSelected ? "Unselect all" : "Select all")
+                                .font(.subheadline)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(.quaternary, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 8)
+                    }
+
+                    Divider()
+                        .padding(.bottom, 8)
+
+                    // Theme list
+                    ForEach(Array(themeNames.enumerated()), id: \.offset) { index, name in
+                        Button {
+                            if settings.randomizeTheme {
+                                // Checkbox mode - toggle this theme
+                                if settings.enabledThemeIndices.contains(index) {
+                                    // Don't allow deselecting the last one
+                                    if settings.enabledThemeIndices.count > 1 {
+                                        settings.enabledThemeIndices.remove(index)
+                                    }
+                                } else {
+                                    settings.enabledThemeIndices.insert(index)
+                                }
+                            } else {
+                                // Radio mode - select only this theme
+                                settings.selectedThemeIndex = index
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                if settings.randomizeTheme {
+                                    // Checkbox
+                                    Image(systemName: settings.enabledThemeIndices.contains(index) ? "checkmark.square.fill" : "square")
+                                        .foregroundColor(settings.enabledThemeIndices.contains(index) ? .accentColor : .secondary)
+                                        .frame(width: 20)
+                                } else {
+                                    // Radio button
+                                    Image(systemName: settings.selectedThemeIndex == index ? "circle.inset.filled" : "circle")
+                                        .foregroundColor(settings.selectedThemeIndex == index ? .accentColor : .secondary)
+                                        .frame(width: 20)
+                                }
+
+                                Text(name)
+                                    .foregroundColor(.primary)
+                                    .lineLimit(1)
+
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+
+                        if index < themeNames.count - 1 {
                             Divider()
                                 .padding(.leading, 28)
                         }

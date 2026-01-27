@@ -81,9 +81,9 @@ struct PracticeView: View {
     @State private var showVoiceHintAlert = false
     @State private var pendingTTSText: String? = nil
 
-    // Theme cycling
+    // Theme colors
     @Environment(\.colorScheme) private var colorScheme
-    @State private var currentThemeIndex: Int? = 0
+    @State private var shuffledThemeOrder: [Int] = []
 
     private struct Theme {
         let lightBackground: Color
@@ -93,27 +93,42 @@ struct PracticeView: View {
         var darkForeground: Color { lightBackground }
     }
 
+    // Order: Pink, Blue, Green, Yellow, Purple
     private let themes: [Theme] = [
-        Theme(lightBackground: Color(red: 1.0, green: 0.98, blue: 0.9),
-              lightForeground: Color(red: 0.6, green: 0.5, blue: 0.2)),   // Yellow
         Theme(lightBackground: Color(red: 1.0, green: 0.92, blue: 0.93),
               lightForeground: Color(red: 0.7, green: 0.2, blue: 0.3)),   // Pink
-        Theme(lightBackground: Color(red: 0.95, green: 0.92, blue: 1.0),
-              lightForeground: Color(red: 0.4, green: 0.3, blue: 0.6)),   // Purple
-        Theme(lightBackground: Color(red: 0.92, green: 1.0, blue: 0.94),
-              lightForeground: Color(red: 0.2, green: 0.5, blue: 0.3)),   // Green
         Theme(lightBackground: Color(red: 0.92, green: 0.96, blue: 1.0),
               lightForeground: Color(red: 0.2, green: 0.4, blue: 0.6)),   // Blue
+        Theme(lightBackground: Color(red: 0.92, green: 1.0, blue: 0.94),
+              lightForeground: Color(red: 0.2, green: 0.5, blue: 0.3)),   // Green
+        Theme(lightBackground: Color(red: 1.0, green: 0.98, blue: 0.9),
+              lightForeground: Color(red: 0.6, green: 0.5, blue: 0.2)),   // Yellow
+        Theme(lightBackground: Color(red: 0.95, green: 0.92, blue: 1.0),
+              lightForeground: Color(red: 0.4, green: 0.3, blue: 0.6)),   // Purple
     ]
 
-    private var currentBackground: Color {
-        let theme = themes[currentThemeIndex ?? 0]
+    private func themeIndex(for pageIndex: Int) -> Int {
+        if settings.randomizeTheme && !shuffledThemeOrder.isEmpty {
+            // Cycle through shuffled enabled themes
+            return shuffledThemeOrder[pageIndex % shuffledThemeOrder.count]
+        } else {
+            // Single selected theme
+            return settings.selectedThemeIndex
+        }
+    }
+
+    private func backgroundColor(for pageIndex: Int) -> Color {
+        let theme = themes[themeIndex(for: pageIndex)]
         return colorScheme == .dark ? theme.darkBackground : theme.lightBackground
     }
 
-    private var currentForeground: Color {
-        let theme = themes[currentThemeIndex ?? 0]
+    private func foregroundColor(for pageIndex: Int) -> Color {
+        let theme = themes[themeIndex(for: pageIndex)]
         return colorScheme == .dark ? theme.darkForeground : theme.lightForeground
+    }
+
+    private func reshuffleThemeOrder() {
+        shuffledThemeOrder = Array(settings.enabledThemeIndices).shuffled()
     }
 
     private let peekThreshold: CGFloat = 150
@@ -129,7 +144,7 @@ struct PracticeView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 0) {
                                 ForEach(0..<pageCount, id: \.self) { pageIndex in
-                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, themeIndex: currentThemeIndex ?? 0, safeAreaInsets: safeInsets)
+                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets)
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(pageIndex)
                                 }
@@ -184,6 +199,12 @@ struct PracticeView: View {
             if isLoaded {
                 refreshFromSettings()
             }
+        }
+        .onChange(of: settings.enabledThemeIndices) { _, _ in
+            reshuffleThemeOrder()
+        }
+        .onChange(of: settings.randomizeTheme) { _, _ in
+            reshuffleThemeOrder()
         }
         .alert("Better Voice Quality", isPresented: $showVoiceHintAlert) {
             Button("Got it") {
@@ -269,6 +290,7 @@ struct PracticeView: View {
         guard totalItems > 0 else { return }
 
         reshuffleDeck()
+        reshuffleThemeOrder()
         history = []
 
         // Draw first item from fresh deck
@@ -288,14 +310,14 @@ struct PracticeView: View {
     // MARK: - Card View
 
     @ViewBuilder
-    private func cardView(for item: CardData?, pageIndex: Int, themeIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
+    private func cardView(for item: CardData?, pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         if let item = item {
             // Only show revealed content on the current page
             let showRevealed = isAnswerRevealed && pageIndex == currentPage
 
             ZStack {
                 // Theme background
-                currentBackground
+                backgroundColor(for: pageIndex)
 
                 // Subtle overlay on even cards for visual separation
                 if pageIndex % 2 == 0 {
@@ -310,7 +332,7 @@ struct PracticeView: View {
                     // Question (the katakana)
                     Text(item.question)
                         .font(.system(size: 72))
-                        .foregroundColor(currentForeground)
+                        .foregroundColor(foregroundColor(for: pageIndex))
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
 
@@ -387,17 +409,17 @@ struct PracticeView: View {
             }
         } else if isDeckExhausted && pageIndex == history.count {
             // End card - shown when all items have been seen
-            endCardView(themeIndex: themeIndex, safeAreaInsets: safeAreaInsets)
+            endCardView(pageIndex: pageIndex, safeAreaInsets: safeAreaInsets)
         } else {
             Color.clear
         }
     }
 
     @ViewBuilder
-    private func endCardView(themeIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
+    private func endCardView(pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         ZStack {
             // Theme background
-            currentBackground
+            backgroundColor(for: pageIndex)
 
             HStack(spacing: 40) {
                 // Restart button - repeat same order
@@ -406,7 +428,7 @@ struct PracticeView: View {
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 32))
-                        .foregroundColor(currentForeground)
+                        .foregroundColor(foregroundColor(for: pageIndex))
                         .frame(width: 80, height: 80)
                         .background(.ultraThinMaterial, in: Circle())
                 }
@@ -417,7 +439,7 @@ struct PracticeView: View {
                 } label: {
                     Image(systemName: "shuffle")
                         .font(.system(size: 32))
-                        .foregroundColor(currentForeground)
+                        .foregroundColor(foregroundColor(for: pageIndex))
                         .frame(width: 80, height: 80)
                         .background(.ultraThinMaterial, in: Circle())
                 }
@@ -507,6 +529,7 @@ struct PracticeView: View {
                 deckPosition = saved.deckPosition
                 currentPage = saved.currentPage
                 generatePendingNext()
+                reshuffleThemeOrder()
             } else {
                 // Start fresh session
                 resetHistory()
@@ -554,6 +577,7 @@ struct PracticeView: View {
         // Initialize shuffled deck and start fresh
         guard totalItems > 0 else { return }
         reshuffleDeck()
+        reshuffleThemeOrder()
 
         // Draw first item from deck
         let firstIndex = shuffledDeck[deckPosition]

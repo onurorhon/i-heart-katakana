@@ -50,6 +50,19 @@ class PracticeSettings {
         didSet { defaults.set(selectedCategory, forKey: "selectedCategory") }
     }
 
+    // Color theme settings
+    var randomizeTheme: Bool {
+        didSet { defaults.set(randomizeTheme, forKey: "randomizeTheme") }
+    }
+
+    var selectedThemeIndex: Int {
+        didSet { defaults.set(selectedThemeIndex, forKey: "selectedThemeIndex") }
+    }
+
+    var enabledThemeIndices: Set<Int> {
+        didSet { defaults.set(Array(enabledThemeIndices), forKey: "enabledThemeIndices") }
+    }
+
     var enabledPatterns: [String] {
         var patterns: [String] = []
         if gojuonEnabled { patterns.append("gojuon") }
@@ -81,5 +94,15 @@ class PracticeSettings {
         self.extendedEnabled = defaults.bool(forKey: "extendedEnabled")
 
         self.selectedCategory = defaults.string(forKey: "selectedCategory")
+
+        // Color theme settings
+        self.randomizeTheme = defaults.bool(forKey: "randomizeTheme") // Default: false
+        self.selectedThemeIndex = defaults.integer(forKey: "selectedThemeIndex") // Default: 0 (Pink)
+
+        if let savedIndices = defaults.array(forKey: "enabledThemeIndices") as? [Int] {
+            self.enabledThemeIndices = Set(savedIndices)
+        } else {
+            self.enabledThemeIndices = Set(0..<5) // Default: all themes enabled
+        }
     }
 }
