@@ -1,6 +1,7 @@
 # Critical Rules for Claude Code
 
 - Never hardcode design values (colors, fonts, spacing) during Phase 1. Use placeholder tokens or system defaults.
+- Never include AI disclaimers in commits. No "Co-Authored-By: Claude", "Generated with Claude Code", or similar.
 - For content changes, update `data/words.json` via the curation scripts in `scripts/`.
 
 ## MCP Tools
