@@ -81,6 +81,16 @@ struct PracticeView: View {
     @State private var showVoiceHintAlert = false
     @State private var pendingTTSText: String? = nil
 
+    // Theme cycling
+    @State private var currentThemeIndex: Int? = 0
+    private let themeColors: [Color] = [
+        Color(red: 1.0, green: 0.98, blue: 0.9),   // Pale yellow
+        Color(red: 1.0, green: 0.92, blue: 0.93),  // Pale pink
+        Color(red: 0.95, green: 0.92, blue: 1.0),  // Pale purple
+        Color(red: 0.92, green: 1.0, blue: 0.94),  // Pale green
+        Color(red: 0.92, green: 0.96, blue: 1.0),  // Pale blue
+    ]
+
     private let peekThreshold: CGFloat = 150
 
     var body: some View {
@@ -94,7 +104,7 @@ struct PracticeView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 0) {
                                 ForEach(0..<pageCount, id: \.self) { pageIndex in
-                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets)
+                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, themeIndex: currentThemeIndex ?? 0, safeAreaInsets: safeInsets)
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(pageIndex)
                                 }
@@ -120,6 +130,7 @@ struct PracticeView: View {
                             }
                         }
                         .simultaneousGesture(peekGesture)
+                        .simultaneousGesture(themeCycleGesture)
                     }
                 }
                 .ignoresSafeArea()
@@ -253,16 +264,19 @@ struct PracticeView: View {
     // MARK: - Card View
 
     @ViewBuilder
-    private func cardView(for item: CardData?, pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
+    private func cardView(for item: CardData?, pageIndex: Int, themeIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         if let item = item {
             // Only show revealed content on the current page
             let showRevealed = isAnswerRevealed && pageIndex == currentPage
 
             ZStack {
-                #if DEBUG
-                // Stable background color based on page index for debugging card boundaries
-                Color.gray.opacity(debugColorOpacity(for: pageIndex))
-                #endif
+                // Theme background
+                themeColors[themeIndex]
+
+                // Subtle overlay on odd cards for visual separation
+                if pageIndex % 2 == 1 {
+                    Color.gray.opacity(0.05)
+                }
 
                 VStack(spacing: 16) {
                     // Peek hint area (fades out when answer revealed, only active on current page)
@@ -348,18 +362,17 @@ struct PracticeView: View {
             }
         } else if isDeckExhausted && pageIndex == history.count {
             // End card - shown when all items have been seen
-            endCardView(safeAreaInsets: safeAreaInsets)
+            endCardView(themeIndex: themeIndex, safeAreaInsets: safeAreaInsets)
         } else {
             Color.clear
         }
     }
 
     @ViewBuilder
-    private func endCardView(safeAreaInsets: EdgeInsets) -> some View {
+    private func endCardView(themeIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         ZStack {
-            #if DEBUG
-            Color.gray.opacity(0.15)
-            #endif
+            // Theme background
+            themeColors[themeIndex]
 
             HStack(spacing: 40) {
                 // Restart button - repeat same order
@@ -389,14 +402,6 @@ struct PracticeView: View {
             .padding(.bottom, 20 + safeAreaInsets.bottom)
         }
     }
-
-    #if DEBUG
-    /// Generate a stable opacity value based on page index
-    private func debugColorOpacity(for pageIndex: Int) -> Double {
-        let hash = abs(pageIndex.hashValue)
-        return 0.1 + Double(hash % 20) / 100.0
-    }
-    #endif
 
     // MARK: - Peek Gesture
 
@@ -436,6 +441,29 @@ struct PracticeView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         isPeeking = false
                         hasTriggeredPeekAudio = false
+                    }
+                }
+            }
+    }
+
+    // MARK: - Theme Cycle Gesture
+
+    private var themeCycleGesture: some Gesture {
+        DragGesture()
+            .onEnded { value in
+                let vertical = value.translation.height
+                let horizontal = abs(value.translation.width)
+
+                // Only cycle theme if swiping more up than sideways
+                if vertical < -50 && abs(vertical) > horizontal {
+                    // Swipe up - next theme
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        currentThemeIndex = ((currentThemeIndex ?? 0) + 1) % themeColors.count
+                    }
+                } else if vertical > 50 && vertical > horizontal && !isPeeking {
+                    // Swipe down (when not peeking) - previous theme
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        currentThemeIndex = ((currentThemeIndex ?? 0) - 1 + themeColors.count) % themeColors.count
                     }
                 }
             }
