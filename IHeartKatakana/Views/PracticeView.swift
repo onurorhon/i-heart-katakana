@@ -82,14 +82,39 @@ struct PracticeView: View {
     @State private var pendingTTSText: String? = nil
 
     // Theme cycling
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentThemeIndex: Int? = 0
-    private let themeColors: [Color] = [
-        Color(red: 1.0, green: 0.98, blue: 0.9),   // Pale yellow
-        Color(red: 1.0, green: 0.92, blue: 0.93),  // Pale pink
-        Color(red: 0.95, green: 0.92, blue: 1.0),  // Pale purple
-        Color(red: 0.92, green: 1.0, blue: 0.94),  // Pale green
-        Color(red: 0.92, green: 0.96, blue: 1.0),  // Pale blue
+
+    private struct Theme {
+        let lightBackground: Color
+        let lightForeground: Color
+        // Dark mode swaps: bg becomes fg, fg becomes bg
+        var darkBackground: Color { lightForeground }
+        var darkForeground: Color { lightBackground }
+    }
+
+    private let themes: [Theme] = [
+        Theme(lightBackground: Color(red: 1.0, green: 0.98, blue: 0.9),
+              lightForeground: Color(red: 0.6, green: 0.5, blue: 0.2)),   // Yellow
+        Theme(lightBackground: Color(red: 1.0, green: 0.92, blue: 0.93),
+              lightForeground: Color(red: 0.7, green: 0.2, blue: 0.3)),   // Pink
+        Theme(lightBackground: Color(red: 0.95, green: 0.92, blue: 1.0),
+              lightForeground: Color(red: 0.4, green: 0.3, blue: 0.6)),   // Purple
+        Theme(lightBackground: Color(red: 0.92, green: 1.0, blue: 0.94),
+              lightForeground: Color(red: 0.2, green: 0.5, blue: 0.3)),   // Green
+        Theme(lightBackground: Color(red: 0.92, green: 0.96, blue: 1.0),
+              lightForeground: Color(red: 0.2, green: 0.4, blue: 0.6)),   // Blue
     ]
+
+    private var currentBackground: Color {
+        let theme = themes[currentThemeIndex ?? 0]
+        return colorScheme == .dark ? theme.darkBackground : theme.lightBackground
+    }
+
+    private var currentForeground: Color {
+        let theme = themes[currentThemeIndex ?? 0]
+        return colorScheme == .dark ? theme.darkForeground : theme.lightForeground
+    }
 
     private let peekThreshold: CGFloat = 150
 
@@ -130,7 +155,6 @@ struct PracticeView: View {
                             }
                         }
                         .simultaneousGesture(peekGesture)
-                        .simultaneousGesture(themeCycleGesture)
                     }
                 }
                 .ignoresSafeArea()
@@ -271,11 +295,11 @@ struct PracticeView: View {
 
             ZStack {
                 // Theme background
-                themeColors[themeIndex]
+                currentBackground
 
-                // Subtle overlay on odd cards for visual separation
-                if pageIndex % 2 == 1 {
-                    Color.gray.opacity(0.05)
+                // Subtle overlay on even cards for visual separation
+                if pageIndex % 2 == 0 {
+                    Color.black.opacity(colorScheme == .dark ? 0.06 : 0.035)
                 }
 
                 VStack(spacing: 16) {
@@ -286,6 +310,7 @@ struct PracticeView: View {
                     // Question (the katakana)
                     Text(item.question)
                         .font(.system(size: 72))
+                        .foregroundColor(currentForeground)
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
 
@@ -372,7 +397,7 @@ struct PracticeView: View {
     private func endCardView(themeIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
         ZStack {
             // Theme background
-            themeColors[themeIndex]
+            currentBackground
 
             HStack(spacing: 40) {
                 // Restart button - repeat same order
@@ -381,6 +406,7 @@ struct PracticeView: View {
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 32))
+                        .foregroundColor(currentForeground)
                         .frame(width: 80, height: 80)
                         .background(.ultraThinMaterial, in: Circle())
                 }
@@ -391,6 +417,7 @@ struct PracticeView: View {
                 } label: {
                     Image(systemName: "shuffle")
                         .font(.system(size: 32))
+                        .foregroundColor(currentForeground)
                         .frame(width: 80, height: 80)
                         .background(.ultraThinMaterial, in: Circle())
                 }
@@ -441,29 +468,6 @@ struct PracticeView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         isPeeking = false
                         hasTriggeredPeekAudio = false
-                    }
-                }
-            }
-    }
-
-    // MARK: - Theme Cycle Gesture
-
-    private var themeCycleGesture: some Gesture {
-        DragGesture()
-            .onEnded { value in
-                let vertical = value.translation.height
-                let horizontal = abs(value.translation.width)
-
-                // Only cycle theme if swiping more up than sideways
-                if vertical < -50 && abs(vertical) > horizontal {
-                    // Swipe up - next theme
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        currentThemeIndex = ((currentThemeIndex ?? 0) + 1) % themeColors.count
-                    }
-                } else if vertical > 50 && vertical > horizontal && !isPeeking {
-                    // Swipe down (when not peeking) - previous theme
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        currentThemeIndex = ((currentThemeIndex ?? 0) - 1 + themeColors.count) % themeColors.count
                     }
                 }
             }
