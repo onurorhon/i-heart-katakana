@@ -304,7 +304,7 @@ struct PracticeView: View {
 
                     // Answer details (appear on reveal)
                     VStack(spacing: 8) {
-                        Text(item.romaji)
+                        Text(item.romaji.replacingOccurrences(of: "-", with: ""))
                             .font(.title2)
                             .foregroundColor(.secondary)
 

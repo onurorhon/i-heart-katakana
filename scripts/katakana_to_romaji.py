@@ -98,45 +98,52 @@ SMALL_TSU = 'ッ'
 # Long vowel mark
 LONG_VOWEL = 'ー'
 
-def katakana_to_romaji(text):
-    """Convert katakana string to romaji."""
-    result = []
+def katakana_to_romaji(text, use_dashes=True):
+    """Convert katakana string to romaji.
+
+    Args:
+        text: Katakana string to convert
+        use_dashes: If True, separate syllables with dashes (e.g., 'pa-su-waa-do')
+    """
+    syllables = []  # List of syllable strings
+    pending_double = False  # Track if next syllable needs doubled consonant
     i = 0
 
     while i < len(text):
         # Check for small tsu (doubles next consonant)
         if text[i] == SMALL_TSU:
-            # Look ahead for next character's consonant
-            if i + 1 < len(text):
-                next_romaji, _ = get_romaji_at(text, i + 1)
-                if next_romaji and next_romaji[0].isalpha():
-                    result.append(next_romaji[0])  # Double the consonant
+            pending_double = True
             i += 1
             continue
 
         # Check for long vowel mark
         if text[i] == LONG_VOWEL:
-            # Extend previous vowel
-            if result:
-                last = result[-1]
+            # Extend previous syllable's vowel
+            if syllables:
+                last = syllables[-1]
                 if last and last[-1] in 'aeiou':
-                    result.append(last[-1])  # Repeat the vowel
-                else:
-                    result.append('-')  # Fallback
+                    syllables[-1] = last + last[-1]  # Extend the vowel
             i += 1
             continue
 
         # Try two-character combinations first (yōon, extended)
         romaji, consumed = get_romaji_at(text, i)
         if romaji:
-            result.append(romaji)
+            # Apply doubled consonant if pending
+            if pending_double and romaji[0].isalpha():
+                romaji = romaji[0] + romaji
+                pending_double = False
+            syllables.append(romaji)
             i += consumed
         else:
             # Unknown character, keep as-is
-            result.append(text[i])
+            syllables.append(text[i])
             i += 1
 
-    return ''.join(result)
+    if use_dashes:
+        return '-'.join(syllables)
+    else:
+        return ''.join(syllables)
 
 def get_romaji_at(text, i):
     """Get romaji for character(s) at position i. Returns (romaji, chars_consumed)."""
@@ -155,20 +162,26 @@ def get_romaji_at(text, i):
 
 
 if __name__ == '__main__':
-    # Test cases
-    tests = [
-        ('コーヒー', 'koohii'),
-        ('アイスクリーム', 'aisukuriimu'),
-        ('コンピューター', 'konpyuutaa'),
-        ('ファイル', 'fairu'),
-        ('ティッシュ', 'tisshu'),
-        ('カタカナ', 'katakana'),
-        ('ジュース', 'juusu'),
-        ('チョコレート', 'chokoreeto'),
+    # Test cases with dashes
+    tests_dashed = [
+        ('コーヒー', 'koo-hii'),
+        ('アイスクリーム', 'a-i-su-ku-rii-mu'),
+        ('コンピューター', 'ko-n-pyuu-taa'),
+        ('ファイル', 'fa-i-ru'),
+        ('ティッシュ', 'ti-sshu'),
+        ('カタカナ', 'ka-ta-ka-na'),
+        ('ジュース', 'juu-su'),
+        ('チョコレート', 'cho-ko-ree-to'),
+        ('パスワード', 'pa-su-waa-do'),
     ]
 
-    print("Testing katakana to romaji conversion:")
-    for katakana, expected in tests:
-        result = katakana_to_romaji(katakana)
+    print("Testing katakana to romaji conversion (with dashes):")
+    for katakana, expected in tests_dashed:
+        result = katakana_to_romaji(katakana, use_dashes=True)
         status = '✓' if result == expected else '✗'
         print(f"  {status} {katakana} → {result} (expected: {expected})")
+
+    # Test without dashes
+    print("\nTesting without dashes:")
+    result = katakana_to_romaji('パスワード', use_dashes=False)
+    print(f"  パスワード → {result} (expected: pasuwaado)")

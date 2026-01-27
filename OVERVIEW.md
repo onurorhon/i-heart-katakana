@@ -131,7 +131,7 @@ Katakana character table. Additional reference content TBD.
 
 ## 7. Technical Constraints
 
-- iOS only (iPhone).
+- iOS only (iPhone and iPad).
 - SwiftUI (native framework).
 - Minimum iOS 18.
 - Free, no in-app purchases.

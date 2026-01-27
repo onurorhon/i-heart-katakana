@@ -190,7 +190,7 @@
       "dakuon",
       "gojuon"
     ],
-    "romaji": "andansuu",
+    "romaji": "a-n-da-n-suu",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -508,7 +508,7 @@
       "gojuon",
       "handakuon"
     ],
-    "romaji": "korokkepan",
+    "romaji": "ko-ro-kke-pa-n",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -527,7 +527,7 @@
       "gojuon",
       "youon"
     ],
-    "romaji": "shanbiri",
+    "romaji": "sha-n-bi-ri",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -600,7 +600,7 @@
     "patterns": [
       "gojuon"
     ],
-    "romaji": "sumakku",
+    "romaji": "su-ma-kku",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -636,7 +636,7 @@
     "patterns": [
       "gojuon"
     ],
-    "romaji": "sooki",
+    "romaji": "soo-ki",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -653,7 +653,7 @@
     "patterns": [
       "gojuon"
     ],
-    "romaji": "soosukatsu",
+    "romaji": "soo-su-ka-tsu",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -689,7 +689,7 @@
       "gojuon",
       "handakuon"
     ],
-    "romaji": "tanpin",
+    "romaji": "ta-n-pi-n",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -813,7 +813,7 @@
       "dakuon",
       "gojuon"
     ],
-    "romaji": "hamukatsusando",
+    "romaji": "ha-mu-ka-tsu-sa-n-do",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -832,7 +832,7 @@
       "gojuon",
       "handakuon"
     ],
-    "romaji": "batapii",
+    "romaji": "ba-ta-pii",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -906,7 +906,7 @@
     "patterns": [
       "gojuon"
     ],
-    "romaji": "mirukufuransu",
+    "romaji": "mi-ru-ku-fu-ra-n-su",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -944,7 +944,7 @@
       "gojuon",
       "handakuon"
     ],
-    "romaji": "mentanpin",
+    "romaji": "me-n-ta-n-pi-n",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -962,7 +962,7 @@
       "dakuon",
       "gojuon"
     ],
-    "romaji": "ruibe",
+    "romaji": "ru-i-be",
     "exclusion_reason": "no_original_word"
   },
   {
@@ -996,7 +996,7 @@
     "patterns": [
       "gojuon"
     ],
-    "romaji": "rokomo",
+    "romaji": "ro-ko-mo",
     "exclusion_reason": "no_original_word"
   },
   {

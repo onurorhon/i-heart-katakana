@@ -49,7 +49,11 @@ Before committing, run the `context-architect` agent to audit documentation for 
 - Reports violations with suggested fixes.
 - If violations found, fix them before proceeding.
 
-**3. Git commit and push**
+**3. Run project-chronicler agent**
+
+Run the `project-chronicler` agent to capture case-study-worthy moments from the session. Skip if the session was purely routine. Entries require user approval before appending to `DEVLOG.md`.
+
+**4. Git commit and push**
 
 Commit all changes (documentation and code) with a descriptive message. Push to GitHub.
 
@@ -59,7 +63,7 @@ git commit -m "<description of changes>"
 git push origin main
 ```
 
-**4. Session report**
+**5. Session report**
 
 Provide the user with:
 
