@@ -134,7 +134,8 @@ struct PracticeView: View {
                         .background(.ultraThinMaterial, in: Capsule())
                 }
                 .safeAreaPadding()
-                .opacity(isDeckExhausted && currentPage == history.count ? 0 : 1)
+                .opacity(isAnswerRevealed || (isDeckExhausted && currentPage == history.count) ? 0 : 1)
+                .animation(.easeOut(duration: 0.3), value: isAnswerRevealed)
                 .animation(.easeOut(duration: 0.3), value: currentPage)
             }
         }
