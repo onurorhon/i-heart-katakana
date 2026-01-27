@@ -437,9 +437,9 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2)
     print(f"\nWritten {len(output)} entries to ../data/words.json")
 
-    with open('../words_excluded.json', 'w') as f:
+    with open('../data/words_excluded.json', 'w') as f:
         json.dump(excluded, f, ensure_ascii=False, indent=2)
-    print(f"Written {len(excluded)} excluded entries to ../words_excluded.json")
+    print(f"Written {len(excluded)} excluded entries to ../data/words_excluded.json")
 
     # Show some samples
     print("\n=== Sample Curated Entries ===")
