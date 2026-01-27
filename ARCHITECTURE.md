@@ -459,7 +459,6 @@ Build functional prototype with SwiftUI defaults:
 
 - App Store metadata and screenshots.
 - Submit for review.
-- Publish `i-heart-katakana-data` content.
 
 ### Post-Launch
 

@@ -27,7 +27,6 @@
 - Specific counts or statistics from script runs.
 - Progress checkmarks or completion status.
 - Session outputs or historical reports.
-- Script usage instructions (those go in the `i-heart-katakana-data` repo).
 
 **OVERVIEW.md** may contain:
 - Aspirational targets (e.g., "1,000+ items", "~20 fonts").
