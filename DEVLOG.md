@@ -4,19 +4,16 @@ Case-study-worthy moments from building I♥︎Katakana.
 
 ---
 
-## 2026-01-26 — Store the Hard Part
+## 2026-01-26
 
-**The problem:** Romaji hints needed dashes between syllables for learners (e.g., `ka-ta-ka-na` instead of `katakana`).
+### Store the Hard Part
+**Tags:** #technical #domain
 
-**The wrong instinct:** Parse plain romaji into syllables at display time.
+**Context:** Romaji hints needed dashes between syllables for learners (`ka-ta-ka-na`). Initial instinct was to parse plain romaji into syllables at display time in Swift.
 
-**The insight:** "Removing dashes is trivial. Parsing romaji into syllables is tricky. Segmented storage preserves information that's annoying to reconstruct."
+**Insight:** "Removing dashes is trivial. Parsing romaji into syllables is tricky." Store the version that's hardest to derive. Segmented romaji is now canonical; plain form is a one-liner to derive.
 
-This is a general principle worth remembering: when choosing canonical data formats, store the version that's hardest to derive. You can always strip structure away; recreating it requires either complex parsing logic or domain knowledge that may be lossy.
-
-The words database now stores `romaji: "ka-ta-ka-na"` as canonical. Deriving `katakana` is a one-liner: `romaji.replacingOccurrences(of: "-", with: "")`.
-
-**Validation:** The content curator agent confirmed this supports *mora awareness* — a key concept for Japanese learners where each syllable (mora) gets equal timing. Dashed romaji makes mora boundaries explicit.
+**Why it matters:** Pedagogy shaped data structure. Content curator confirmed dashed romaji supports *mora awareness* — each Japanese syllable gets equal timing. Domain expertise drove a technical decision.
 
 ---
 
