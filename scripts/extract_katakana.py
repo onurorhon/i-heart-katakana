@@ -180,10 +180,13 @@ def parse_jmdict(filepath):
                 if field.text:
                     categories.add(field.text)
 
-            # Get misc info (includes wasei-eigo tag)
+            # Get misc info (includes wasei-eigo and onomatopoeia tags)
             for misc in sense.findall('misc'):
-                if misc.text and 'wasei' in misc.text.lower():
-                    is_wasei_eigo = True
+                if misc.text:
+                    if 'wasei' in misc.text.lower():
+                        is_wasei_eigo = True
+                    if 'onomatopoeic' in misc.text.lower() or 'mimetic' in misc.text.lower():
+                        categories.add('onomatopoeia')
 
         # Analyze phonetic patterns
         patterns = analyze_patterns(reading)

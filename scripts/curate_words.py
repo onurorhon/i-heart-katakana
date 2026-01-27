@@ -66,6 +66,7 @@ PARENT_CATEGORY_MAP = {
 
     # Everyday Life
     'clothing': 'Everyday Life',
+    'onomatopoeia': 'Onomatopoeia',
 
     # Sports & Recreation
     'sports': 'Sports & Recreation',
@@ -325,7 +326,7 @@ def main():
     # Build category-only set (categories to include even without originLanguage)
     # Note: Niche categories (baseball, golf, computing, etc.) come via gold set only
     target_cats = {'food, cooking', 'sports', 'music', 'clothing', 'trademark',
-                   'business', 'medicine', 'film', 'photography'}
+                   'business', 'medicine', 'film', 'photography', 'onomatopoeia'}
 
     cat_only = [w for w in all_words
                 if w['categories']
@@ -362,11 +363,16 @@ def main():
             # Generate romaji from katakana
             word['romaji'] = katakana_to_romaji(word['word'])
 
-            # Infer originalWord for English entries missing it
-            inferred = infer_original_word(word)
-            if inferred:
-                word['originalWordInferred'] = inferred
+            # Infer originalWord for entries missing it
+            # Onomatopoeia are native Japanese - use placeholder instead of inferring
+            if 'onomatopoeia' in word.get('categories', []):
+                word['originalWordInferred'] = '(onomatopoeia)'
                 inferred_count += 1
+            else:
+                inferred = infer_original_word(word)
+                if inferred:
+                    word['originalWordInferred'] = inferred
+                    inferred_count += 1
 
             # Check for wasei-eigo: use JMdict source data first, then database for extra info
             if word.get('wasei_eigo'):
