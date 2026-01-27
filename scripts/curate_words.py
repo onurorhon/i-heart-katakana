@@ -5,12 +5,20 @@ Curate extracted katakana words into final words.json.
 Combines gold set + category-only batch, applies exclusions, infers source languages,
 backfills original words, and detects wasei-eigo.
 
+Exclusion sources:
+    1. Pattern rules (baked into code):
+       - Categories (philosophy, psychoanalysis)
+       - Length (15+ katakana characters)
+       - Multi-word (3+ words in original), except:
+         * food, cooking category
+         * Culinary languages (French, Italian, Spanish, Portuguese, German)
+    2. Specific IDs (from ../data/words_excluded.json): persistent, never overwritten
+
 Usage:
     python curate_words.py
 
 Outputs:
     ../data/words.json - Final curated dataset
-    ../words_excluded.json - Excluded entries for reference
 """
 
 import json
@@ -23,43 +31,23 @@ from katakana_to_romaji import katakana_to_romaji
 EXCLUDE_CATEGORIES = {
     'philosophy',  # Too academic
     'psychoanalysis',  # Too specialized
+    'mahjong',  # Niche gambling game jargon
+    'hanafuda',  # Niche card game jargon
 }
 
-EXCLUDE_WORDS = {
-    # League names (proper nouns)
-    'アメリカンリーグ', 'ナショナルリーグ', 'イースタンリーグ', 'ウエスタンリーグ',
+# Exclusion list loaded from persistent file (never overwritten by this script)
+EXCLUSION_FILE = '../data/words_excluded.json'
 
-    # Overly technical baseball
-    'アイシングザパック', 'インターフェア', 'コールドゲーム', 'ドロンゲーム',
-    'エキストライニング', 'オーバースライド', 'スクイズバント',
+def load_exclusion_list():
+    """Load persistent exclusion list. Returns empty list if file doesn't exist."""
+    try:
+        with open(EXCLUSION_FILE, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
 
-    # Overly technical golf
-    'アテスト', 'アンプレアブル', 'オーバードライブ', 'エージシューター',
-
-    # Wrestling/boxing jargon
-    'コブラツイスト', 'グレコローマンスタイル', 'インファイト',
-
-    # Niche sports
-    'エッジング', 'ドルフィンキック', 'コンパルソリー', 'コンパルソリーフィギュア',
-    'エイト', 'コックス', 'エッジボール',
-
-    # Redundant long compounds
-    'オーバーハンドスロー', 'オーバーハンドパス', 'オーバーヘッドパス',
-
-    # Finance/business jargon
-    'スムージングオペレーション', 'ルンペンプロレタリアート',
-
-    # Technical computing (save for later)
-    'カスケードスタイルシート', 'アプリケーションフォーマット',
-    'ダウンロードオンリーメンバー', 'マイナーバージョンアップ', 'メジャーバージョンアップ',
-
-    # Medical
-    'ロコモティブシンドローム',
-
-    # Philosophy terms (explicit)
-    'アウフヘーベン', 'アポステリオリ', 'アンチノミー', 'ジンテーゼ',
-    'デュナミス', 'エネルゲイア', 'ノマドロジー', 'ヌーメノン', 'アナムネーシス',
-}
+EXCLUDE_WORDS = load_exclusion_list()
+EXCLUDE_WORD_IDS = {entry["id"] for entry in EXCLUDE_WORDS}
 
 # Patterns that suggest English source (for entries missing originLanguage)
 ENGLISH_INDICATORS = {
@@ -70,10 +58,14 @@ ENGLISH_INDICATORS = {
 
 # Parent category mapping: fine-grained → broad category
 PARENT_CATEGORY_MAP = {
+    # Food
+    'food, cooking': 'Food',
+
+    # Brands
+    'trademark': 'Brands',
+
     # Everyday Life
-    'food, cooking': 'Everyday Life',
     'clothing': 'Everyday Life',
-    'trademark': 'Everyday Life',
 
     # Sports & Recreation
     'sports': 'Sports & Recreation',
@@ -160,9 +152,14 @@ def get_parent_category(word):
     """
     Determine the parent category for a word.
 
-    Uses the first matching category from PARENT_CATEGORY_MAP.
-    Falls back to 'Other' if no categories match.
+    Wasei-eigo words get their own category. Otherwise uses the first
+    matching category from PARENT_CATEGORY_MAP. Falls back to 'Other'
+    if no categories match.
     """
+    # Wasei-eigo words get their own parent category
+    if word.get('wasei_eigo'):
+        return 'Wasei-eigo'
+
     for cat in word.get('categories', []):
         if cat in PARENT_CATEGORY_MAP:
             return PARENT_CATEGORY_MAP[cat]
@@ -171,11 +168,12 @@ def get_parent_category(word):
 
 def should_exclude(word):
     """Check if word should be excluded."""
+    word_id = word['id']
     word_text = word['word']
     categories = word.get('categories', [])
 
-    # Exclude by word
-    if word_text in EXCLUDE_WORDS:
+    # Exclude by ID (from curated exclusion list)
+    if word_id in EXCLUDE_WORD_IDS:
         return True, 'explicit_exclusion'
 
     # Exclude by category
@@ -186,6 +184,19 @@ def should_exclude(word):
     # Exclude very long words (15+ chars) that are technical
     if len(word_text) >= 15:
         return True, 'too_long'
+
+    # Exclude multi-word entries (3+ words) with exceptions
+    original = word.get('originalWord') or word.get('originalWordInferred') or ''
+    word_count = len(original.split())
+    if word_count >= 3:
+        # Exception: food/cooking category
+        if 'food, cooking' in categories:
+            pass  # Keep it
+        # Exception: culinary/cultural languages (French, Italian, Spanish, Portuguese, German)
+        elif word.get('originLanguage') in {'fre', 'ita', 'spa', 'por', 'ger'}:
+            pass  # Keep it
+        else:
+            return True, 'multi_word'
 
     return False, None
 
@@ -277,7 +288,7 @@ def build_output_entry(word):
     Build the final output entry with proper field ordering.
 
     Order: id, word, romaji, originalWord, originalWordInferred, originLanguage,
-           meanings, categories, parentCategory, patterns, [wasei_eigo, wasei_info]
+           wasei_eigo, meanings, categories, parentCategory, patterns, [wasei_info]
     """
     entry = {
         'id': word['id'],
@@ -286,15 +297,14 @@ def build_output_entry(word):
         'originalWord': word.get('originalWord'),
         'originalWordInferred': word.get('originalWordInferred'),
         'originLanguage': word.get('originLanguage'),
+        'wasei_eigo': word.get('wasei_eigo', False),
         'meanings': word['meanings'],
         'categories': word['categories'],
         'parentCategory': get_parent_category(word),
         'patterns': word['patterns'],
     }
 
-    # Add wasei-eigo fields if present
-    if word.get('wasei_eigo'):
-        entry['wasei_eigo'] = word['wasei_eigo']
+    # Add wasei_info if present
     if word.get('wasei_info'):
         entry['wasei_info'] = word['wasei_info']
 
@@ -358,12 +368,20 @@ def main():
                 word['originalWordInferred'] = inferred
                 inferred_count += 1
 
-            # Check for confirmed wasei-eigo (database lookup only)
-            wasei_info = detect_wasei_eigo(word['word'])
-            if wasei_info:
-                word['wasei_eigo'] = True
-                word['wasei_info'] = wasei_info
+            # Check for wasei-eigo: use JMdict source data first, then database for extra info
+            if word.get('wasei_eigo'):
                 wasei_count += 1
+                # Try to get additional info from our curated database
+                wasei_info = detect_wasei_eigo(word['word'])
+                if wasei_info:
+                    word['wasei_info'] = wasei_info
+            else:
+                # Fallback: check our curated database for entries JMdict missed
+                wasei_info = detect_wasei_eigo(word['word'])
+                if wasei_info:
+                    word['wasei_eigo'] = True
+                    word['wasei_info'] = wasei_info
+                    wasei_count += 1
 
             # Exclude words without any original word (can't show learners the source)
             if not word.get('originalWord') and not word.get('originalWordInferred'):
@@ -432,14 +450,11 @@ def main():
     # Build output with proper field ordering
     output = [build_output_entry(w) for w in curated]
 
-    # Write output files
+    # Write output
     with open('../data/words.json', 'w') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
     print(f"\nWritten {len(output)} entries to ../data/words.json")
-
-    with open('../data/words_excluded.json', 'w') as f:
-        json.dump(excluded, f, ensure_ascii=False, indent=2)
-    print(f"Written {len(excluded)} excluded entries to ../data/words_excluded.json")
+    print(f"Excluded {len(excluded)} entries (pattern rules + {len(EXCLUDE_WORDS)} from exclusion list)")
 
     # Show some samples
     print("\n=== Sample Curated Entries ===")

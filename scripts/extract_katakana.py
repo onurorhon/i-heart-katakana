@@ -156,6 +156,8 @@ def parse_jmdict(filepath):
         source_word = None
         categories = set()
 
+        is_wasei_eigo = False
+
         for sense in senses:
             # Get glosses (English meanings)
             for gloss in sense.findall('gloss'):
@@ -165,6 +167,10 @@ def parse_jmdict(filepath):
             # Get loanword source info
             for lsource in sense.findall('lsource'):
                 lang = lsource.get('{http://www.w3.org/XML/1998/namespace}lang', 'eng')
+                # Check for wasei attribute (wasei="y" means it's wasei-eigo)
+                wasei_attr = lsource.get('ls_wasei')
+                if wasei_attr == 'y':
+                    is_wasei_eigo = True
                 if source_language is None:
                     source_language = lang
                     source_word = lsource.text
@@ -173,6 +179,11 @@ def parse_jmdict(filepath):
             for field in sense.findall('field'):
                 if field.text:
                     categories.add(field.text)
+
+            # Get misc info (includes wasei-eigo tag)
+            for misc in sense.findall('misc'):
+                if misc.text and 'wasei' in misc.text.lower():
+                    is_wasei_eigo = True
 
         # Analyze phonetic patterns
         patterns = analyze_patterns(reading)
@@ -188,7 +199,8 @@ def parse_jmdict(filepath):
             'originLanguage': source_language,
             'originalWord': source_word,
             'categories': sorted(categories),
-            'patterns': patterns
+            'patterns': patterns,
+            'wasei_eigo': is_wasei_eigo
         }
 
         words.append(word_entry)

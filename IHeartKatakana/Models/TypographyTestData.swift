@@ -25,7 +25,7 @@ enum TypographyTestData {
         Word(
             id: "test-2char",
             word: "パン",
-            romaji: "pan",
+            romaji: "pa-n",
             meanings: ["bread"],
             originLanguage: "por",
             originalWord: "pão",
@@ -41,7 +41,7 @@ enum TypographyTestData {
         Word(
             id: "test-4char-coffee",
             word: "コーヒー",
-            romaji: "koohii",
+            romaji: "ko-o-hi-i",
             meanings: ["coffee"],
             originLanguage: "eng",
             originalWord: "coffee",
@@ -55,7 +55,7 @@ enum TypographyTestData {
         Word(
             id: "test-3char-beer",
             word: "ビール",
-            romaji: "biiru",
+            romaji: "bi-i-ru",
             meanings: ["beer"],
             originLanguage: "dut",
             originalWord: "bier",
@@ -71,7 +71,7 @@ enum TypographyTestData {
         Word(
             id: "test-6char-hotdog",
             word: "ホットドッグ",
-            romaji: "hottodoggu",
+            romaji: "ho-t-to-do-g-gu",
             meanings: ["hot dog"],
             originLanguage: "eng",
             originalWord: "hot dog",
@@ -85,7 +85,7 @@ enum TypographyTestData {
         Word(
             id: "test-7char-icecream",
             word: "アイスクリーム",
-            romaji: "aisukuriimu",
+            romaji: "a-i-su-ku-ri-i-mu",
             meanings: ["ice cream"],
             originLanguage: "eng",
             originalWord: "ice cream",
@@ -101,7 +101,7 @@ enum TypographyTestData {
         Word(
             id: "test-10char",
             word: "アディショナルタイム",
-            romaji: "adishonarutaimu",
+            romaji: "a-di-sho-na-ru-ta-i-mu",
             meanings: ["additional time", "injury time"],
             originLanguage: "eng",
             originalWord: "additional time",
@@ -115,7 +115,7 @@ enum TypographyTestData {
         Word(
             id: "test-12char",
             word: "メタボリックシンドローム",
-            romaji: "metaborikkushindoroomu",
+            romaji: "me-ta-bo-ri-k-ku-shi-n-do-ro-o-mu",
             meanings: ["metabolic syndrome"],
             originLanguage: "eng",
             originalWord: "metabolic syndrome",
@@ -131,7 +131,7 @@ enum TypographyTestData {
         Word(
             id: "test-13char",
             word: "チャンピオンシップポイント",
-            romaji: "chanpionshippupointo",
+            romaji: "cha-n-pi-o-n-shi-p-pu-po-i-n-to",
             meanings: ["championship point"],
             originLanguage: "eng",
             originalWord: "championship point",
@@ -145,7 +145,7 @@ enum TypographyTestData {
         Word(
             id: "test-14char",
             word: "ビデオアシスタントレフェリー",
-            romaji: "bideoashisutantoreferii",
+            romaji: "bi-de-o-a-shi-su-ta-n-to-re-fe-ri-i",
             meanings: ["video assistant referee", "VAR"],
             originLanguage: "eng",
             originalWord: "video assistant referee",
@@ -161,7 +161,7 @@ enum TypographyTestData {
         Word(
             id: "test-extended-ti",
             word: "ティラミス",
-            romaji: "tiramisu",
+            romaji: "ti-ra-mi-su",
             meanings: ["tiramisu"],
             originLanguage: "ita",
             originalWord: "tiramisù",
@@ -175,7 +175,7 @@ enum TypographyTestData {
         Word(
             id: "test-extended-fa",
             word: "ファッション",
-            romaji: "fasshon",
+            romaji: "fa-s-sho-n",
             meanings: ["fashion"],
             originLanguage: "eng",
             originalWord: "fashion",

@@ -58,6 +58,12 @@ The *experience* – how users perceive and interact.
 
 1–3 entries per session maximum. Zero is common.
 
+## Entry Rules
+
+- **Tags are required.** Every entry must have at least one tag.
+- **Keep entries under 100 words.** Capture the decision and rationale only.
+- **Save narrative for the case study.** The log is raw material, not polished prose.
+
 ## Output Format
 
 If nothing qualifies:

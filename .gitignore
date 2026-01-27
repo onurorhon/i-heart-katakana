@@ -50,3 +50,12 @@ Secrets.swift
 .social-draft-*.md
 .codestory-backup-*/
 .codestory-version
+
+# Curation artifacts (temporary review files)
+scripts/REVIEW_SUMMARY.md
+scripts/*_review.md
+scripts/*_entries.md
+scripts/proposed_exclusions.json
+scripts/extract_*.py
+!scripts/extract_katakana.py
+scripts/review_*.py

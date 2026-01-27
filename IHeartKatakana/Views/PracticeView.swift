@@ -38,6 +38,8 @@ private struct CardData {
     let romaji: String
     let meaning: String
     let originalWord: String? // Only for words, not kana
+    let originLanguage: String? // Language code (e.g., "eng", "gre", "por")
+    let isWaseiEigo: Bool
 }
 
 struct PracticeView: View {
@@ -303,19 +305,35 @@ struct PracticeView: View {
                     .opacity(showRevealed ? 1 : 0)
 
                     // Answer details (appear on reveal)
-                    VStack(spacing: 8) {
-                        Text(item.romaji.replacingOccurrences(of: "-", with: ""))
-                            .font(.title2)
-                            .foregroundColor(.secondary)
-
-                        Text(item.meaning)
-                            .font(.title3)
-                            .foregroundColor(.secondary)
+                    VStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .center, spacing: 2) {
+                            Text("Romaji")
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                            Text(item.romaji.replacingOccurrences(of: "-", with: ""))
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                        }
 
                         if let originalWord = item.originalWord {
-                            Text(originalWord)
-                                .font(.body)
+                            VStack(alignment: .center, spacing: 2) {
+                                Text("Original Word")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.tertiary)
+                                Text(originalWordDisplay(originalWord, lang: item.originLanguage, isWaseiEigo: item.isWaseiEigo))
+                                    .font(.title3)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        VStack(alignment: .center, spacing: 2) {
+                            Text("Meaning")
+                                .font(.subheadline)
                                 .foregroundStyle(.tertiary)
+                            Text(item.meaning)
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
                         }
                     }
                     .opacity(showRevealed ? 1 : 0)
@@ -603,7 +621,9 @@ struct PracticeView: View {
                 question: word.word,
                 romaji: word.romaji,
                 meaning: word.meanings.joined(separator: ", "),
-                originalWord: word.originalWord ?? word.originalWordInferred
+                originalWord: word.originalWord ?? word.originalWordInferred,
+                originLanguage: word.originLanguage,
+                isWaseiEigo: word.waseiEigo ?? false
             )
         case .kana:
             guard index < filteredKana.count else { return nil }
@@ -612,7 +632,9 @@ struct PracticeView: View {
                 question: kana.kana,
                 romaji: kana.romaji,
                 meaning: kana.romaji, // For kana, meaning is just the romaji
-                originalWord: nil
+                originalWord: nil,
+                originLanguage: nil,
+                isWaseiEigo: false
             )
         }
     }
@@ -627,6 +649,69 @@ struct PracticeView: View {
 
     private var totalItems: Int {
         activeContentType == .word ? cachedFilteredWords.count : cachedFilteredKana.count
+    }
+}
+
+// MARK: - Original Word Display
+
+private func originalWordDisplay(_ word: String, lang: String?, isWaseiEigo: Bool) -> String {
+    var suffixes: [String] = []
+
+    // Add language suffix for non-English origins
+    if let lang = lang, lang != "eng" {
+        suffixes.append(languageDisplayName(for: lang))
+    }
+
+    // Add wasei-eigo suffix
+    if isWaseiEigo {
+        suffixes.append("wasei-eigo")
+    }
+
+    if suffixes.isEmpty {
+        return word
+    } else {
+        return "\(word) (\(suffixes.joined(separator: ", ")))"
+    }
+}
+
+// MARK: - Language Display Names
+
+private func languageDisplayName(for code: String) -> String {
+    switch code {
+    case "eng": return "English"
+    case "por": return "Portuguese"
+    case "ger": return "German"
+    case "fre": return "French"
+    case "ita": return "Italian"
+    case "spa": return "Spanish"
+    case "dut": return "Dutch"
+    case "rus": return "Russian"
+    case "lat": return "Latin"
+    case "grc", "gre": return "Greek"
+    case "ara": return "Arabic"
+    case "kor": return "Korean"
+    case "chi", "chn": return "Chinese"
+    case "hin": return "Hindi"
+    case "may": return "Malay"
+    case "ind": return "Indonesian"
+    case "ain": return "Ainu"
+    case "san": return "Sanskrit"
+    case "haw": return "Hawaiian"
+    case "tur": return "Turkish"
+    case "tha": return "Thai"
+    case "vie": return "Vietnamese"
+    case "ukr": return "Ukrainian"
+    case "lit": return "Lithuanian"
+    case "urd": return "Urdu"
+    case "tib": return "Tibetan"
+    case "tam": return "Tamil"
+    case "swe": return "Swedish"
+    case "pol": return "Polish"
+    case "mal": return "Malayalam"
+    case "hun": return "Hungarian"
+    case "fin": return "Finnish"
+    case "bre": return "Breton"
+    default: return code.uppercased()
     }
 }
 

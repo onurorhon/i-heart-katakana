@@ -202,7 +202,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | `originLanguage` | string | Origin language code (eng, por, deu, fra, etc.). |
 | `meanings` | string[] | English translations. |
 | `categories` | string[] | Fine-grained semantic categories from JMdict. |
-| `parentCategory` | string | Broad category for UI filtering (Everyday Life, Sports & Recreation, Arts & Entertainment, Health & Medicine, Technology, Academic & Humanities, Business & Finance, Science & Nature, Military & Aviation). |
+| `parentCategory` | string | Broad category for UI filtering (Food, Brands, Wasei-eigo, Everyday Life, Sports & Recreation, Arts & Entertainment, Health & Medicine, Technology, Academic & Humanities, Business & Finance, Science & Nature, Military & Aviation). |
 | `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojuon, dakuon, and youon). |
 | `wasei_eigo` | boolean | **Optional.** True if this is a confirmed wasei-eigo (和製英語) - Japanese-coined pseudo-English that differs from actual English. |
 | `wasei_info` | object | **Optional.** Present when `wasei_eigo: true`. Contains `english_equivalent` (what English speakers actually say), `wasei_meaning` (the Japanese construction), and `notes` (explanation). |
