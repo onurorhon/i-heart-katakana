@@ -50,3 +50,4 @@ Secrets.swift
 .social-draft-*.md
 .codestory-backup-*/
 .codestory-version
+words_excluded.json
