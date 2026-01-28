@@ -39,3 +39,4 @@ Technical quirks and limitations to be aware of during development.
 **Mitigation applied:** Refactored to overlay architecture (Jan 2025) - current-page-specific UI (peek hint, answer reveal) moved to single-instance overlays instead of per-card rendering. This reduced but didn't eliminate the stutter.
 
 **Future fix:** Pre-compute and cache card data and theme colors into stable arrays that don't change during scroll. Revisit during Phase 2 when adding 20 themes and fonts.
+

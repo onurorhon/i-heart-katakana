@@ -182,6 +182,8 @@ struct PracticeView: View {
                         .scrollTargetBehavior(.paging)
                         .scrollPosition(id: $currentPage)
                         .onTapGesture {
+                            // Don't toggle on end card (no content to reveal)
+                            guard !(isDeckExhausted && currentPage == history.count) else { return }
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 isAnswerRevealed.toggle()
                             }
@@ -212,6 +214,8 @@ struct PracticeView: View {
                     .opacity(isAnswerRevealed ? 1 : 0)
                     .animation(.easeInOut(duration: 0.3), value: isAnswerRevealed)
 
+                // End card buttons overlay (single instance, above cards)
+                endCardButtonsOverlay(screenSize: screenSize)
             }
 
             // Progress indicator (anchored to bottom of screen)
@@ -371,46 +375,50 @@ struct PracticeView: View {
                 .padding(.bottom, 20 + safeAreaInsets.bottom)
             }
         } else if isDeckExhausted && pageIndex == history.count {
-            endCardView(pageIndex: pageIndex, safeAreaInsets: safeAreaInsets)
+            endCardView(pageIndex: pageIndex, safeAreaInsets: safeAreaInsets, screenSize: screenSize)
         } else {
             Color.clear
         }
     }
 
     @ViewBuilder
-    private func endCardView(pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
+    private func endCardView(pageIndex: Int, safeAreaInsets: EdgeInsets, screenSize: CGSize) -> some View {
+        // Empty card - just background, buttons are rendered as overlay
         ZStack {
-            // Theme background
             backgroundColor(for: pageIndex)
 
+            if pageIndex % 2 == 0 {
+                Color.black.opacity(colorScheme == .dark ? 0.06 : 0.035)
+            }
+        }
+    }
+
+    // MARK: - End Card Buttons Overlay
+
+    @ViewBuilder
+    private func endCardButtonsOverlay(screenSize: CGSize) -> some View {
+        if isDeckExhausted, let page = currentPage, page == history.count {
             HStack(spacing: 40) {
-                // Restart button - repeat same order
                 Button {
                     restartSameOrder()
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 32))
-                        .foregroundColor(foregroundColor(for: pageIndex))
+                        .foregroundColor(foregroundColor(for: page))
                         .frame(width: 80, height: 80)
                         .background(.ultraThinMaterial, in: Circle())
                 }
 
-                // Shuffle button - reshuffle and restart
                 Button {
                     shuffleAndRestart()
                 } label: {
                     Image(systemName: "shuffle")
                         .font(.system(size: 32))
-                        .foregroundColor(foregroundColor(for: pageIndex))
+                        .foregroundColor(foregroundColor(for: page))
                         .frame(width: 80, height: 80)
                         .background(.ultraThinMaterial, in: Circle())
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.leading, 20 + safeAreaInsets.leading)
-            .padding(.trailing, 20 + safeAreaInsets.trailing)
-            .padding(.top, 20 + safeAreaInsets.top)
-            .padding(.bottom, 20 + safeAreaInsets.bottom)
         }
     }
 
@@ -593,97 +601,97 @@ struct PracticeView: View {
 
     @ViewBuilder
     private func cardRevealOverlay(safeAreaInsets: EdgeInsets, screenSize: CGSize) -> some View {
-        // Always render content (visibility controlled by opacity at call site for smooth animation)
-        if let page = currentPage,
-           let item = itemForPage(page) {
+        // Always render stable frame structure to avoid layout shifts during scroll
+        let page = currentPage ?? 0
+        let item = itemForPage(page)
+        let fgColor = foregroundColor(for: page)
 
-            let fgColor = foregroundColor(for: page)
+        VStack(spacing: 16) {
+            // Reserve space for katakana text
+            Spacer().frame(height: katakanaToButtonsGap(for: screenSize))
 
-            VStack(spacing: 16) {
-                // Reserve space for katakana text
-                Spacer().frame(height: katakanaToButtonsGap(for: screenSize))
-
-                // Action buttons (interactive, but only when visible)
-                HStack(spacing: 20) {
-                    Button {
+            // Action buttons (interactive, but only when visible)
+            HStack(spacing: 20) {
+                Button {
+                    if let item = item {
                         if ttsService.shouldShowVoiceHint {
                             pendingTTSText = item.question
                             showVoiceHintAlert = true
                         } else {
                             ttsService.speak(item.question)
                         }
-                    } label: {
-                        Image(systemName: "speaker.wave.2")
-                            .font(.title2)
-                            .foregroundColor(fgColor)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
                     }
-
-                    Button {
-                        // TODO: Toggle like
-                    } label: {
-                        Image(systemName: "heart")
-                            .font(.title2)
-                            .foregroundColor(fgColor)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
-
-                    Button {
-                        // TODO: Bookmark
-                    } label: {
-                        Image(systemName: "bookmark")
-                            .font(.title2)
-                            .foregroundColor(fgColor)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
+                } label: {
+                    Image(systemName: "speaker.wave.2")
+                        .font(.title2)
+                        .foregroundColor(fgColor)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
 
-                // Answer details (non-interactive, allow swipe through)
-                VStack(alignment: .center, spacing: 12) {
-                    VStack(alignment: .center, spacing: 2) {
-                        Text("Romaji")
-                            .font(.subheadline)
-                            .foregroundStyle(.tertiary)
-                        Text(item.romaji.replacingOccurrences(of: "-", with: ""))
-                            .font(.title3)
-                            .foregroundColor(.secondary)
-                    }
-
-                    if let originalWord = item.originalWord {
-                        VStack(alignment: .center, spacing: 2) {
-                            Text("Original Word")
-                                .font(.subheadline)
-                                .foregroundStyle(.tertiary)
-                            Text(originalWordDisplay(originalWord, lang: item.originLanguage, isWaseiEigo: item.isWaseiEigo))
-                                .font(.title3)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-
-                    VStack(alignment: .center, spacing: 2) {
-                        Text("Meaning")
-                            .font(.subheadline)
-                            .foregroundStyle(.tertiary)
-                        Text(item.meaning)
-                            .font(.title3)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
+                Button {
+                    // TODO: Toggle like
+                } label: {
+                    Image(systemName: "heart")
+                        .font(.title2)
+                        .foregroundColor(fgColor)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
-                .allowsHitTesting(false)
 
-                Spacer()
+                Button {
+                    // TODO: Bookmark
+                } label: {
+                    Image(systemName: "bookmark")
+                        .font(.title2)
+                        .foregroundColor(fgColor)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.leading, 20 + safeAreaInsets.leading)
-            .padding(.trailing, 20 + safeAreaInsets.trailing)
-            .padding(.top, revealOverlayTopOffset(screenSize: screenSize))
-            .padding(.bottom, 20 + safeAreaInsets.bottom)
-            .allowsHitTesting(isAnswerRevealed)
+            .opacity(item != nil ? 1 : 0)
+
+            // Answer details (non-interactive, allow swipe through)
+            VStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .center, spacing: 2) {
+                    Text("Romaji")
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                    Text(item?.romaji.replacingOccurrences(of: "-", with: "") ?? " ")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
+
+                VStack(alignment: .center, spacing: 2) {
+                    Text("Original Word")
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                    Text(item.flatMap { originalWordDisplayOptional($0.originalWord, lang: $0.originLanguage, isWaseiEigo: $0.isWaseiEigo) } ?? " ")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                }
+
+                VStack(alignment: .center, spacing: 2) {
+                    Text("Meaning")
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                    Text(item?.meaning ?? " ")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .opacity(item != nil ? 1 : 0)
+            .allowsHitTesting(false)
+
+            Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.leading, 20 + safeAreaInsets.leading)
+        .padding(.trailing, 20 + safeAreaInsets.trailing)
+        .padding(.top, revealOverlayTopOffset(screenSize: screenSize))
+        .padding(.bottom, 20 + safeAreaInsets.bottom)
+        .allowsHitTesting(isAnswerRevealed && item != nil)
     }
 
     private var currentPeekHint: String? {
@@ -777,6 +785,11 @@ struct PracticeView: View {
 }
 
 // MARK: - Original Word Display
+
+private func originalWordDisplayOptional(_ word: String?, lang: String?, isWaseiEigo: Bool) -> String? {
+    guard let word = word else { return nil }
+    return originalWordDisplay(word, lang: lang, isWaseiEigo: isWaseiEigo)
+}
 
 private func originalWordDisplay(_ word: String, lang: String?, isWaseiEigo: Bool) -> String {
     var suffixes: [String] = []
