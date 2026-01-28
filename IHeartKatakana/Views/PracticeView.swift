@@ -203,8 +203,7 @@ struct PracticeView: View {
                         .background(.ultraThinMaterial, in: Capsule())
                 }
                 .safeAreaPadding()
-                .opacity(isAnswerRevealed || (isDeckExhausted && currentPage == history.count) ? 0 : 1)
-                .animation(.easeOut(duration: 0.3), value: isAnswerRevealed)
+                .opacity((isDeckExhausted && currentPage == history.count) ? 0 : 1)
             }
         }
         .onAppear {
@@ -256,8 +255,6 @@ struct PracticeView: View {
     }
 
     private func handlePageChange(from oldValue: Int, to newValue: Int) {
-        isAnswerRevealed = false
-
         // If swiped forward past current history, commit pending and generate new
         if newValue >= history.count, let pending = pendingNextIndex {
             history.append(pending)
@@ -582,8 +579,8 @@ struct PracticeView: View {
 
     @ViewBuilder
     private func cardRevealOverlay(safeAreaInsets: EdgeInsets, screenSize: CGSize) -> some View {
-        if isAnswerRevealed,
-           let page = currentPage,
+        // Always render content (visibility controlled by opacity at call site for smooth animation)
+        if let page = currentPage,
            let item = itemForPage(page) {
 
             let fgColor = foregroundColor(for: page)
@@ -595,7 +592,7 @@ struct PracticeView: View {
                 // Reserve space for katakana text
                 Spacer().frame(height: 80)
 
-                // Action buttons
+                // Action buttons (interactive, but only when visible)
                 HStack(spacing: 32) {
                     Button {
                         if ttsService.shouldShowVoiceHint {
@@ -627,7 +624,7 @@ struct PracticeView: View {
                     }
                 }
 
-                // Answer details
+                // Answer details (non-interactive, allow swipe through)
                 VStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .center, spacing: 2) {
                         Text("Romaji")
@@ -659,6 +656,7 @@ struct PracticeView: View {
                             .multilineTextAlignment(.center)
                     }
                 }
+                .allowsHitTesting(false)
 
                 Spacer()
             }
@@ -667,6 +665,7 @@ struct PracticeView: View {
             .padding(.trailing, 20 + safeAreaInsets.trailing)
             .padding(.top, 70 + safeAreaInsets.top)
             .padding(.bottom, 20 + safeAreaInsets.bottom)
+            .allowsHitTesting(isAnswerRevealed)
         }
     }
 

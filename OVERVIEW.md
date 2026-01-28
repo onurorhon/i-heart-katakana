@@ -80,7 +80,12 @@ This is a free, non-profit iOS app developed independently.
 
 ### 4.1 Practice Experience
 
-Self-assessment practice for recognising katakana characters and words. Users see content, attempt to read it, reveal the answer, and optionally mark their response.
+Self-assessment practice for recognising katakana characters and words. Tap toggles answer visibility, swipe navigates between cards. This creates two natural usage modes:
+
+- **Practice mode:** Answer hidden. See the katakana, try to read it, tap to check. Swipe to next card (still hidden). Quiz yourself.
+- **Learn mode:** Answer visible. Tap to reveal, then swipe through cards while answers stay visible. Browse and absorb.
+
+Users switch between modes with a tap. The app doesn't enforce either—it's just how the toggle + swipe interaction naturally plays out.
 
 ### 4.2 Likes
 
