@@ -99,7 +99,7 @@ Users can like words. Liked words appear as a filterable category alongside sema
 - **Phonetic patterns:** gojūon, dakuon, handakuon, yōon.
 - **Modern extended katakana:** including less common contemporary variations.
 
-See `GLOSSARY.md` for term definitions.
+See `GLOSSARY.md` for term definitions and Japanese linguistic terminology.
 
 **Data source:** JMdict (open-source Japanese-English dictionary). Katakana entries extracted and curated.
 

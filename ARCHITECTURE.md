@@ -203,7 +203,7 @@ Curated katakana words extracted from JMdict with wasei-eigo detection.
 | `meanings` | string[] | English translations. |
 | `categories` | string[] | Fine-grained semantic categories from JMdict. |
 | `parentCategory` | string | Broad category for UI filtering (Food, Brands, Wasei-eigo, Onomatopoeia, Everyday Life, Sports & Recreation, Arts & Entertainment, Health & Medicine, Technology, Academic & Humanities, Business & Finance, Science & Nature, Military & Aviation). |
-| `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojuon, dakuon, and youon). |
+| `patterns` | string[] | All phonetic patterns present in the word. Array because most words mix patterns (e.g., "ジュース" contains gojūon, dakuon, and yōon). |
 | `wasei_eigo` | boolean | **Optional.** True if this is a confirmed wasei-eigo (和製英語) - Japanese-coined pseudo-English that differs from actual English. |
 | `wasei_info` | object | **Optional.** Present when `wasei_eigo: true`. Contains `english_equivalent` (what English speakers actually say), `wasei_meaning` (the Japanese construction), and `notes` (explanation). |
 
@@ -229,11 +229,11 @@ Reference data for individual katakana characters.
 
 | Pattern | Description | Examples |
 |---------|-------------|----------|
-| `gojuon` | Basic 46 katakana | ア イ ウ エ オ, カ キ ク ケ コ |
-| `dakuon` | Voiced consonants (゛) | ガ ギ グ ゲ ゴ, ザ ジ ズ ゼ ゾ |
-| `handakuon` | P-sounds (゜) | パ ピ プ ペ ポ |
-| `youon` | Combination sounds (small ャュョ) | キャ, シュ, チョ |
-| `extended` | Modern additions for foreign sounds | ティ, ファ, ヴァ |
+| `gojuon` | Gojūon – basic 46 katakana | ア イ ウ エ オ, カ キ ク ケ コ |
+| `dakuon` | Dakuon – voiced consonants (゛) | ガ ギ グ ゲ ゴ, ザ ジ ズ ゼ ゾ |
+| `handakuon` | Handakuon – P-sounds (゜) | パ ピ プ ペ ポ |
+| `youon` | Yōon – combination sounds (small ャュョ) | キャ, シュ, チョ |
+| `extended` | Extended – modern additions for foreign sounds | ティ, ファ, ヴァ |
 
 ### Filtering Logic
 
