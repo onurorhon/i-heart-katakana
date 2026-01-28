@@ -133,12 +133,31 @@ struct PracticeView: View {
 
     private let peekThreshold: CGFloat = 150
 
-    /// Adaptive spacing between hint and katakana based on screen height
-    private func hintToKatakanaSpacing(for height: CGFloat) -> CGFloat {
-        // Portrait: use full 100pt spacing
-        // Landscape: reduce to ~40pt
-        let isLandscape = height < 500
-        return isLandscape ? 40 : 100
+    // MARK: - Layout Calculations
+
+    /// Content top percentage: 40% portrait, 20% landscape
+    private func contentTopPercent(for screenSize: CGSize) -> CGFloat {
+        screenSize.height > screenSize.width ? 0.40 : 0.20
+    }
+
+    /// Katakana position for card layer (ignores safe area, so we add safeAreaTop)
+    private func katakanaTopOffset(screenSize: CGSize, safeAreaTop: CGFloat) -> CGFloat {
+        screenSize.height * contentTopPercent(for: screenSize) + safeAreaTop
+    }
+
+    /// Hint position for overlay layer (respects safe area, so no safeAreaTop)
+    private func hintTopOffset(screenSize: CGSize) -> CGFloat {
+        screenSize.height * contentTopPercent(for: screenSize) - 50
+    }
+
+    /// Reveal overlay position (respects safe area, so no safeAreaTop)
+    private func revealOverlayTopOffset(screenSize: CGSize) -> CGFloat {
+        screenSize.height * contentTopPercent(for: screenSize)
+    }
+
+    /// Gap between katakana and buttons: 100pt portrait, 80pt landscape
+    private func katakanaToButtonsGap(for screenSize: CGSize) -> CGFloat {
+        screenSize.height > screenSize.width ? 100 : 80
     }
 
     var body: some View {
@@ -193,18 +212,16 @@ struct PracticeView: View {
                     .opacity(isAnswerRevealed ? 1 : 0)
                     .animation(.easeInOut(duration: 0.3), value: isAnswerRevealed)
 
-                // Progress indicator (floating, fades out on end card)
-                VStack {
-                    Spacer()
-                    Text("\(min((currentPage ?? 0) + 1, totalItems)) of \(totalItems)")
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(.ultraThinMaterial, in: Capsule())
-                }
-                .safeAreaPadding()
-                .opacity((isDeckExhausted && currentPage == history.count) ? 0 : 1)
             }
+
+            // Progress indicator (anchored to bottom of screen)
+            Text("\(min((currentPage ?? 0) + 1, totalItems)) of \(totalItems)")
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.ultraThinMaterial, in: Capsule())
+                .position(x: screenSize.width / 2, y: screenSize.height - 30)
+                .opacity((isDeckExhausted && currentPage == history.count) ? 0 : 1)
         }
         .onAppear {
             refreshFromSettings()
@@ -337,10 +354,7 @@ struct PracticeView: View {
                 }
 
                 VStack(spacing: 16) {
-                    // Reserve space for peek hint (rendered as overlay)
-                    Color.clear.frame(height: hintToKatakanaSpacing(for: screenSize.height))
-
-                    // Question (the katakana) - always visible
+                    // Question (the katakana) - top aligned at percentage-based position
                     Text(item.question)
                         .font(.system(size: 72))
                         .foregroundColor(foregroundColor(for: pageIndex))
@@ -350,10 +364,10 @@ struct PracticeView: View {
                     // Space for action buttons and answer (rendered as overlay when revealed)
                     Spacer()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.leading, 20 + safeAreaInsets.leading)
                 .padding(.trailing, 20 + safeAreaInsets.trailing)
-                .padding(.top, 70 + safeAreaInsets.top)
+                .padding(.top, katakanaTopOffset(screenSize: screenSize, safeAreaTop: safeAreaInsets.top))
                 .padding(.bottom, 20 + safeAreaInsets.bottom)
             }
         } else if isDeckExhausted && pageIndex == history.count {
@@ -571,7 +585,7 @@ struct PracticeView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.leading, 20 + safeAreaInsets.leading)
         .padding(.trailing, 20 + safeAreaInsets.trailing)
-        .padding(.top, 70 + safeAreaInsets.top)
+        .padding(.top, hintTopOffset(screenSize: screenSize))
         .allowsHitTesting(false)
     }
 
@@ -586,14 +600,11 @@ struct PracticeView: View {
             let fgColor = foregroundColor(for: page)
 
             VStack(spacing: 16) {
-                // Reserve space for peek hint area
-                Color.clear.frame(height: hintToKatakanaSpacing(for: screenSize.height))
-
                 // Reserve space for katakana text
-                Spacer().frame(height: 80)
+                Spacer().frame(height: katakanaToButtonsGap(for: screenSize))
 
                 // Action buttons (interactive, but only when visible)
-                HStack(spacing: 32) {
+                HStack(spacing: 20) {
                     Button {
                         if ttsService.shouldShowVoiceHint {
                             pendingTTSText = item.question
@@ -605,6 +616,8 @@ struct PracticeView: View {
                         Image(systemName: "speaker.wave.2")
                             .font(.title2)
                             .foregroundColor(fgColor)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
 
                     Button {
@@ -613,6 +626,8 @@ struct PracticeView: View {
                         Image(systemName: "heart")
                             .font(.title2)
                             .foregroundColor(fgColor)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
 
                     Button {
@@ -621,6 +636,8 @@ struct PracticeView: View {
                         Image(systemName: "bookmark")
                             .font(.title2)
                             .foregroundColor(fgColor)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
                 }
 
@@ -663,7 +680,7 @@ struct PracticeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.leading, 20 + safeAreaInsets.leading)
             .padding(.trailing, 20 + safeAreaInsets.trailing)
-            .padding(.top, 70 + safeAreaInsets.top)
+            .padding(.top, revealOverlayTopOffset(screenSize: screenSize))
             .padding(.bottom, 20 + safeAreaInsets.bottom)
             .allowsHitTesting(isAnswerRevealed)
         }
