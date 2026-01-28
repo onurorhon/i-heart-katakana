@@ -27,3 +27,15 @@ Technical quirks and limitations to be aware of during development.
 **Impact:** None. The warning is informational - the app works correctly.
 
 **Action:** Ignore it. No fix needed unless Apple provides guidance in future SwiftUI updates.
+
+---
+
+## PracticeView Scroll Stutter
+
+**Symptom:** Occasional scroll stutter (30-40% of swipes) when navigating between cards in PracticeView. This can be tested with a screen recording of the wipes on the iphone, then watching in quicktime frame by frame.
+
+**Cause:** ForEach re-evaluates `itemForPage()` for all visible cards when navigation state (`history`, `pendingNextIndex`) changes. Theme color functions also access settings state.
+
+**Mitigation applied:** Refactored to overlay architecture (Jan 2025) - current-page-specific UI (peek hint, answer reveal) moved to single-instance overlays instead of per-card rendering. This reduced but didn't eliminate the stutter.
+
+**Future fix:** Pre-compute and cache card data and theme colors into stable arrays that don't change during scroll. Revisit during Phase 2 when adding 20 themes and fonts.

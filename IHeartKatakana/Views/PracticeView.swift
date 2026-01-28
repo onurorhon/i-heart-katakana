@@ -133,10 +133,19 @@ struct PracticeView: View {
 
     private let peekThreshold: CGFloat = 150
 
+    /// Adaptive spacing between hint and katakana based on screen height
+    private func hintToKatakanaSpacing(for height: CGFloat) -> CGFloat {
+        // Portrait: use full 100pt spacing
+        // Landscape: reduce to ~40pt
+        let isLandscape = height < 500
+        return isLandscape ? 40 : 100
+    }
+
     var body: some View {
         // Capture safe area insets before ignoring them
         GeometryReader { outerGeometry in
             let safeInsets = outerGeometry.safeAreaInsets
+            let screenSize = outerGeometry.size
 
             ZStack {
                 GeometryReader { geometry in
@@ -144,7 +153,7 @@ struct PracticeView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 0) {
                                 ForEach(0..<pageCount, id: \.self) { pageIndex in
-                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets)
+                                    cardView(for: itemForPage(pageIndex), pageIndex: pageIndex, safeAreaInsets: safeInsets, screenSize: screenSize)
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(pageIndex)
                                 }
@@ -174,6 +183,16 @@ struct PracticeView: View {
                 }
                 .ignoresSafeArea()
 
+                // Peek hint overlay (single instance, above cards)
+                peekHintOverlay(safeAreaInsets: safeInsets, screenSize: screenSize)
+                    .opacity(isAnswerRevealed ? 0 : 1)
+                    .animation(.easeOut(duration: 0.3), value: isAnswerRevealed)
+
+                // Answer reveal overlay (single instance, above cards)
+                cardRevealOverlay(safeAreaInsets: safeInsets, screenSize: screenSize)
+                    .opacity(isAnswerRevealed ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.3), value: isAnswerRevealed)
+
                 // Progress indicator (floating, fades out on end card)
                 VStack {
                     Spacer()
@@ -186,7 +205,6 @@ struct PracticeView: View {
                 .safeAreaPadding()
                 .opacity(isAnswerRevealed || (isDeckExhausted && currentPage == history.count) ? 0 : 1)
                 .animation(.easeOut(duration: 0.3), value: isAnswerRevealed)
-                .animation(.easeOut(duration: 0.3), value: currentPage)
             }
         }
         .onAppear {
@@ -310,11 +328,8 @@ struct PracticeView: View {
     // MARK: - Card View
 
     @ViewBuilder
-    private func cardView(for item: CardData?, pageIndex: Int, safeAreaInsets: EdgeInsets) -> some View {
+    private func cardView(for item: CardData?, pageIndex: Int, safeAreaInsets: EdgeInsets, screenSize: CGSize) -> some View {
         if let item = item {
-            // Only show revealed content on the current page
-            let showRevealed = isAnswerRevealed && pageIndex == currentPage
-
             ZStack {
                 // Theme background
                 backgroundColor(for: pageIndex)
@@ -325,90 +340,26 @@ struct PracticeView: View {
                 }
 
                 VStack(spacing: 16) {
-                    // Peek hint area (fades out when answer revealed, only active on current page)
-                    peekHintView(isCurrentPage: pageIndex == currentPage)
-                        .opacity(showRevealed ? 0 : 1)
+                    // Reserve space for peek hint (rendered as overlay)
+                    Color.clear.frame(height: hintToKatakanaSpacing(for: screenSize.height))
 
-                    // Question (the katakana)
+                    // Question (the katakana) - always visible
                     Text(item.question)
                         .font(.system(size: 72))
                         .foregroundColor(foregroundColor(for: pageIndex))
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
 
-                    // Action buttons (appear on reveal)
-                    HStack(spacing: 32) {
-                        Button {
-                            if ttsService.shouldShowVoiceHint {
-                                pendingTTSText = item.question
-                                showVoiceHintAlert = true
-                            } else {
-                                ttsService.speak(item.question)
-                            }
-                        } label: {
-                            Image(systemName: "speaker.wave.2")
-                                .font(.title2)
-                        }
-
-                        Button {
-                            // TODO: Toggle like
-                        } label: {
-                            Image(systemName: "heart")
-                                .font(.title2)
-                        }
-
-                        Button {
-                            // TODO: Bookmark
-                        } label: {
-                            Image(systemName: "bookmark")
-                                .font(.title2)
-                        }
-                    }
-                    .opacity(showRevealed ? 1 : 0)
-
-                    // Answer details (appear on reveal)
-                    VStack(alignment: .center, spacing: 12) {
-                        VStack(alignment: .center, spacing: 2) {
-                            Text("Romaji")
-                                .font(.subheadline)
-                                .foregroundStyle(.tertiary)
-                            Text(item.romaji.replacingOccurrences(of: "-", with: ""))
-                                .font(.title3)
-                                .foregroundColor(.secondary)
-                        }
-
-                        if let originalWord = item.originalWord {
-                            VStack(alignment: .center, spacing: 2) {
-                                Text("Original Word")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.tertiary)
-                                Text(originalWordDisplay(originalWord, lang: item.originLanguage, isWaseiEigo: item.isWaseiEigo))
-                                    .font(.title3)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        VStack(alignment: .center, spacing: 2) {
-                            Text("Meaning")
-                                .font(.subheadline)
-                                .foregroundStyle(.tertiary)
-                            Text(item.meaning)
-                                .font(.title3)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
-                    }
-                    .opacity(showRevealed ? 1 : 0)
+                    // Space for action buttons and answer (rendered as overlay when revealed)
+                    Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                // 20px base padding, plus safe area insets for Dynamic Island
                 .padding(.leading, 20 + safeAreaInsets.leading)
                 .padding(.trailing, 20 + safeAreaInsets.trailing)
-                .padding(.top, 20 + safeAreaInsets.top)
+                .padding(.top, 70 + safeAreaInsets.top)
                 .padding(.bottom, 20 + safeAreaInsets.bottom)
             }
         } else if isDeckExhausted && pageIndex == history.count {
-            // End card - shown when all items have been seen
             endCardView(pageIndex: pageIndex, safeAreaInsets: safeAreaInsets)
         } else {
             Color.clear
@@ -588,35 +539,135 @@ struct PracticeView: View {
         saveSessionState()
     }
 
-    // MARK: - Peek Hint View
+    // MARK: - Peek Hint Overlay
 
     @ViewBuilder
-    private func peekHintView(isCurrentPage: Bool) -> some View {
-        // Only show animated content on current page to avoid artifacts during swipe
-        let revealProgress = isCurrentPage ? min(1.0, max(0.0, peekDragOffset / peekThreshold)) : 0
+    private func peekHintOverlay(safeAreaInsets: EdgeInsets, screenSize: CGSize) -> some View {
+        let revealProgress = min(1.0, max(0.0, peekDragOffset / peekThreshold))
         let promptOpacity = max(0.0, 1.0 - (revealProgress * 4.0))
 
-        ZStack {
-            if !hasUsedPullHint && isCurrentPage {
-                Text("Pull down for hint")
-                    .font(.title2)
-                    .foregroundColor(.secondary)
-                    .opacity(promptOpacity)
-            }
+        VStack {
+            ZStack {
+                if !hasUsedPullHint {
+                    Text("Pull down for hint")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                        .opacity(promptOpacity)
+                }
 
-            if activePeekHintType == .playAudio {
-                Image(systemName: "speaker.wave.2")
-                    .font(.title2)
-                    .foregroundColor(.secondary)
-                    .opacity(revealProgress)
-            } else {
-                let hintText = currentPeekHint ?? "—"
-                LetterRevealText(text: hintText, revealProgress: revealProgress)
-                    .font(.title2)
-                    .foregroundColor(.secondary)
+                if activePeekHintType == .playAudio {
+                    Image(systemName: "speaker.wave.2")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                        .opacity(revealProgress)
+                } else {
+                    let hintText = currentPeekHint ?? "—"
+                    LetterRevealText(text: hintText, revealProgress: revealProgress)
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
             }
+            .frame(height: 34)
+
+            Spacer()
         }
-        .frame(height: 34)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.leading, 20 + safeAreaInsets.leading)
+        .padding(.trailing, 20 + safeAreaInsets.trailing)
+        .padding(.top, 70 + safeAreaInsets.top)
+        .allowsHitTesting(false)
+    }
+
+    // MARK: - Card Reveal Overlay
+
+    @ViewBuilder
+    private func cardRevealOverlay(safeAreaInsets: EdgeInsets, screenSize: CGSize) -> some View {
+        if isAnswerRevealed,
+           let page = currentPage,
+           let item = itemForPage(page) {
+
+            let fgColor = foregroundColor(for: page)
+
+            VStack(spacing: 16) {
+                // Reserve space for peek hint area
+                Color.clear.frame(height: hintToKatakanaSpacing(for: screenSize.height))
+
+                // Reserve space for katakana text
+                Spacer().frame(height: 80)
+
+                // Action buttons
+                HStack(spacing: 32) {
+                    Button {
+                        if ttsService.shouldShowVoiceHint {
+                            pendingTTSText = item.question
+                            showVoiceHintAlert = true
+                        } else {
+                            ttsService.speak(item.question)
+                        }
+                    } label: {
+                        Image(systemName: "speaker.wave.2")
+                            .font(.title2)
+                            .foregroundColor(fgColor)
+                    }
+
+                    Button {
+                        // TODO: Toggle like
+                    } label: {
+                        Image(systemName: "heart")
+                            .font(.title2)
+                            .foregroundColor(fgColor)
+                    }
+
+                    Button {
+                        // TODO: Bookmark
+                    } label: {
+                        Image(systemName: "bookmark")
+                            .font(.title2)
+                            .foregroundColor(fgColor)
+                    }
+                }
+
+                // Answer details
+                VStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .center, spacing: 2) {
+                        Text("Romaji")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                        Text(item.romaji.replacingOccurrences(of: "-", with: ""))
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
+
+                    if let originalWord = item.originalWord {
+                        VStack(alignment: .center, spacing: 2) {
+                            Text("Original Word")
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                            Text(originalWordDisplay(originalWord, lang: item.originLanguage, isWaseiEigo: item.isWaseiEigo))
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    VStack(alignment: .center, spacing: 2) {
+                        Text("Meaning")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                        Text(item.meaning)
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                }
+
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.leading, 20 + safeAreaInsets.leading)
+            .padding(.trailing, 20 + safeAreaInsets.trailing)
+            .padding(.top, 70 + safeAreaInsets.top)
+            .padding(.bottom, 20 + safeAreaInsets.bottom)
+        }
     }
 
     private var currentPeekHint: String? {
