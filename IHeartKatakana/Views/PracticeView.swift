@@ -662,23 +662,26 @@ struct PracticeView: View {
                         .foregroundColor(.secondary)
                 }
 
-                VStack(alignment: .center, spacing: 2) {
-                    Text("Original Word")
-                        .font(.subheadline)
-                        .foregroundStyle(.tertiary)
-                    Text(item.flatMap { originalWordDisplayOptional($0.originalWord, lang: $0.originLanguage, isWaseiEigo: $0.isWaseiEigo) } ?? " ")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
-                }
+                // Original Word and Meaning only shown in word mode
+                if activeContentType == .word {
+                    VStack(alignment: .center, spacing: 2) {
+                        Text("Original Word")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                        Text(item.flatMap { originalWordDisplayOptional($0.originalWord, lang: $0.originLanguage, isWaseiEigo: $0.isWaseiEigo) } ?? " ")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
 
-                VStack(alignment: .center, spacing: 2) {
-                    Text("Meaning")
-                        .font(.subheadline)
-                        .foregroundStyle(.tertiary)
-                    Text(item?.meaning ?? " ")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+                    VStack(alignment: .center, spacing: 2) {
+                        Text("Meaning")
+                            .font(.subheadline)
+                            .foregroundStyle(.tertiary)
+                        Text(item?.meaning ?? " ")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
                 }
             }
             .opacity(item != nil ? 1 : 0)
