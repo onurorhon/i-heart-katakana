@@ -291,6 +291,33 @@ curate_words.py → words.json
 - **ナイター** (nighter) → night game
 - **アウトコース** (out course) → outside pitch
 
+### Font Subsetting
+
+Custom fonts are subsetted to katakana-only glyphs before bundling, reducing total font size from ~13 MB to ~400 KB.
+
+**Unicode range:** U+30A0-30FF (full katakana block, 96 codepoints). Includes all standard katakana, small kana, dakuon, handakuon, ヴ, ヵ, ヶ, long vowel mark ー, and nakaguro ・. The full block is used rather than only the 82 characters in the current word database, to support future content additions with negligible size overhead.
+
+**Tool:** `pyftsubset` from the `fonttools` Python package.
+
+**Flags:**
+- `--layout-features='*'` – Preserve all OpenType layout features
+- `--no-hinting` – Strip hinting (not needed at 72pt+ display)
+- `--desubroutinize` – Simplify glyph outlines for smaller output
+
+**Script:** `scripts/subset_fonts.py`
+
+```
+i-heart-katakana-assets/fonts/ (read-only)
+    ↓
+subset_fonts.py
+    ↓
+IHeartKatakana/Resources/Fonts/ (subsetted, .gitignored)
+```
+
+**Workflow:** Source fonts live in the private `i-heart-katakana-assets` repo. The subsetting script reads from there (never writes) and outputs to the main repo's Resources/Fonts/ directory. Subsetted fonts are `.gitignored` (`**/fonts/`); each developer runs the script locally.
+
+**Variable fonts:** Skip variable fonts in subsetting. Use static weight versions instead (e.g., NotoSansJP-Regular.ttf not NotoSansJP-VariableFont_wght.ttf).
+
 ---
 
 ## Component Architecture
@@ -386,12 +413,13 @@ struct ColorTheme: Identifiable {
     let accentColorDark: Color
 }
 
-// Font (architecture only – values TBD in Phase 2)
+// Font
 struct PracticeFont: Identifiable {
     let id: String
     let name: String
     let displayName: String
-    let fileName: String?  // nil for system font
+    let postScriptName: String?  // iOS font reference; nil for system
+    let fileName: String?        // Bundle filename; nil for system font
 }
 ```
 

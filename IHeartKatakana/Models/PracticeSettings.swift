@@ -63,6 +63,11 @@ class PracticeSettings {
         didSet { defaults.set(Array(enabledThemeIndices), forKey: "enabledThemeIndices") }
     }
 
+    // Font setting
+    var selectedFontId: String {
+        didSet { defaults.set(selectedFontId, forKey: "selectedFontId") }
+    }
+
     var enabledPatterns: [String] {
         var patterns: [String] = []
         if gojuonEnabled { patterns.append("gojuon") }
@@ -104,5 +109,8 @@ class PracticeSettings {
         } else {
             self.enabledThemeIndices = Set(0..<5) // Default: all themes enabled
         }
+
+        // Font setting
+        self.selectedFontId = defaults.string(forKey: "selectedFontId") ?? "noto-sans-cjk"
     }
 }

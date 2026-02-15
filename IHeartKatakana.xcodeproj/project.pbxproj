@@ -40,6 +40,7 @@
 		098085ED2F1EBDC100692BAA /* Exceptions for "IHeartKatakana" folder in "IHeartKatakana" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Info.plist,
 				Secrets.example.swift,
 			);
 			target = 09FFCADF2F1D750D00BA2D21 /* IHeartKatakana */;
@@ -432,6 +433,7 @@
 				DEVELOPMENT_TEAM = U39XCRLW64;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IHeartKatakana/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "I♥︎Katakana";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -468,6 +470,7 @@
 				DEVELOPMENT_TEAM = U39XCRLW64;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IHeartKatakana/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "I♥︎Katakana";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

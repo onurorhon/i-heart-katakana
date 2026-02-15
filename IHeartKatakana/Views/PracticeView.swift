@@ -359,8 +359,10 @@ struct PracticeView: View {
 
                 VStack(spacing: 16) {
                     // Question (the katakana) - top aligned at percentage-based position
+                    let practiceFont = PracticeFont.font(forId: settings.selectedFontId)
                     Text(item.question)
-                        .font(.system(size: 72))
+                        .font(practiceFont.swiftUIFont(size: 72))
+                        .tracking(practiceFont.tracking)
                         .foregroundColor(foregroundColor(for: pageIndex))
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
