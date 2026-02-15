@@ -76,19 +76,22 @@ extension PracticeFont {
         fileName: "Yomogi-Regular.ttf"
     )
 
-    /// All fonts with display tuning loaded from data/fonts.json
-    static let allFonts: [PracticeFont] = {
-        let baseFonts: [PracticeFont] = [
+    /// Lookup table for base font definitions by id
+    private static let baseFontsByID: [String: PracticeFont] = {
+        let all: [PracticeFont] = [
             notoSansCJK, system, cherryBombOne, darumadropOne,
             nicoMoji, slacksideOne, yomogi,
         ]
+        return Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
+    }()
+
+    /// All enabled fonts, ordered and tuned by data/fonts.json
+    static let allFonts: [PracticeFont] = {
         let config = FontConfig.load()
-        return baseFonts.map { font in
-            var font = font
-            if let entry = config.first(where: { $0.id == font.id }) {
-                font.tracking = entry.tracking
-                font.maxSize = entry.maxSize
-            }
+        return config.compactMap { entry in
+            guard entry.enabled, var font = baseFontsByID[entry.id] else { return nil }
+            font.tracking = entry.tracking
+            font.maxSize = entry.maxSize
             return font
         }
     }()
@@ -102,6 +105,7 @@ extension PracticeFont {
 
 private struct FontConfig: Decodable {
     let id: String
+    let enabled: Bool
     let tracking: CGFloat
     let maxSize: CGFloat
 

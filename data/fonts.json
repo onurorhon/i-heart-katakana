@@ -1,36 +1,43 @@
 [
   {
-    "id": "system",
-    "tracking": 0,
-    "maxSize": 72
-  },
-  {
     "id": "noto-sans-cjk",
+    "enabled": true,
     "tracking": 2,
     "maxSize": 72
   },
   {
+    "id": "system",
+    "enabled": false,
+    "tracking": 0,
+    "maxSize": 72
+  },
+  {
     "id": "cherry-bomb-one",
+    "enabled": true,
     "tracking": 2,
     "maxSize": 72
   },
   {
     "id": "darumadrop-one",
+    "enabled": true,
     "tracking": 4,
-    "maxSize": 72
+    "maxSize": 90
   },
   {
     "id": "nico-moji",
+    "enabled": true,
     "tracking": 2,
     "maxSize": 72
   },
   {
     "id": "slackside-one",
+    "enabled": true,
     "tracking": 2,
-    "maxSize": 72
+    "maxSize": 120
   },
   {
     "id": "yomogi",
+    "enabled": true,
     "tracking": 2,
     "maxSize": 72
   }
