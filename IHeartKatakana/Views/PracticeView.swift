@@ -147,13 +147,17 @@ struct PracticeView: View {
         shuffledFontOrder = Array(settings.enabledFontIds).shuffled()
     }
 
+    /// Fixed height for katakana text container — normalizes vertical position across fonts.
+    /// Must be tall enough for the largest font's line height (SlacksideOne at 120pt ≈ 150pt).
+    private static let katakanaFixedHeight: CGFloat = 160
+
     private let peekThreshold: CGFloat = 150
 
     // MARK: - Layout Calculations
 
-    /// Content top percentage: 40% portrait, 20% landscape
+    /// Content top percentage: 33% portrait, 10% landscape
     private func contentTopPercent(for screenSize: CGSize) -> CGFloat {
-        screenSize.height > screenSize.width ? 0.40 : 0.20
+        screenSize.height > screenSize.width ? 0.33 : 0.10
     }
 
     /// Katakana position for card layer (ignores safe area, so we add safeAreaTop)
@@ -163,7 +167,7 @@ struct PracticeView: View {
 
     /// Hint position for overlay layer (respects safe area, so no safeAreaTop)
     private func hintTopOffset(screenSize: CGSize) -> CGFloat {
-        screenSize.height * contentTopPercent(for: screenSize) - 50
+        screenSize.height * contentTopPercent(for: screenSize) - 20
     }
 
     /// Reveal overlay position (respects safe area, so no safeAreaTop)
@@ -171,9 +175,9 @@ struct PracticeView: View {
         screenSize.height * contentTopPercent(for: screenSize)
     }
 
-    /// Gap between katakana and buttons: 100pt portrait, 80pt landscape
+    /// Gap between katakana and buttons: matches fixed frame height
     private func katakanaToButtonsGap(for screenSize: CGSize) -> CGFloat {
-        screenSize.height > screenSize.width ? 100 : 80
+        Self.katakanaFixedHeight
     }
 
     var body: some View {
@@ -389,6 +393,7 @@ struct PracticeView: View {
                         .foregroundColor(foregroundColor(for: pageIndex))
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
+                        .frame(height: Self.katakanaFixedHeight, alignment: .center)
 
                     // Space for action buttons and answer (rendered as overlay when revealed)
                     Spacer()
