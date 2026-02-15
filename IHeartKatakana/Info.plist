@@ -4,8 +4,12 @@
 <dict>
 	<key>UIAppFonts</key>
 	<array>
+		<string>CherryBombOne-Regular.ttf</string>
 		<string>DarumadropOne-Regular.ttf</string>
+		<string>NicoMoji-Regular.ttf</string>
 		<string>NotoSansCJKjp-Medium.ttf</string>
+		<string>SlacksideOne-Regular.ttf</string>
+		<string>Yomogi-Regular.ttf</string>
 	</array>
 </dict>
 </plist>

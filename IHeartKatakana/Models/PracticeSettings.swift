@@ -63,9 +63,17 @@ class PracticeSettings {
         didSet { defaults.set(Array(enabledThemeIndices), forKey: "enabledThemeIndices") }
     }
 
-    // Font setting
+    // Font settings
     var selectedFontId: String {
         didSet { defaults.set(selectedFontId, forKey: "selectedFontId") }
+    }
+
+    var randomizeFont: Bool {
+        didSet { defaults.set(randomizeFont, forKey: "randomizeFont") }
+    }
+
+    var enabledFontIds: Set<String> {
+        didSet { defaults.set(Array(enabledFontIds), forKey: "enabledFontIds") }
     }
 
     var enabledPatterns: [String] {
@@ -110,7 +118,14 @@ class PracticeSettings {
             self.enabledThemeIndices = Set(0..<5) // Default: all themes enabled
         }
 
-        // Font setting
+        // Font settings
         self.selectedFontId = defaults.string(forKey: "selectedFontId") ?? "noto-sans-cjk"
+        self.randomizeFont = defaults.bool(forKey: "randomizeFont") // Default: false
+
+        if let savedFontIds = defaults.array(forKey: "enabledFontIds") as? [String] {
+            self.enabledFontIds = Set(savedFontIds)
+        } else {
+            self.enabledFontIds = Set(PracticeFont.allFonts.map(\.id)) // Default: all fonts enabled
+        }
     }
 }

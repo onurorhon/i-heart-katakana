@@ -13,6 +13,7 @@ struct HamburgerMenu: View {
 
     @State private var showingPeekOptions = false
     @State private var showingColorOptions = false
+    @State private var showingFontOptions = false
 
     // Theme names in display order
     private let themeNames = ["Pink", "Blue", "Green", "Yellow", "Purple"]
@@ -22,6 +23,8 @@ struct HamburgerMenu: View {
             peekSubmenu
         } else if showingColorOptions {
             colorSubmenu
+        } else if showingFontOptions {
+            fontSubmenu
         } else {
             mainMenu
         }
@@ -55,6 +58,8 @@ struct HamburgerMenu: View {
                     Button {
                         if item == .colors {
                             showingColorOptions = true
+                        } else if item == .font {
+                            showingFontOptions = true
                         } else {
                             onItemTap(item)
                         }
@@ -215,6 +220,102 @@ struct HamburgerMenu: View {
                         .buttonStyle(.plain)
 
                         if index < themeNames.count - 1 {
+                            Divider()
+                                .padding(.leading, 28)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: 220)
+    }
+    private var fontSubmenu: some View {
+        VStack(alignment: .trailing, spacing: 12) {
+            // Back and close buttons
+            HStack {
+                FloatingBackButton {
+                    showingFontOptions = false
+                }
+                Spacer()
+                FloatingCloseButton(action: onClose)
+            }
+
+            // Font options
+            FloatingCard {
+                VStack(spacing: 0) {
+                    // Randomize toggle
+                    Toggle("Randomize", isOn: $settings.randomizeFont)
+                        .padding(.bottom, 8)
+
+                    // Select all / Unselect all pill (only when randomize is on)
+                    if settings.randomizeFont {
+                        let allSelected = settings.enabledFontIds.count == PracticeFont.allFonts.count
+
+                        Button {
+                            if allSelected {
+                                // Unselect all but default
+                                settings.enabledFontIds = [PracticeFont.allFonts[0].id]
+                            } else {
+                                // Select all
+                                settings.enabledFontIds = Set(PracticeFont.allFonts.map(\.id))
+                            }
+                        } label: {
+                            Text(allSelected ? "Unselect all" : "Select all")
+                                .font(.subheadline)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(.quaternary, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 8)
+                    }
+
+                    Divider()
+                        .padding(.bottom, 8)
+
+                    // Font list
+                    ForEach(Array(PracticeFont.allFonts.enumerated()), id: \.element.id) { index, font in
+                        Button {
+                            if settings.randomizeFont {
+                                // Checkbox mode - toggle this font
+                                if settings.enabledFontIds.contains(font.id) {
+                                    if settings.enabledFontIds.count > 1 {
+                                        settings.enabledFontIds.remove(font.id)
+                                    }
+                                } else {
+                                    settings.enabledFontIds.insert(font.id)
+                                }
+                            } else {
+                                // Radio mode - select only this font
+                                settings.selectedFontId = font.id
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                if settings.randomizeFont {
+                                    // Checkbox
+                                    Image(systemName: settings.enabledFontIds.contains(font.id) ? "checkmark.square.fill" : "square")
+                                        .foregroundColor(settings.enabledFontIds.contains(font.id) ? .accentColor : .secondary)
+                                        .frame(width: 20)
+                                } else {
+                                    // Radio button
+                                    Image(systemName: settings.selectedFontId == font.id ? "circle.inset.filled" : "circle")
+                                        .foregroundColor(settings.selectedFontId == font.id ? .accentColor : .secondary)
+                                        .frame(width: 20)
+                                }
+
+                                Text(font.displayName)
+                                    .foregroundColor(.primary)
+                                    .lineLimit(1)
+
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+
+                        if index < PracticeFont.allFonts.count - 1 {
                             Divider()
                                 .padding(.leading, 28)
                         }

@@ -131,6 +131,22 @@ struct PracticeView: View {
         shuffledThemeOrder = Array(settings.enabledThemeIndices).shuffled()
     }
 
+    // Font randomization
+    @State private var shuffledFontOrder: [String] = []
+
+    private func practiceFont(for pageIndex: Int) -> PracticeFont {
+        if settings.randomizeFont && !shuffledFontOrder.isEmpty {
+            let fontId = shuffledFontOrder[pageIndex % shuffledFontOrder.count]
+            return PracticeFont.font(forId: fontId)
+        } else {
+            return PracticeFont.font(forId: settings.selectedFontId)
+        }
+    }
+
+    private func reshuffleFontOrder() {
+        shuffledFontOrder = Array(settings.enabledFontIds).shuffled()
+    }
+
     private let peekThreshold: CGFloat = 150
 
     // MARK: - Layout Calculations
@@ -244,6 +260,12 @@ struct PracticeView: View {
         .onChange(of: settings.randomizeTheme) { _, _ in
             reshuffleThemeOrder()
         }
+        .onChange(of: settings.enabledFontIds) { _, _ in
+            reshuffleFontOrder()
+        }
+        .onChange(of: settings.randomizeFont) { _, _ in
+            reshuffleFontOrder()
+        }
         .alert("Better Voice Quality", isPresented: $showVoiceHintAlert) {
             Button("Got it") {
                 ttsService.markVoiceHintShown()
@@ -327,6 +349,7 @@ struct PracticeView: View {
 
         reshuffleDeck()
         reshuffleThemeOrder()
+        reshuffleFontOrder()
         history = []
 
         // Draw first item from fresh deck
@@ -359,10 +382,10 @@ struct PracticeView: View {
 
                 VStack(spacing: 16) {
                     // Question (the katakana) - top aligned at percentage-based position
-                    let practiceFont = PracticeFont.font(forId: settings.selectedFontId)
+                    let cardFont = practiceFont(for: pageIndex)
                     Text(item.question)
-                        .font(practiceFont.swiftUIFont(size: 72))
-                        .tracking(practiceFont.tracking)
+                        .font(cardFont.swiftUIFont(size: 72))
+                        .tracking(cardFont.tracking)
                         .foregroundColor(foregroundColor(for: pageIndex))
                         .lineLimit(1)
                         .minimumScaleFactor(0.3)
@@ -502,6 +525,7 @@ struct PracticeView: View {
                 currentPage = saved.currentPage
                 generatePendingNext()
                 reshuffleThemeOrder()
+                reshuffleFontOrder()
             } else {
                 // Start fresh session
                 resetHistory()
@@ -550,6 +574,7 @@ struct PracticeView: View {
         guard totalItems > 0 else { return }
         reshuffleDeck()
         reshuffleThemeOrder()
+        reshuffleFontOrder()
 
         // Draw first item from deck
         let firstIndex = shuffledDeck[deckPosition]
