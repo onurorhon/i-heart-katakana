@@ -1,0 +1,37 @@
+[
+  {
+    "id": "system",
+    "tracking": 0,
+    "maxSize": 72
+  },
+  {
+    "id": "noto-sans-cjk",
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "cherry-bomb-one",
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "darumadrop-one",
+    "tracking": 4,
+    "maxSize": 72
+  },
+  {
+    "id": "nico-moji",
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "slackside-one",
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "yomogi",
+    "tracking": 2,
+    "maxSize": 72
+  }
+]

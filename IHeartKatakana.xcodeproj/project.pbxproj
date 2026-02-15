@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AABB0001CAFEBABE00000001 /* words.json in Resources */ = {isa = PBXBuildFile; fileRef = AABB0002CAFEBABE00000002 /* words.json */; };
 		AABB0003CAFEBABE00000003 /* kana.json in Resources */ = {isa = PBXBuildFile; fileRef = AABB0004CAFEBABE00000004 /* kana.json */; };
+		AABB0007CAFEBABE00000007 /* fonts.json in Resources */ = {isa = PBXBuildFile; fileRef = AABB0008CAFEBABE00000008 /* fonts.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +35,7 @@
 		09FFCAF92F1D750F00BA2D21 /* IHeartKatakanaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IHeartKatakanaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AABB0002CAFEBABE00000002 /* words.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = words.json; sourceTree = "<group>"; };
 		AABB0004CAFEBABE00000004 /* kana.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = kana.json; sourceTree = "<group>"; };
+		AABB0008CAFEBABE00000008 /* fonts.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = fonts.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -119,6 +121,7 @@
 			children = (
 				AABB0002CAFEBABE00000002 /* words.json */,
 				AABB0004CAFEBABE00000004 /* kana.json */,
+				AABB0008CAFEBABE00000008 /* fonts.json */,
 			);
 			path = data;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 			files = (
 				AABB0001CAFEBABE00000001 /* words.json in Resources */,
 				AABB0003CAFEBABE00000003 /* kana.json in Resources */,
+				AABB0007CAFEBABE00000007 /* fonts.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

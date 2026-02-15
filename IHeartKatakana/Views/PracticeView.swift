@@ -384,7 +384,7 @@ struct PracticeView: View {
                     // Question (the katakana) - top aligned at percentage-based position
                     let cardFont = practiceFont(for: pageIndex)
                     Text(item.question)
-                        .font(cardFont.swiftUIFont(size: 72))
+                        .font(cardFont.swiftUIFont(size: cardFont.maxSize))
                         .tracking(cardFont.tracking)
                         .foregroundColor(foregroundColor(for: pageIndex))
                         .lineLimit(1)

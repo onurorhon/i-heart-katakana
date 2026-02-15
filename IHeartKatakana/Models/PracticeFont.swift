@@ -6,7 +6,8 @@ struct PracticeFont: Identifiable {
     let displayName: String
     let postScriptName: String?  // iOS font name for custom fonts; nil for system
     let fileName: String?        // Bundle filename; nil for system font
-    let tracking: CGFloat        // Letter spacing adjustment
+    var tracking: CGFloat = 0    // Letter spacing adjustment (overridden by fonts.json)
+    var maxSize: CGFloat = 72    // Maximum display size in points (overridden by fonts.json)
 
     func swiftUIFont(size: CGFloat) -> Font {
         if let psName = postScriptName {
@@ -16,14 +17,15 @@ struct PracticeFont: Identifiable {
     }
 }
 
+// MARK: - Font Definitions (technical identifiers)
+
 extension PracticeFont {
     static let system = PracticeFont(
         id: "system",
         name: "System",
         displayName: "System",
         postScriptName: nil,
-        fileName: nil,
-        tracking: 0
+        fileName: nil
     )
 
     static let notoSansCJK = PracticeFont(
@@ -31,8 +33,7 @@ extension PracticeFont {
         name: "NotoSansCJKjp-Medium",
         displayName: "Noto Sans CJK",
         postScriptName: "NotoSansCJKjp-Medium",
-        fileName: "NotoSansCJKjp-Medium.ttf",
-        tracking: 2
+        fileName: "NotoSansCJKjp-Medium.ttf"
     )
 
     static let cherryBombOne = PracticeFont(
@@ -40,8 +41,7 @@ extension PracticeFont {
         name: "CherryBombOne-Regular",
         displayName: "Cherry Bomb One",
         postScriptName: "CherryBombOne-Regular",
-        fileName: "CherryBombOne-Regular.ttf",
-        tracking: 2
+        fileName: "CherryBombOne-Regular.ttf"
     )
 
     static let darumadropOne = PracticeFont(
@@ -49,8 +49,7 @@ extension PracticeFont {
         name: "DarumadropOne-Regular",
         displayName: "Darumadrop One",
         postScriptName: "DarumadropOne-Regular",
-        fileName: "DarumadropOne-Regular.ttf",
-        tracking: 4
+        fileName: "DarumadropOne-Regular.ttf"
     )
 
     static let nicoMoji = PracticeFont(
@@ -58,8 +57,7 @@ extension PracticeFont {
         name: "NicoMoji-Regular",
         displayName: "Nico Moji",
         postScriptName: "NicoMoji-Regular",
-        fileName: "NicoMoji-Regular.ttf",
-        tracking: 2
+        fileName: "NicoMoji-Regular.ttf"
     )
 
     static let slacksideOne = PracticeFont(
@@ -67,8 +65,7 @@ extension PracticeFont {
         name: "SlacksideOne-Regular",
         displayName: "Slackside One",
         postScriptName: "SlacksideOne-Regular",
-        fileName: "SlacksideOne-Regular.ttf",
-        tracking: 2
+        fileName: "SlacksideOne-Regular.ttf"
     )
 
     static let yomogi = PracticeFont(
@@ -76,16 +73,44 @@ extension PracticeFont {
         name: "Yomogi-Regular",
         displayName: "Yomogi",
         postScriptName: "Yomogi-Regular",
-        fileName: "Yomogi-Regular.ttf",
-        tracking: 2
+        fileName: "Yomogi-Regular.ttf"
     )
 
-    static let allFonts: [PracticeFont] = [
-        notoSansCJK, system, cherryBombOne, darumadropOne,
-        nicoMoji, slacksideOne, yomogi,
-    ]
+    /// All fonts with display tuning loaded from data/fonts.json
+    static let allFonts: [PracticeFont] = {
+        let baseFonts: [PracticeFont] = [
+            notoSansCJK, system, cherryBombOne, darumadropOne,
+            nicoMoji, slacksideOne, yomogi,
+        ]
+        let config = FontConfig.load()
+        return baseFonts.map { font in
+            var font = font
+            if let entry = config.first(where: { $0.id == font.id }) {
+                font.tracking = entry.tracking
+                font.maxSize = entry.maxSize
+            }
+            return font
+        }
+    }()
 
     static func font(forId id: String) -> PracticeFont {
-        allFonts.first { $0.id == id } ?? .system
+        allFonts.first { $0.id == id } ?? allFonts.first { $0.id == "system" } ?? .system
+    }
+}
+
+// MARK: - Display tuning from data/fonts.json
+
+private struct FontConfig: Decodable {
+    let id: String
+    let tracking: CGFloat
+    let maxSize: CGFloat
+
+    static func load() -> [FontConfig] {
+        guard let url = Bundle.main.url(forResource: "fonts", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let configs = try? JSONDecoder().decode([FontConfig].self, from: data) else {
+            return []
+        }
+        return configs
     }
 }
