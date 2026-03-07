@@ -295,7 +295,7 @@ curate_words.py → words.json
 
 Custom fonts are subsetted to katakana-only glyphs before bundling, reducing total font size from ~13 MB to ~400 KB.
 
-**Unicode range:** U+30A0-30FF (full katakana block, 96 codepoints). Includes all standard katakana, small kana, dakuon, handakuon, ヴ, ヵ, ヶ, long vowel mark ー, and nakaguro ・. The full block is used rather than only the 82 characters in the current word database, to support future content additions with negligible size overhead.
+**Unicode range:** U+30A0-30FF (full katakana block, 96 codepoints). Includes all standard katakana, small kana, dakuon, handakuon, ヴ, ヵ, ヶ, long vowel mark ー, and nakaguro ・. The full block is used rather than only the characters currently in the word database, to support future content additions with negligible size overhead.
 
 **Tool:** `pyftsubset` from the `fonttools` Python package.
 

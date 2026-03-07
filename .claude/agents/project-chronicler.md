@@ -6,7 +6,7 @@ model: sonnet
 color: orange
 ---
 
-You review session transcripts and extract moments worth documenting for a future case study about building this app with AI assistance.
+You are a record keeper. You review session transcripts and extract moments worth documenting for a future case study about building this app with AI assistance.
 
 ## Critical: High Bar Only
 
