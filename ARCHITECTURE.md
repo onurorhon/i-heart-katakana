@@ -291,32 +291,49 @@ curate_words.py → words.json
 - **ナイター** (nighter) → night game
 - **アウトコース** (out course) → outside pitch
 
-### Font Subsetting
+### Font Processing
 
-Custom fonts are subsetted to katakana-only glyphs before bundling, reducing total font size from ~13 MB to ~400 KB.
+Two separate pipelines process fonts for the app. Both output to `IHeartKatakana/Resources/Fonts/` (`.gitignored`; run locally).
 
 **Unicode range:** U+30A0-30FF (full katakana block, 96 codepoints). Includes all standard katakana, small kana, dakuon, handakuon, ヴ, ヵ, ヶ, long vowel mark ー, and nakaguro ・. The full block is used rather than only the characters currently in the word database, to support future content additions with negligible size overhead.
 
-**Tool:** `pyftsubset` from the `fonttools` Python package.
-
-**Flags:**
+**Subsetting flags (shared by both pipelines):**
 - `--layout-features='*'` – Preserve all OpenType layout features
 - `--no-hinting` – Strip hinting (not needed at 72pt+ display)
 - `--desubroutinize` – Simplify glyph outlines for smaller output
 
-**Script:** `scripts/subset_fonts.py`
+#### Pipeline 1: Standard Unicode fonts
+
+For fonts with proper Unicode katakana mappings (Noto Sans CJK, Cherry Bomb One, etc.).
 
 ```
-i-heart-katakana-assets/fonts/ (read-only)
-    ↓
-subset_fonts.py
-    ↓
-IHeartKatakana/Resources/Fonts/ (subsetted, .gitignored)
+python scripts/subset_fonts.py FontName.ttf
 ```
 
-**Workflow:** Source fonts live in the private `i-heart-katakana-assets` repo. The subsetting script reads from there (never writes) and outputs to the main repo's Resources/Fonts/ directory. Subsetted fonts are `.gitignored` (`**/fonts/`); each developer runs the script locally.
+Subsets to katakana-only glyphs.
 
-**Variable fonts:** Skip variable fonts in subsetting. Use static weight versions instead (e.g., NotoSansJP-Regular.ttf not NotoSansJP-VariableFont_wght.ttf).
+#### Pipeline 2: Maniackers 1-byte fonts
+
+Maniackers Design katakana fonts are single-byte fonts that store katakana glyphs at ASCII codepoints based on the JIS kana keyboard layout (JIS X 6002). They need remapping before subsetting.
+
+```
+python scripts/remap_maniackers.py FontName.otf
+```
+
+Remaps ASCII→katakana codepoints using the Maniackers Set 1 mapping table (source: martijnkoch.com/katakanaconverter.php), then subsets. One step, no intermediate files.
+
+**Note:** Per Maniackers README, character layout may vary slightly between fonts. The script reports any unmapped glyphs for manual review.
+
+**Adding a new font (either pipeline):**
+1. Drop the font in `i-heart-katakana-assets/fonts/`
+2. Run the appropriate script with the filename
+3. Register in `PracticeFont.swift`, `data/fonts.json`, `Info.plist`
+
+#### Shared workflow
+
+Source fonts live in the private `i-heart-katakana-assets` repo (never modified by scripts). Subsetted fonts are `.gitignored` (`**/fonts/`); each developer runs the scripts locally.
+
+**Variable fonts:** Skip variable fonts. Use static weight versions instead (e.g., NotoSansJP-Regular.ttf not NotoSansJP-VariableFont_wght.ttf).
 
 ---
 

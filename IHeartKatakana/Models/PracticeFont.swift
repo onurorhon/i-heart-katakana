@@ -76,11 +76,92 @@ extension PracticeFont {
         fileName: "Yomogi-Regular.ttf"
     )
 
+    static let astroZ = PracticeFont(
+        id: "astroz-kta",
+        name: "AstroZ-KtA",
+        displayName: "AstroZ",
+        postScriptName: "AstroZ-KtA",
+        fileName: "AstroZ-KtA.otf"
+    )
+
+    static let shotaroV = PracticeFont(
+        id: "shotarov-kt",
+        name: "ShotaroV-KT",
+        displayName: "Shotaro V",
+        postScriptName: "ShotaroV-KT",
+        fileName: "ShotaroV-KT.otf"
+    )
+
+    static let gavadon = PracticeFont(
+        id: "gavadon-ultrakt",
+        name: "Gavadon-UltraKt",
+        displayName: "Gavadon",
+        postScriptName: "Gavadon-UltraKt",
+        fileName: "Gavadon-UltraKt.otf"
+    )
+
+    static let poppop = PracticeFont(
+        id: "poppop-kt",
+        name: "POPPOP-Kt",
+        displayName: "POPPOP",
+        postScriptName: "POPPOP-Kt",
+        fileName: "POPPOP-Kt.otf"
+    )
+
+    static let holidayMDJP = PracticeFont(
+        id: "holiday-mdjp",
+        name: "HolidayMDJP",
+        displayName: "Holiday",
+        postScriptName: "HolidayMDJP",
+        fileName: "HolidayMDJP.otf"
+    )
+
+    static let ikaho = PracticeFont(
+        id: "ikaho-katakana",
+        name: "Ikaho-Katakana",
+        displayName: "Ikaho",
+        postScriptName: "Ikaho-Katakana",
+        fileName: "Ikaho-Katakana.otf"
+    )
+
+    static let futaba = PracticeFont(
+        id: "futaba-kt",
+        name: "Futaba-KT",
+        displayName: "Futaba",
+        postScriptName: "FutabaKT",
+        fileName: "Futaba-KT.otf"
+    )
+
+    static let coppepan = PracticeFont(
+        id: "coppepan-chocokt",
+        name: "Coppepan-ChocoKt",
+        displayName: "Coppepan",
+        postScriptName: "CoppepanChocoKt",
+        fileName: "Coppepan-ChocoKt.otf"
+    )
+
+    static let hachipochi = PracticeFont(
+        id: "hachipochi-eightkt",
+        name: "Hachipochi-EightKt",
+        displayName: "Hachipochi",
+        postScriptName: "HachipochiEightKt",
+        fileName: "Hachipochi-EightKt.otf"
+    )
+
+    static let nihonbashi = PracticeFont(
+        id: "nihonbashi-kt",
+        name: "Nihonbashi-KT",
+        displayName: "Nihonbashi",
+        postScriptName: "NihonbashiKT",
+        fileName: "Nihonbashi-KT.otf"
+    )
+
     /// Lookup table for base font definitions by id
     private static let baseFontsByID: [String: PracticeFont] = {
         let all: [PracticeFont] = [
             notoSansCJK, system, cherryBombOne, darumadropOne,
-            nicoMoji, slacksideOne, yomogi,
+            nicoMoji, slacksideOne, yomogi, astroZ, shotaroV, gavadon, poppop,
+            holidayMDJP, ikaho, futaba, coppepan, hachipochi, nihonbashi,
         ]
         return Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
     }()

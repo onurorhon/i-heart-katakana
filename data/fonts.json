@@ -40,5 +40,65 @@
     "enabled": true,
     "tracking": 2,
     "maxSize": 72
+  },
+  {
+    "id": "astroz-kta",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "shotarov-kt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "gavadon-ultrakt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "poppop-kt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "holiday-mdjp",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "ikaho-katakana",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "futaba-kt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "coppepan-chocokt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "hachipochi-eightkt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
+  },
+  {
+    "id": "nihonbashi-kt",
+    "enabled": true,
+    "tracking": 2,
+    "maxSize": 72
   }
 ]

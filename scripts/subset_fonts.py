@@ -12,7 +12,7 @@ Requirements:
     pip install fonttools brotli
 
 Usage:
-    python scripts/subset_fonts.py
+    python scripts/subset_fonts.py FontName.ttf [FontName2.otf ...]
 """
 
 import sys
@@ -61,27 +61,20 @@ def format_size(size_bytes):
 
 
 def main():
+    if len(sys.argv) < 2:
+        print("Usage: python scripts/subset_fonts.py FontName.ttf [FontName2.otf ...]")
+        sys.exit(1)
+
     # Validate source directory
     if not ASSETS_FONTS_DIR.exists():
         print(f"Error: Assets font directory not found: {ASSETS_FONTS_DIR}")
         print("Make sure i-heart-katakana-assets repo is cloned alongside this repo.")
         sys.exit(1)
 
-    # Find source fonts (skip variable fonts - use static versions only)
-    font_files = sorted([
-        f for f in ASSETS_FONTS_DIR.iterdir()
-        if f.suffix.lower() in ('.ttf', '.otf')
-        and 'VariableFont' not in f.name
-    ])
-
-    if not font_files:
-        print(f"No font files found in {ASSETS_FONTS_DIR}")
-        sys.exit(1)
-
     # Create output directory
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Subsetting {len(font_files)} fonts to {UNICODE_RANGE}")
+    print(f"Subsetting to {UNICODE_RANGE}")
     print(f"Source: {ASSETS_FONTS_DIR}")
     print(f"Output: {OUTPUT_DIR}")
     print()
@@ -89,7 +82,12 @@ def main():
     total_before = 0
     total_after = 0
 
-    for font_path in font_files:
+    for filename in sys.argv[1:]:
+        font_path = ASSETS_FONTS_DIR / filename
+        if not font_path.exists():
+            print(f"  {filename}: NOT FOUND")
+            continue
+
         output_path = OUTPUT_DIR / font_path.name
         size_before = font_path.stat().st_size
         total_before += size_before
@@ -104,9 +102,10 @@ def main():
         except Exception as e:
             print(f"  {font_path.name}: FAILED - {e}")
 
-    print()
-    print(f"Total: {format_size(total_before)} -> {format_size(total_after)} "
-          f"({(1 - total_after / total_before) * 100:.0f}% reduction)")
+    if total_before > 0:
+        print()
+        print(f"Total: {format_size(total_before)} -> {format_size(total_after)} "
+              f"({(1 - total_after / total_before) * 100:.0f}% reduction)")
     print(f"\nSubsetted fonts written to: {OUTPUT_DIR}")
 
 
