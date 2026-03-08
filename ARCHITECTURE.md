@@ -439,6 +439,8 @@ class UserPreferences {
 }
 ```
 
+**iCloud sync:** Deferred. Likes are local-only (on-device SwiftData) until the Apple Developer Program ($99/year) is active. Once enrolled, adding iCloud sync is a one-line change (`cloudKitDatabase: .automatic` in `ModelConfiguration` + CloudKit capability in Xcode). The data model requires no changes.
+
 ## Analytics
 
 TelemetryDeck integration for privacy-focused usage tracking.
@@ -461,7 +463,7 @@ Build functional prototype with SwiftUI defaults:
 - Data models (Word, ColorTheme, PracticeFont).
 - Bundled JSON loading.
 - Basic practice view (display word, reveal answer).
-- Likes (SwiftData + iCloud sync).
+- Likes (SwiftData, local-only for now).
 - Categories and filtering.
 - ColorTheme/font switching (architecture only, placeholder values).
 - TTS playback.
@@ -485,6 +487,8 @@ Build functional prototype with SwiftUI defaults:
 
 ### Then: Launch
 
+- Enroll in Apple Developer Program ($99/year).
+- Enable iCloud sync for likes (one-line config change + CloudKit capability).
 - App Store metadata and screenshots.
 - Submit for review.
 

@@ -3,6 +3,7 @@ import SwiftUI
 struct ActionsMenu: View {
     @Bindable var settings: PracticeSettings
     let availableCategories: [String]
+    let likeService: LikeService?
     let onClose: () -> Void
 
     @State private var showingCategories = false
@@ -104,6 +105,21 @@ struct ActionsMenu: View {
                             Divider()
                                 .padding(.leading, 28)
 
+                            // "Liked" option (only shown when liked words exist)
+                            if let likeService, !likeService.likedWordIds.isEmpty {
+                                CategoryRow(
+                                    label: "Liked",
+                                    isSelected: settings.selectedCategory == "Liked",
+                                    action: {
+                                        settings.selectedCategory = "Liked"
+                                        showingCategories = false
+                                    }
+                                )
+
+                                Divider()
+                                    .padding(.leading, 28)
+                            }
+
                             // Individual categories
                             ForEach(Array(availableCategories.enumerated()), id: \.element) { index, category in
                                 CategoryRow(
@@ -172,6 +188,7 @@ struct CategoryRow: View {
                 ActionsMenu(
                     settings: PracticeSettings(),
                     availableCategories: ["Everyday Life", "Sports & Recreation", "Technology"],
+                    likeService: nil,
                     onClose: {}
                 )
                 Spacer()

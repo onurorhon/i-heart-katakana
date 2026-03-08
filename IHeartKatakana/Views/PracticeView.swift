@@ -46,6 +46,7 @@ struct PracticeView: View {
     let settings: PracticeSettings
     let contentService: ContentService
     let ttsService: TTSService
+    let likeService: LikeService?
     let settingsVersion: Int
     let onExit: () -> Void
 
@@ -288,6 +289,20 @@ struct PracticeView: View {
     private var pageCount: Int {
         // Always have one more page available for "next"
         max(history.count + 1, 1)
+    }
+
+    private func wordIdForPage(_ page: Int) -> String? {
+        guard activeContentType == .word else { return nil }
+        let index: Int?
+        if page < history.count {
+            index = history[page]
+        } else if page == history.count {
+            index = pendingNextIndex
+        } else {
+            index = nil
+        }
+        guard let idx = index, idx < filteredWords.count else { return nil }
+        return filteredWords[idx].id
     }
 
     private func itemForPage(_ page: Int) -> CardData? {
@@ -556,11 +571,16 @@ struct PracticeView: View {
     private func rebuildFilteredCache() {
         let enabledSet = Set(activePatterns)
 
-        // Filter words by patterns and optionally by parent category
+        // Filter words by patterns and optionally by parent category or liked status
         cachedFilteredWords = contentService.words.filter { word in
             let matchesPattern = word.patterns.contains { enabledSet.contains($0) }
-            let matchesCategory = activeSelectedCategory == nil
-                || word.parentCategory == activeSelectedCategory
+            let matchesCategory: Bool
+            if activeSelectedCategory == "Liked" {
+                matchesCategory = likeService?.isLiked(word.id) ?? false
+            } else {
+                matchesCategory = activeSelectedCategory == nil
+                    || word.parentCategory == activeSelectedCategory
+            }
             return matchesPattern && matchesCategory
         }
 
@@ -661,14 +681,16 @@ struct PracticeView: View {
                         .contentShape(Rectangle())
                 }
 
-                Button {
-                    // TODO: Toggle like
-                } label: {
-                    Image(systemName: "heart")
-                        .font(.title2)
-                        .foregroundColor(fgColor)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                if activeContentType == .word, let wordId = wordIdForPage(page) {
+                    Button {
+                        likeService?.toggleLike(wordId: wordId)
+                    } label: {
+                        Image(systemName: likeService?.isLiked(wordId) == true ? "heart.fill" : "heart")
+                            .font(.title2)
+                            .foregroundColor(fgColor)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
                 }
 
                 Button {
@@ -927,6 +949,7 @@ struct LetterRevealText: View {
         settings: PracticeSettings(),
         contentService: ContentService(),
         ttsService: TTSService(),
+        likeService: nil,
         settingsVersion: 0,
         onExit: {}
     )

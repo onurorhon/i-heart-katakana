@@ -12,7 +12,9 @@ struct ContentView: View {
     @State private var settings = PracticeSettings()
     @State private var contentService = ContentService()
     @State private var ttsService = TTSService()
+    @State private var likeService: LikeService?
     @State private var settingsVersion = 0
+    @Environment(\.modelContext) private var modelContext
 
     // Snapshot of settings when menu opens (to detect changes)
     @State private var snapshotContentType: PracticeSettings.ContentType = .word
@@ -27,6 +29,7 @@ struct ContentView: View {
                 settings: settings,
                 contentService: contentService,
                 ttsService: ttsService,
+                likeService: likeService,
                 settingsVersion: settingsVersion,
                 onExit: {}
             )
@@ -87,6 +90,7 @@ struct ContentView: View {
                             ActionsMenu(
                                 settings: settings,
                                 availableCategories: contentService.availableParentCategories,
+                                likeService: likeService,
                                 onClose: { closeMenu() }
                             )
                             Spacer()
@@ -113,6 +117,10 @@ struct ContentView: View {
         }
         .task {
             contentService.load()
+            likeService = LikeService(modelContext: modelContext)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            likeService?.loadLikedIds()
         }
     }
 
