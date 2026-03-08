@@ -50,8 +50,12 @@ i-heart-katakana/
 ├── IHeartKatakanaUITests/
 ├── data/
 │   ├── words.json              # Curated word database (UI label: "Word")
-│   └── kana.json                 # Katakana character reference (UI label: "Kana")
-├── scripts/                    # Python curation pipeline
+│   ├── kana.json               # Katakana character reference (UI label: "Kana")
+│   └── fonts.json              # Font display tuning and ordering (runtime config)
+├── scripts/                    # Font processing and content curation
+│   ├── subset_fonts.py         # Subset standard Unicode fonts
+│   ├── remap_maniackers.py     # Remap + subset Maniackers 1-byte fonts
+│   ├── convert_suitcases.py    # Convert legacy .suit fonts via FontForge
 │   ├── extract_katakana.py
 │   ├── curate_words.py
 │   └── wasei_eigo_database.json
@@ -437,6 +441,8 @@ struct PracticeFont: Identifiable {
     let displayName: String
     let postScriptName: String?  // iOS font reference; nil for system
     let fileName: String?        // Bundle filename; nil for system font
+    var tracking: CGFloat        // Letter spacing (overridden by fonts.json)
+    var maxSize: CGFloat         // Max display size in points (overridden by fonts.json)
 }
 ```
 
@@ -474,17 +480,11 @@ Events to track (TBD during implementation):
 
 ## Roadmap
 
-### Next: Phase 1 Build
+### Next: Phase 1 Remaining
 
-Build functional prototype with SwiftUI defaults:
-- Data models (Word, ColorTheme, PracticeFont).
-- Bundled JSON loading.
-- Basic practice view (display word, reveal answer).
-- Likes (SwiftData, local-only for now).
-- Categories and filtering.
-- ColorTheme/font switching (architecture only, placeholder values).
-- TTS playback.
 - TelemetryDeck integration.
+- Enroll in Apple Developer Program ($99/year).
+- iCloud sync for likes (requires paid account).
 
 ### Then: Content Finalization
 

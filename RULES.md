@@ -52,19 +52,20 @@ These are product requirements, not statistics from actual runs.
 
 ```
 IHeartKatakana/
-├── App/
-│   └── IHeartKatakanaApp.swift
+├── IHeartKatakanaApp.swift
 ├── Models/
 │   ├── Word.swift
-│   ├── Theme.swift
-│   └── AppFont.swift
+│   ├── ColorTheme.swift
+│   ├── PracticeFont.swift
+│   └── LikedWord.swift
 ├── Views/
 │   └── [views as created]
 ├── Services/
 │   ├── ContentService.swift
-│   └── TTSService.swift
+│   ├── TTSService.swift
+│   └── LikeService.swift
 └── Resources/
-    └── words.json (bundled fallback)
+    └── Fonts/                  # Subsetted fonts (.gitignored)
 ```
 
 ### Naming

@@ -89,7 +89,7 @@ Users switch between modes with a tap. The app doesn't enforce either—it's jus
 
 ### 4.2 Likes
 
-Users can like words. Liked words appear as a filterable category alongside semantic and phonetic categories. Likes sync across user's devices via iCloud.
+Users can like words. Liked words appear as a filterable category alongside semantic and phonetic categories. Likes are local-only for now; iCloud sync deferred until Apple Developer Program enrollment (see ARCHITECTURE.md).
 
 ### 4.3 Content Scope
 
@@ -131,7 +131,7 @@ Katakana character table. Additional reference content TBD.
 | Asset | Source | Status |
 |-------|--------|--------|
 | Word database | JMdict (open-source) | Available. Extraction and curation needed. |
-| Fonts | Free/open-source (~20) | In progress. Must permit free distribution. |
+| Fonts | Free/open-source + Maniackers Design | Integrated. Two subset pipelines (standard Unicode + Maniackers remap). |
 | Audio | On-device TTS (AVSpeechSynthesizer) | Built-in. No licensing needed. |
 
 ## 7. Technical Constraints

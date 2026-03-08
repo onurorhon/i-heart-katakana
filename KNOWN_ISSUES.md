@@ -32,7 +32,7 @@ Technical quirks and limitations to be aware of during development.
 
 ## PracticeView Scroll Stutter
 
-**Symptom:** Occasional scroll stutter (30-40% of swipes) when navigating between cards in PracticeView. This can be tested with a screen recording of the wipes on the iphone, then watching in quicktime frame by frame.
+**Symptom:** Occasional scroll stutter (30-40% of swipes) when navigating between cards in PracticeView.
 
 **Cause:** ForEach re-evaluates `itemForPage()` for all visible cards when navigation state (`history`, `pendingNextIndex`) changes. Theme color functions also access settings state.
 
