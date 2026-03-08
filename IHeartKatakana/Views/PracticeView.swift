@@ -272,7 +272,17 @@ struct PracticeView: View {
             reshuffleFontOrder()
         }
         .alert("Better Voice Quality", isPresented: $showVoiceHintAlert) {
-            Button("Got it") {
+            Button("Open Settings") {
+                ttsService.markVoiceHintShown()
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+                if let text = pendingTTSText {
+                    ttsService.speak(text)
+                    pendingTTSText = nil
+                }
+            }
+            Button("Continue") {
                 ttsService.markVoiceHintShown()
                 if let text = pendingTTSText {
                     ttsService.speak(text)
@@ -280,7 +290,7 @@ struct PracticeView: View {
                 }
             }
         } message: {
-            Text("For clearer pronunciation, download an enhanced Japanese voice.\n\nOpen Settings, search for \"Japanese\" under Accessibility, and look for voices marked \"Enhanced\".")
+            Text("For clearer pronunciation, download an enhanced Japanese voice.\n\nOpen Settings → Accessibility → Spoken Content → Voices → Japanese, then download a voice marked \"Enhanced\".")
         }
     }
 
