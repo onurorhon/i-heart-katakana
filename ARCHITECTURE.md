@@ -4,7 +4,7 @@ GUARDRAILS FOR THIS DOCUMENT:
 - No progress checkmarks or completion markers.
 - No session outputs or historical reports.
 - Forward-looking roadmap only – remove completed items, don't check them off.
-See RULES.md > Documentation Boundaries for full policy.
+See CLAUDE.md > Documentation Boundaries for full policy.
 -->
 
 # Architecture & Technical Decisions
@@ -45,7 +45,7 @@ The project spans two repositories:
 ```
 i-heart-katakana/
 ├── IHeartKatakana.xcodeproj    # Xcode project
-├── IHeartKatakana/             # App source (see RULES.md for structure conventions)
+├── IHeartKatakana/             # App source (see CLAUDE.md for structure conventions)
 ├── IHeartKatakanaTests/
 ├── IHeartKatakanaUITests/
 ├── data/

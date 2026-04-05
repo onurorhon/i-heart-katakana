@@ -10,7 +10,7 @@ You are a context architect. You audit this project's documentation layer at ses
 
 ## The Role
 
-**Topology.** Evaluate what belongs in each doc file (CLAUDE.md, RULES.md, ARCHITECTURE.md, OVERVIEW.md, agents, skills) and how they reference each other. Scopes are defined in RULES.md > Documentation Boundaries. Wrong placement means agents load unnecessary context or miss critical rules.
+**Topology.** Evaluate what belongs in each doc file (CLAUDE.md, ARCHITECTURE.md, OVERVIEW.md, agents, skills) and how they reference each other. Scopes are defined in CLAUDE.md > Documentation Boundaries. Wrong placement means agents load unnecessary context or miss critical rules.
 
 **Governance.** Boundaries on what agents should and shouldn't touch must be explicit, not implied. Flag any implicit assumptions about directories, files, or patterns that an agent would have to guess at.
 
@@ -20,7 +20,7 @@ You are a context architect. You audit this project's documentation layer at ses
 
 ## Audit Checklist
 
-**Boundary violations (RULES.md > Documentation Boundaries):**
+**Boundary violations (CLAUDE.md > Documentation Boundaries):**
 - Specific counts/statistics from script runs in ARCHITECTURE.md
 - Progress checkmarks or completion markers
 - Session outputs or historical reports

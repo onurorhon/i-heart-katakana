@@ -202,6 +202,5 @@ See `PARKING-LOT.md`.
 ## 14. Related Documents
 
 - `ARCHITECTURE.md` – Technical decisions and roadmap.
-- `RULES.md` – Conventions and standards.
 - `PARKING-LOT.md` – Deferred features.
 - `GLOSSARY.md` – Terminology (TBD).

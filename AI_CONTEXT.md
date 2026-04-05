@@ -8,7 +8,7 @@ Execute in order when beginning a session.
 - `CLAUDE.md` – Critical rules that must never be violated
 - `OVERVIEW.md` – Product requirements and scope
 - `ARCHITECTURE.md` – Technical decisions, component patterns, data flow
-- `RULES.md` – Never/always rules, conventions
+- `CLAUDE.md` – Critical rules, conventions, and project standards
 - `KNOWN_ISSUES.md` – Technical quirks to be aware of
 
 **2. Check recent work**
@@ -39,7 +39,7 @@ If architectural decisions changed:
 - Document component responsibilities, data flow, state management
 
 If new rules discovered:
-- Update `RULES.md` with new never/always rules
+- Update `CLAUDE.md` with new never/always rules
 - Document new conventions
 
 **2. Run context-architect agent**
