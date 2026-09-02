@@ -37,7 +37,7 @@ struct ContentView: View {
             // Menu buttons overlay (top)
             VStack {
                 HStack {
-                    // Actions menu trigger (top left)
+                    // Actions menu trigger (top left) — morphs to close when actions menu is open
                     Button {
                         if activeMenu == .actions {
                             closeMenu()
@@ -45,15 +45,17 @@ struct ContentView: View {
                             openMenu(.actions)
                         }
                     } label: {
-                        Image(systemName: "bolt.fill")
+                        Image(systemName: activeMenu == .actions ? "xmark" : "bolt.fill")
                             .font(.title2)
-                            .padding(12)
-                            .background(.ultraThinMaterial, in: Circle())
+                            .frame(width: 44, height: 44)
+                            .background(.regularMaterial)
+                            .clipShape(Circle())
+                            .contentTransition(.symbolEffect(.replace))
                     }
 
                     Spacer()
 
-                    // Hamburger menu trigger (top right)
+                    // Hamburger menu trigger (top right) — morphs to close when hamburger menu is open
                     Button {
                         if activeMenu == .hamburger {
                             closeMenu()
@@ -61,14 +63,16 @@ struct ContentView: View {
                             openMenu(.hamburger)
                         }
                     } label: {
-                        Image(systemName: "line.3.horizontal")
+                        Image(systemName: activeMenu == .hamburger ? "xmark" : "line.3.horizontal")
                             .font(.title2)
-                            .padding(12)
-                            .background(.ultraThinMaterial, in: Circle())
+                            .frame(width: 44, height: 44)
+                            .background(.regularMaterial)
+                            .clipShape(Circle())
+                            .contentTransition(.symbolEffect(.replace))
                     }
                 }
-                .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.horizontal, 6)
+                .padding(.top, -12)
 
                 Spacer()
             }
@@ -108,8 +112,8 @@ struct ContentView: View {
                             )
                         }
                     }
-                    .padding(.top, 60)
-                    .padding(.horizontal)
+                    .padding(.top, 52)
+                    .padding(.horizontal, 6)
 
                     Spacer()
                 }

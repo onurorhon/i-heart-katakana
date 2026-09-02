@@ -32,9 +32,6 @@ struct HamburgerMenu: View {
 
     private var mainMenu: some View {
         VStack(alignment: .trailing, spacing: 12) {
-            // Close button
-            FloatingCloseButton(action: onClose)
-
             // Pull-down Hint button (opens submenu)
             FloatingCard {
                 Button {
@@ -81,13 +78,11 @@ struct HamburgerMenu: View {
 
     private var peekSubmenu: some View {
         VStack(alignment: .trailing, spacing: 12) {
-            // Back and close buttons
             HStack {
                 FloatingBackButton {
                     showingPeekOptions = false
                 }
                 Spacer()
-                FloatingCloseButton(action: onClose)
             }
 
             // Peek options
@@ -134,13 +129,11 @@ struct HamburgerMenu: View {
 
     private var colorSubmenu: some View {
         VStack(alignment: .trailing, spacing: 12) {
-            // Back and close buttons
             HStack {
                 FloatingBackButton {
                     showingColorOptions = false
                 }
                 Spacer()
-                FloatingCloseButton(action: onClose)
             }
 
             // Color options
@@ -231,13 +224,11 @@ struct HamburgerMenu: View {
     }
     private var fontSubmenu: some View {
         VStack(alignment: .trailing, spacing: 12) {
-            // Back and close buttons
             HStack {
                 FloatingBackButton {
                     showingFontOptions = false
                 }
                 Spacer()
-                FloatingCloseButton(action: onClose)
             }
 
             // Font options

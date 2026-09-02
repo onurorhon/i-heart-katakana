@@ -18,9 +18,6 @@ struct ActionsMenu: View {
 
     private var mainMenu: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Close button
-            FloatingCloseButton(action: onClose)
-
             // Word / Kana toggle
             FloatingCard {
                 Picker("", selection: $settings.contentType) {
@@ -72,13 +69,8 @@ struct ActionsMenu: View {
 
     private var categorySubmenu: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Back and close buttons
-            HStack {
-                FloatingBackButton {
-                    showingCategories = false
-                }
-                Spacer()
-                FloatingCloseButton(action: onClose)
+            FloatingBackButton {
+                showingCategories = false
             }
 
             // Category list as floating card
