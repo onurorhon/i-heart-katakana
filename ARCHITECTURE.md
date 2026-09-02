@@ -518,6 +518,7 @@ Replaces the floating card pattern (see Component Architecture > Menu System) wi
 - Wrap menu content in a `ScrollView` and drop the category list's `.frame(maxHeight: 300)`.
 - Use `LazyVStack` for the font list so only visible rows realise.
 - Apply `.accessibilityHidden(true)` to inactive menus, or VoiceOver will reach off-screen content.
+- Preserve `ContentView`'s settings snapshot. `openMenu()` captures content type, patterns, peek hint type and category; `closeMenu()` compares them and increments `settingsVersion` to reset the practice session when they differ. Dropping this during the refactor breaks session resets on filter changes, and fails silently.
 - Land this as its own commit, separate from the follow-on work below.
 
 **Constraints discovered during design.**
@@ -529,7 +530,7 @@ Replaces the floating card pattern (see Component Architecture > Menu System) wi
 
 ### Then: Menu Row Previews
 
-- Font rows: a katakana specimen rendered in each font, with the font name alongside in the system font. Specimen character is カ, held in a single constant so it can be changed in one place.
+- Font rows: a katakana specimen rendered in each font, with the font name alongside in the system font. Specimen character is カ, held in a single constant so it can be changed in one place. All bundled fonts share the same 85 glyphs (standard katakana plus dakuon, handakuon, ヴ and ー); small ヵ ヶ and the nakaguro ・ are not in every font, so avoid those as specimens.
 - Colour rows: a two-colour swatch showing the theme's background and text colours.
 
 ### Then: Phase 1 Remaining
