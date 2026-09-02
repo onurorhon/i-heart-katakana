@@ -533,6 +533,10 @@ Replaces the floating card pattern (see Component Architecture > Menu System) wi
 - Font rows: a katakana specimen rendered in each font, with the font name alongside in the system font. Specimen character is カ, held in a single constant so it can be changed in one place. All bundled fonts share the same 85 glyphs (standard katakana plus dakuon, handakuon, ヴ and ー); small ヵ ヶ and the nakaguro ・ are not in every font, so avoid those as specimens.
 - Colour rows: a two-colour swatch showing the theme's background and text colours.
 
+### Under Consideration: Documentation Split
+
+This file is mostly design in the software sense (how components are built) rather than architecture (structural decisions that are expensive to reverse). Candidate split: a thin ARCHITECTURE.md holding the technical decisions table, repo split, bundled-JSON-with-remote-fallback choice, SwiftData and deferred iCloud rationale, and data flow; a DESIGN.md for the rest; and possibly a separate home for the curation and font pipelines, which are an operational runbook. Any split requires updating AI_CONTEXT.md's startup checklist and CLAUDE.md's Documentation Boundaries policy, which is written around the ARCHITECTURE/OVERVIEW pair. Run `context-architect` before deciding.
+
 ### Then: Phase 1 Remaining
 
 - TelemetryDeck integration.
