@@ -339,11 +339,15 @@ Source fonts live in the private `i-heart-katakana-assets` repo (never modified 
 
 **Variable fonts:** Skip variable fonts. Use static weight versions instead (e.g., NotoSansJP-Regular.ttf not NotoSansJP-VariableFont_wght.ttf).
 
+**No Latin glyphs:** Subsetted fonts contain katakana only. Any Latin text set in one of these fonts falls back to the system font silently, so font names cannot be rendered in their own typeface. Use a katakana specimen instead. Re-subsetting to add Latin is not an option for the Maniackers fonts: their ASCII codepoints held katakana glyphs before `remap_maniackers.py` moved them, and the fonts contain no Latin letterforms at all.
+
 ---
 
 ## Component Architecture
 
 ### Menu System
+
+Being replaced by full-screen takeovers – see Roadmap > Next: Menu Takeover Redesign before changing menu code.
 
 Menus use a **floating card pattern** inspired by Apple TV. Each control group is a separate card with `.regularMaterial` background, stacked vertically with gaps between them so the practice content remains visible behind. This avoids a heavy modal feel.
 
@@ -480,10 +484,57 @@ Events to track (TBD during implementation):
 
 ## Roadmap
 
-### Next: Phase 1 Remaining
+### Next: Menu Takeover Redesign
+
+Replaces the floating card pattern (see Component Architecture > Menu System) with full-screen takeovers. Design is settled; implementation has not started.
+
+**Spatial model.** Three full-screen cards in a single `ZStack` in `ContentView`, bottom to top:
+
+1. `HamburgerMenu` – always mounted.
+2. `PracticeView` – the quiz card.
+3. `ActionsMenu` – conditionally mounted.
+4. Trigger buttons – pinned above all layers, never move.
+
+**Interactions.**
+
+- Opening the actions menu slides `ActionsMenu` in from the leading edge over the quiz card, via `.transition(.move(edge: .leading))`.
+- Opening the hamburger menu slides `PracticeView` out to the leading edge, via `.offset(x: -width)`, revealing `HamburgerMenu` underneath. The hamburger card does not move.
+- Closing reverses each motion.
+- `HamburgerMenu` stays mounted so it is still present as the quiz card slides back over it. Tearing it down on close would leave an empty layer mid-animation.
+
+**Controls.** Placement is identical in both menus:
+
+- Right slot: hamburger icon when closed, close (X) whenever a menu is open.
+- Left slot: bolt icon when closed, back chevron when a submenu is open, hidden at menu root.
+- Both buttons live in `ContentView`'s pinned top layer, not inside the menu views. Submenu state must therefore be surfaced from each menu to `ContentView` (binding or callback) so the back control can appear.
+
+**Submenus** continue to swap in place within their menu, as they do today.
+
+**Implementation notes.**
+
+- Take width from a `GeometryReader` so the offset is correct in landscape and on iPad.
+- Menu backgrounds must be opaque, otherwise the hamburger card shows through the quiz card. Use a system default until Phase 2.
+- Remove `.frame(width: 220)` from both menus. Content fills the width with padding, top-padded to clear the pinned buttons.
+- Wrap menu content in a `ScrollView` and drop the category list's `.frame(maxHeight: 300)`.
+- Use `LazyVStack` for the font list so only visible rows realise.
+- Apply `.accessibilityHidden(true)` to inactive menus, or VoiceOver will reach off-screen content.
+- Land this as its own commit, separate from the follow-on work below.
+
+**Constraints discovered during design.**
+
+- `fullScreenCover` cannot express this. It presents above the presenter and cannot animate it, so the reveal is impossible. Keep the menu views presentation-agnostic so falling back to `fullScreenCover` stays a `ContentView`-only change.
+- Do not nest a horizontal pager. `PracticeView` already pages horizontally, and nesting horizontal paging causes gesture conflicts.
+- Keep `FloatingCloseButton`. It is currently unused but is required if presentation ever falls back to `fullScreenCover`.
+- `onClose` in `ActionsMenu` and `HamburgerMenu` is dead and should be replaced by the submenu-state binding described above.
+
+### Then: Menu Row Previews
+
+- Font rows: a katakana specimen rendered in each font, with the font name alongside in the system font. Specimen character is カ, held in a single constant so it can be changed in one place.
+- Colour rows: a two-colour swatch showing the theme's background and text colours.
+
+### Then: Phase 1 Remaining
 
 - TelemetryDeck integration.
-- Enroll in Apple Developer Program ($99/year).
 - iCloud sync for likes (requires paid account).
 
 ### Then: Content Finalization
@@ -504,8 +555,9 @@ Events to track (TBD during implementation):
 
 ### Then: Launch
 
-- Enroll in Apple Developer Program ($99/year).
+- Update `DEVELOPMENT_TEAM` in `project.pbxproj` once the paid team is active (the paid team ID differs from the personal team ID currently set).
 - Enable iCloud sync for likes (one-line config change + CloudKit capability).
+- Distribute via TestFlight for on-device use across multiple devices.
 - App Store metadata and screenshots.
 - Submit for review.
 
