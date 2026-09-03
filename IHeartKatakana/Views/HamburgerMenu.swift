@@ -14,15 +14,23 @@ enum HamburgerSubmenu {
 
 struct HamburgerMenu: View {
     @Bindable var settings: PracticeSettings
-    /// Owned by ContentView so the pinned back control can drive it.
-    @Binding var submenu: HamburgerSubmenu?
+    let onClose: () -> Void
     let onItemTap: (HamburgerMenuItem) -> Void
+
+    @State private var submenu: HamburgerSubmenu?
 
     // Theme names in display order
     private let themeNames = ["Pink", "Blue", "Green", "Yellow", "Purple"]
 
     var body: some View {
-        MenuSurface {
+        MenuSurface(
+            onBack: submenu != nil ? { submenu = nil } : nil,
+            // This card stays mounted, so reset to root on close
+            onClose: {
+                submenu = nil
+                onClose()
+            }
+        ) {
             switch submenu {
             case .peek: peekSubmenu
             case .colors: colorSubmenu
@@ -301,7 +309,7 @@ struct HamburgerMenu: View {
 #Preview {
     HamburgerMenu(
         settings: PracticeSettings(),
-        submenu: .constant(nil),
+        onClose: {},
         onItemTap: { _ in }
     )
 }

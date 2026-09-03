@@ -4,11 +4,19 @@ struct ActionsMenu: View {
     @Bindable var settings: PracticeSettings
     let availableCategories: [String]
     let likeService: LikeService?
-    /// Owned by ContentView so the pinned back control can drive it.
-    @Binding var showingCategories: Bool
+    let onClose: () -> Void
+
+    @State private var showingCategories = false
 
     var body: some View {
-        MenuSurface {
+        MenuSurface(
+            onBack: showingCategories ? { showingCategories = false } : nil,
+            // This card stays mounted, so reset to root on close
+            onClose: {
+                showingCategories = false
+                onClose()
+            }
+        ) {
             if showingCategories {
                 categorySubmenu
             } else {
@@ -165,6 +173,6 @@ struct CategoryRow: View {
         settings: PracticeSettings(),
         availableCategories: ["Everyday Life", "Sports & Recreation", "Technology"],
         likeService: nil,
-        showingCategories: .constant(false)
+        onClose: {}
     )
 }

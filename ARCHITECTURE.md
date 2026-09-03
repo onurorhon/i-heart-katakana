@@ -349,24 +349,25 @@ Source fonts live in the private `i-heart-katakana-assets` repo (never modified 
 
 Menus are **full-screen takeovers** composed as three cards in a single `ZStack` in `ContentView`, bottom to top:
 
-1. `HamburgerMenu` – always mounted, sits below the practice card.
+1. `HamburgerMenu` – sits below the practice card.
 2. `PracticeView` – the practice card.
-3. `ActionsMenu` – conditionally mounted.
-4. Pinned controls – above every card.
+3. `ActionsMenu` – sits above the practice card, parked off-stage to the left.
 
-**Motion.** Opening the actions menu slides `ActionsMenu` in from the leading edge over the practice card. Opening the hamburger menu slides `PracticeView` out to the leading edge, revealing the hamburger card that was already underneath. The hamburger card never moves, which is why it must stay mounted: tearing it down on close would leave an empty layer as the practice card slides back.
+All three stay mounted and move by `.offset`, animated by a single `.animation(_:value:)` on the container. A `.transition` was tried first and degraded to a cross-fade rather than a slide. Each card carries its own controls; nothing floats above the stack.
 
-**Controls.** Placement is identical for both menus. The right slot is the hamburger trigger when closed and close whenever a menu is open. The left slot is the actions trigger when closed, back when a submenu is open, and hidden at menu root. Both live in `ContentView`, so submenu state is owned there and passed to each menu as a binding.
+**Motion.** Opening the actions menu slides `ActionsMenu` in from the leading edge over the practice card. Opening the hamburger menu slides `PracticeView` out to the leading edge, revealing the hamburger card that was already underneath. The hamburger card never moves.
+
+**Controls.** Every card carries its own controls, so they belong to the stack rather than floating above it. The practice card carries both triggers and they travel with it when it slides away. Each menu card carries back (left) and close (right). Placement is identical everywhere, enforced by the shared `cardControlPlacement()` modifier rather than by repeating padding values.
 
 **Components:**
-- `MenuSurface` – full-screen scrolling surface with an opaque full-bleed background, insets to clear the pinned controls, and a readable max width
+- `MenuSurface` – full-screen scrolling surface with an opaque full-bleed background, a readable max width, and the card's back and close controls
+- `CardControlPlacement` – shared placement for the control row every card carries, applied via `.cardControlPlacement()`
 - `FloatingCard` – wraps content with padding, material background, and rounded corners
-- `FloatingBackButton` – circular material button, used within menu content
-- `FloatingCloseButton` – unused while menus are takeovers; retained for a fallback to `fullScreenCover`
+- `FloatingCloseButton` / `FloatingBackButton` – circular material controls
 - `ActionsMenu` – Word/Kana toggle, Level filters, Category submenu
 - `HamburgerMenu` – Pull-down Hint, Font, Colors, About submenus
 
-**Submenu pattern:** Menus with submenus swap between root and submenu views inside the same surface. Submenu state is a binding from `ContentView` (`Bool` for actions, `HamburgerSubmenu?` for hamburger) so the pinned back control can drive it.
+**Submenu pattern:** Menus swap between root and submenu views inside the same surface, and own that state internally. Both cards stay mounted, so each resets to its root on close.
 
 **Presentation constraint:** `fullScreenCover` cannot express this, as it presents above the presenter and cannot animate it. Menu views stay presentation-agnostic so falling back to `fullScreenCover` would be a `ContentView`-only change. Do not nest a horizontal pager inside the practice card, which already pages horizontally.
 

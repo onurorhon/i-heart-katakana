@@ -17,6 +17,9 @@ struct FloatingCard<Content: View>: View {
 /// Content is inset to clear the pinned controls and constrained to a readable
 /// width on larger screens. The background is full-bleed.
 struct MenuSurface<Content: View>: View {
+    /// Shown in the left slot when the menu is in a submenu.
+    var onBack: (() -> Void)?
+    let onClose: () -> Void
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -30,12 +33,47 @@ struct MenuSurface<Content: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground).ignoresSafeArea())
+        .overlay(alignment: .top) {
+            // The card carries its own controls: back left, close right.
+            HStack {
+                if let onBack {
+                    FloatingBackButton(action: onBack)
+                } else {
+                    Color.clear.frame(width: 44, height: 44)
+                }
+
+                Spacer()
+
+                FloatingCloseButton(action: onClose)
+            }
+            .cardControlPlacement()
+        }
     }
 }
 
-/// A floating close button for menus.
-/// Unused while menus are full-screen takeovers; required if presentation ever
-/// falls back to fullScreenCover. See ARCHITECTURE.md > Menu System.
+/// Placement for the control row every card carries at its top edge.
+/// Shared so the practice card's triggers and the menu cards' controls
+/// land in exactly the same spot.
+struct CardControlPlacement: ViewModifier {
+    func body(content: Content) -> some View {
+        VStack {
+            content
+                .padding(.horizontal, 6)
+                .padding(.top, -12)
+
+            Spacer()
+        }
+        .safeAreaPadding()
+    }
+}
+
+extension View {
+    func cardControlPlacement() -> some View {
+        modifier(CardControlPlacement())
+    }
+}
+
+/// A floating close button, carried by each menu card.
 struct FloatingCloseButton: View {
     let action: () -> Void
 
@@ -43,7 +81,7 @@ struct FloatingCloseButton: View {
         Button(action: action) {
             Image(systemName: "xmark")
                 .font(.title2)
-                .padding(12)
+                .frame(width: 44, height: 44)
                 .background(.regularMaterial)
                 .clipShape(Circle())
         }
@@ -59,7 +97,7 @@ struct FloatingBackButton: View {
         Button(action: action) {
             Image(systemName: "chevron.left")
                 .font(.title2)
-                .padding(12)
+                .frame(width: 44, height: 44)
                 .background(.regularMaterial)
                 .clipShape(Circle())
         }
