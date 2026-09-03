@@ -347,17 +347,28 @@ Source fonts live in the private `i-heart-katakana-assets` repo (never modified 
 
 ### Menu System
 
-Being replaced by full-screen takeovers – see Roadmap > Next: Menu Takeover Redesign before changing menu code.
+Menus are **full-screen takeovers** composed as three cards in a single `ZStack` in `ContentView`, bottom to top:
 
-Menus use a **floating card pattern** inspired by Apple TV. Each control group is a separate card with `.regularMaterial` background, stacked vertically with gaps between them so the practice content remains visible behind. This avoids a heavy modal feel.
+1. `HamburgerMenu` – always mounted, sits below the practice card.
+2. `PracticeView` – the practice card.
+3. `ActionsMenu` – conditionally mounted.
+4. Pinned controls – above every card.
+
+**Motion.** Opening the actions menu slides `ActionsMenu` in from the leading edge over the practice card. Opening the hamburger menu slides `PracticeView` out to the leading edge, revealing the hamburger card that was already underneath. The hamburger card never moves, which is why it must stay mounted: tearing it down on close would leave an empty layer as the practice card slides back.
+
+**Controls.** Placement is identical for both menus. The right slot is the hamburger trigger when closed and close whenever a menu is open. The left slot is the actions trigger when closed, back when a submenu is open, and hidden at menu root. Both live in `ContentView`, so submenu state is owned there and passed to each menu as a binding.
 
 **Components:**
-- `FloatingCard` – Wraps content with padding, material background, and rounded corners
-- `FloatingCloseButton` / `FloatingBackButton` – Circular material buttons for navigation
-- `ActionsMenu` – Left menu with Word/Kana toggle, Level filters, Category submenu
-- `HamburgerMenu` – Right menu with Pull to Peek submenu, Font, Colors, About
+- `MenuSurface` – full-screen scrolling surface with an opaque full-bleed background, insets to clear the pinned controls, and a readable max width
+- `FloatingCard` – wraps content with padding, material background, and rounded corners
+- `FloatingBackButton` – circular material button, used within menu content
+- `FloatingCloseButton` – unused while menus are takeovers; retained for a fallback to `fullScreenCover`
+- `ActionsMenu` – Word/Kana toggle, Level filters, Category submenu
+- `HamburgerMenu` – Pull-down Hint, Font, Colors, About submenus
 
-**Submenu pattern:** Menus with submenus (Category, Pull to Peek) use internal `@State` to swap between main menu and submenu views, keeping both within the same floating card container.
+**Submenu pattern:** Menus with submenus swap between root and submenu views inside the same surface. Submenu state is a binding from `ContentView` (`Bool` for actions, `HamburgerSubmenu?` for hamburger) so the pinned back control can drive it.
+
+**Presentation constraint:** `fullScreenCover` cannot express this, as it presents above the presenter and cannot animate it. Menu views stay presentation-agnostic so falling back to `fullScreenCover` would be a `ContentView`-only change. Do not nest a horizontal pager inside the practice card, which already pages horizontally.
 
 ### Practice Flow
 
@@ -484,51 +495,7 @@ Events to track (TBD during implementation):
 
 ## Roadmap
 
-### Next: Menu Takeover Redesign
-
-Replaces the floating card pattern (see Component Architecture > Menu System) with full-screen takeovers. Design is settled; implementation has not started.
-
-**Spatial model.** Three full-screen cards in a single `ZStack` in `ContentView`, bottom to top:
-
-1. `HamburgerMenu` – always mounted.
-2. `PracticeView` – the quiz card.
-3. `ActionsMenu` – conditionally mounted.
-4. Trigger buttons – pinned above all layers, never move.
-
-**Interactions.**
-
-- Opening the actions menu slides `ActionsMenu` in from the leading edge over the quiz card, via `.transition(.move(edge: .leading))`.
-- Opening the hamburger menu slides `PracticeView` out to the leading edge, via `.offset(x: -width)`, revealing `HamburgerMenu` underneath. The hamburger card does not move.
-- Closing reverses each motion.
-- `HamburgerMenu` stays mounted so it is still present as the quiz card slides back over it. Tearing it down on close would leave an empty layer mid-animation.
-
-**Controls.** Placement is identical in both menus:
-
-- Right slot: hamburger icon when closed, close (X) whenever a menu is open.
-- Left slot: bolt icon when closed, back chevron when a submenu is open, hidden at menu root.
-- Both buttons live in `ContentView`'s pinned top layer, not inside the menu views. Submenu state must therefore be surfaced from each menu to `ContentView` (binding or callback) so the back control can appear.
-
-**Submenus** continue to swap in place within their menu, as they do today.
-
-**Implementation notes.**
-
-- Take width from a `GeometryReader` so the offset is correct in landscape and on iPad.
-- Menu backgrounds must be opaque, otherwise the hamburger card shows through the quiz card. Use a system default until Phase 2.
-- Remove `.frame(width: 220)` from both menus. Content fills the width with padding, top-padded to clear the pinned buttons.
-- Wrap menu content in a `ScrollView` and drop the category list's `.frame(maxHeight: 300)`.
-- Use `LazyVStack` for the font list so only visible rows realise.
-- Apply `.accessibilityHidden(true)` to inactive menus, or VoiceOver will reach off-screen content.
-- Preserve `ContentView`'s settings snapshot. `openMenu()` captures content type, patterns, peek hint type and category; `closeMenu()` compares them and increments `settingsVersion` to reset the practice session when they differ. Dropping this during the refactor breaks session resets on filter changes, and fails silently.
-- Land this as its own commit, separate from the follow-on work below.
-
-**Constraints discovered during design.**
-
-- `fullScreenCover` cannot express this. It presents above the presenter and cannot animate it, so the reveal is impossible. Keep the menu views presentation-agnostic so falling back to `fullScreenCover` stays a `ContentView`-only change.
-- Do not nest a horizontal pager. `PracticeView` already pages horizontally, and nesting horizontal paging causes gesture conflicts.
-- Keep `FloatingCloseButton`. It is currently unused but is required if presentation ever falls back to `fullScreenCover`.
-- `onClose` in `ActionsMenu` and `HamburgerMenu` is dead and should be replaced by the submenu-state binding described above.
-
-### Then: Menu Row Previews
+### Next: Menu Row Previews
 
 - Font rows: a katakana specimen rendered in each font, with the font name alongside in the system font. Specimen character is カ, held in a single constant so it can be changed in one place. All bundled fonts share the same 85 glyphs (standard katakana plus dakuon, handakuon, ヴ and ー); small ヵ ヶ and the nakaguro ・ are not in every font, so avoid those as specimens.
 - Colour rows: a two-colour swatch showing the theme's background and text colours.

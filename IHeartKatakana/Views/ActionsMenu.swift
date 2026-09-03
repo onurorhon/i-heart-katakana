@@ -4,15 +4,16 @@ struct ActionsMenu: View {
     @Bindable var settings: PracticeSettings
     let availableCategories: [String]
     let likeService: LikeService?
-    let onClose: () -> Void
-
-    @State private var showingCategories = false
+    /// Owned by ContentView so the pinned back control can drive it.
+    @Binding var showingCategories: Bool
 
     var body: some View {
-        if showingCategories {
-            categorySubmenu
-        } else {
-            mainMenu
+        MenuSurface {
+            if showingCategories {
+                categorySubmenu
+            } else {
+                mainMenu
+            }
         }
     }
 
@@ -64,15 +65,10 @@ struct ActionsMenu: View {
                 }
             }
         }
-        .frame(width: 220)
     }
 
     private var categorySubmenu: some View {
         VStack(alignment: .leading, spacing: 12) {
-            FloatingBackButton {
-                showingCategories = false
-            }
-
             // Category list as floating card
             FloatingCard {
                 VStack(spacing: 0) {
@@ -82,59 +78,53 @@ struct ActionsMenu: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.bottom, 8)
 
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            // "All" option
-                            CategoryRow(
-                                label: "All",
-                                isSelected: settings.selectedCategory == nil,
-                                action: {
-                                    settings.selectedCategory = nil
-                                    showingCategories = false
-                                }
-                            )
+                    // "All" option
+                    CategoryRow(
+                        label: "All",
+                        isSelected: settings.selectedCategory == nil,
+                        action: {
+                            settings.selectedCategory = nil
+                            showingCategories = false
+                        }
+                    )
 
+                    Divider()
+                        .padding(.leading, 28)
+
+                    // "Liked" option (only shown when liked words exist)
+                    if let likeService, !likeService.likedWordIds.isEmpty {
+                        CategoryRow(
+                            label: "Liked",
+                            isSelected: settings.selectedCategory == "Liked",
+                            action: {
+                                settings.selectedCategory = "Liked"
+                                showingCategories = false
+                            }
+                        )
+
+                        Divider()
+                            .padding(.leading, 28)
+                    }
+
+                    // Individual categories
+                    ForEach(Array(availableCategories.enumerated()), id: \.element) { index, category in
+                        CategoryRow(
+                            label: category,
+                            isSelected: settings.selectedCategory == category,
+                            action: {
+                                settings.selectedCategory = category
+                                showingCategories = false
+                            }
+                        )
+
+                        if index < availableCategories.count - 1 {
                             Divider()
                                 .padding(.leading, 28)
-
-                            // "Liked" option (only shown when liked words exist)
-                            if let likeService, !likeService.likedWordIds.isEmpty {
-                                CategoryRow(
-                                    label: "Liked",
-                                    isSelected: settings.selectedCategory == "Liked",
-                                    action: {
-                                        settings.selectedCategory = "Liked"
-                                        showingCategories = false
-                                    }
-                                )
-
-                                Divider()
-                                    .padding(.leading, 28)
-                            }
-
-                            // Individual categories
-                            ForEach(Array(availableCategories.enumerated()), id: \.element) { index, category in
-                                CategoryRow(
-                                    label: category,
-                                    isSelected: settings.selectedCategory == category,
-                                    action: {
-                                        settings.selectedCategory = category
-                                        showingCategories = false
-                                    }
-                                )
-
-                                if index < availableCategories.count - 1 {
-                                    Divider()
-                                        .padding(.leading, 28)
-                                }
-                            }
                         }
                     }
-                    .frame(maxHeight: 300)
                 }
             }
         }
-        .frame(width: 220)
     }
 
     private var categoryButtonLabel: String {
@@ -171,22 +161,10 @@ struct CategoryRow: View {
 }
 
 #Preview {
-    ZStack {
-        Color.gray.opacity(0.5)
-            .ignoresSafeArea()
-
-        VStack {
-            HStack {
-                ActionsMenu(
-                    settings: PracticeSettings(),
-                    availableCategories: ["Everyday Life", "Sports & Recreation", "Technology"],
-                    likeService: nil,
-                    onClose: {}
-                )
-                Spacer()
-            }
-            .padding()
-            Spacer()
-        }
-    }
+    ActionsMenu(
+        settings: PracticeSettings(),
+        availableCategories: ["Everyday Life", "Sports & Recreation", "Technology"],
+        likeService: nil,
+        showingCategories: .constant(false)
+    )
 }

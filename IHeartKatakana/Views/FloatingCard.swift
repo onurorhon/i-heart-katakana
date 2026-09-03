@@ -13,7 +13,29 @@ struct FloatingCard<Content: View>: View {
     }
 }
 
-/// A floating close button for menus
+/// Full-screen surface for a menu takeover.
+/// Content is inset to clear the pinned controls and constrained to a readable
+/// width on larger screens. The background is full-bleed.
+struct MenuSurface<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        ScrollView {
+            content()
+                .padding(.horizontal, 16)
+                .padding(.top, 52)
+                .padding(.bottom, 32)
+                .frame(maxWidth: 500)
+                .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground).ignoresSafeArea())
+    }
+}
+
+/// A floating close button for menus.
+/// Unused while menus are full-screen takeovers; required if presentation ever
+/// falls back to fullScreenCover. See ARCHITECTURE.md > Menu System.
 struct FloatingCloseButton: View {
     let action: () -> Void
 

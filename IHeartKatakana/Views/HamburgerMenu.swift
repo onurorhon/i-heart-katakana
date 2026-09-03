@@ -6,36 +6,38 @@ enum HamburgerMenuItem: String, CaseIterable {
     case about = "About"
 }
 
+enum HamburgerSubmenu {
+    case peek
+    case colors
+    case fonts
+}
+
 struct HamburgerMenu: View {
     @Bindable var settings: PracticeSettings
-    let onClose: () -> Void
+    /// Owned by ContentView so the pinned back control can drive it.
+    @Binding var submenu: HamburgerSubmenu?
     let onItemTap: (HamburgerMenuItem) -> Void
-
-    @State private var showingPeekOptions = false
-    @State private var showingColorOptions = false
-    @State private var showingFontOptions = false
 
     // Theme names in display order
     private let themeNames = ["Pink", "Blue", "Green", "Yellow", "Purple"]
 
     var body: some View {
-        if showingPeekOptions {
-            peekSubmenu
-        } else if showingColorOptions {
-            colorSubmenu
-        } else if showingFontOptions {
-            fontSubmenu
-        } else {
-            mainMenu
+        MenuSurface {
+            switch submenu {
+            case .peek: peekSubmenu
+            case .colors: colorSubmenu
+            case .fonts: fontSubmenu
+            case nil: mainMenu
+            }
         }
     }
 
     private var mainMenu: some View {
-        VStack(alignment: .trailing, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
             // Pull-down Hint button (opens submenu)
             FloatingCard {
                 Button {
-                    showingPeekOptions = true
+                    submenu = .peek
                 } label: {
                     HStack {
                         Text("Pull-down Hint: \(settings.peekHintType.rawValue)")
@@ -54,9 +56,9 @@ struct HamburgerMenu: View {
                 FloatingCard {
                     Button {
                         if item == .colors {
-                            showingColorOptions = true
+                            submenu = .colors
                         } else if item == .font {
-                            showingFontOptions = true
+                            submenu = .fonts
                         } else {
                             onItemTap(item)
                         }
@@ -73,18 +75,10 @@ struct HamburgerMenu: View {
                 }
             }
         }
-        .frame(width: 220)
     }
 
     private var peekSubmenu: some View {
-        VStack(alignment: .trailing, spacing: 12) {
-            HStack {
-                FloatingBackButton {
-                    showingPeekOptions = false
-                }
-                Spacer()
-            }
-
+        VStack(alignment: .leading, spacing: 12) {
             // Peek options
             FloatingCard {
                 VStack(spacing: 0) {
@@ -97,7 +91,7 @@ struct HamburgerMenu: View {
                     ForEach(Array(PracticeSettings.PeekHintType.allCases.enumerated()), id: \.element) { index, option in
                         Button {
                             settings.peekHintType = option
-                            showingPeekOptions = false
+                            submenu = nil
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "checkmark")
@@ -124,18 +118,10 @@ struct HamburgerMenu: View {
                 }
             }
         }
-        .frame(width: 220)
     }
 
     private var colorSubmenu: some View {
-        VStack(alignment: .trailing, spacing: 12) {
-            HStack {
-                FloatingBackButton {
-                    showingColorOptions = false
-                }
-                Spacer()
-            }
-
+        VStack(alignment: .leading, spacing: 12) {
             // Color options
             FloatingCard {
                 VStack(spacing: 0) {
@@ -220,17 +206,9 @@ struct HamburgerMenu: View {
                 }
             }
         }
-        .frame(width: 220)
     }
     private var fontSubmenu: some View {
-        VStack(alignment: .trailing, spacing: 12) {
-            HStack {
-                FloatingBackButton {
-                    showingFontOptions = false
-                }
-                Spacer()
-            }
-
+        VStack(alignment: .leading, spacing: 12) {
             // Font options
             FloatingCard {
                 VStack(spacing: 0) {
@@ -265,7 +243,9 @@ struct HamburgerMenu: View {
                     Divider()
                         .padding(.bottom, 8)
 
-                    // Font list
+                    // Font list. Lazy so only visible rows realise: each row will
+                    // eventually render a katakana specimen in its own font.
+                    LazyVStack(spacing: 0) {
                     ForEach(Array(PracticeFont.allFonts.enumerated()), id: \.element.id) { index, font in
                         Button {
                             if settings.randomizeFont {
@@ -311,29 +291,17 @@ struct HamburgerMenu: View {
                                 .padding(.leading, 28)
                         }
                     }
+                    }
                 }
             }
         }
-        .frame(width: 220)
     }
 }
 
 #Preview {
-    ZStack {
-        Color.gray.opacity(0.5)
-            .ignoresSafeArea()
-
-        VStack {
-            HStack {
-                Spacer()
-                HamburgerMenu(
-                    settings: PracticeSettings(),
-                    onClose: {},
-                    onItemTap: { _ in }
-                )
-            }
-            .padding()
-            Spacer()
-        }
-    }
+    HamburgerMenu(
+        settings: PracticeSettings(),
+        submenu: .constant(nil),
+        onItemTap: { _ in }
+    )
 }
