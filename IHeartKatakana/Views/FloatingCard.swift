@@ -17,6 +17,8 @@ struct FloatingCard<Content: View>: View {
 /// Content is inset to clear the pinned controls and constrained to a readable
 /// width on larger screens. The background is full-bleed.
 struct MenuSurface<Content: View>: View {
+    @Environment(\.cardSafeAreaInsets) private var insets
+
     /// Shown in the left slot when the menu is in a submenu.
     var onBack: (() -> Void)?
     let onClose: () -> Void
@@ -26,8 +28,9 @@ struct MenuSurface<Content: View>: View {
         ScrollView {
             content()
                 .padding(.horizontal, 16)
-                .padding(.top, 52)
-                .padding(.bottom, 32)
+                // Clear the control row, which sits below the top inset
+                .padding(.top, insets.top + 52)
+                .padding(.bottom, insets.bottom + 32)
                 .frame(maxWidth: 500)
                 .frame(maxWidth: .infinity)
         }
