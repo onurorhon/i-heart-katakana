@@ -369,6 +369,10 @@ All three stay mounted and move by `.offset`, animated by a single `.animation(_
 
 **Submenu pattern:** Menus swap between root and submenu views inside the same surface, and own that state internally. Both cards stay mounted, so each resets to its root on close.
 
+**Safe area:** The card stack calls `ignoresSafeArea()` so every card paints edge to edge. Because that zeroes the insets for children, the real insets are captured from the `GeometryReader` first and published through the `cardSafeAreaInsets` environment value, which `cardControlPlacement()` reads. Getting this wrong is what broke landscape: `size.width` excludes the safe area, which sits on the side edges in landscape, so cards were laid out ~100pt narrower than the screen while their backgrounds painted full width. Card travel is therefore `size.width` plus the leading and trailing insets.
+
+**Known gap:** Inactive cards stay mounted, and `accessibilityHidden` on them does not remove their controls from the UI-test element tree. Whether VoiceOver is affected is unverified; check with Accessibility Inspector before the accessibility pass.
+
 **Presentation constraint:** `fullScreenCover` cannot express this, as it presents above the presenter and cannot animate it. Menu views stay presentation-agnostic so falling back to `fullScreenCover` would be a `ContentView`-only change. Do not nest a horizontal pager inside the practice card, which already pages horizontally.
 
 ### Practice Flow

@@ -51,7 +51,8 @@ struct ContentView: View {
 
                     practiceTriggers
                 }
-                .offset(x: activeMenu == .hamburger ? -geometry.size.width : 0)
+                .cardEdgeShadow()
+                .offset(x: activeMenu == .hamburger ? -cardTravel(geometry) : 0)
                 .accessibilityHidden(activeMenu != .none)
 
                 // Actions card sits above the practice card, parked off-stage
@@ -62,10 +63,16 @@ struct ContentView: View {
                     likeService: likeService,
                     onClose: { closeMenu() }
                 )
-                .offset(x: activeMenu == .actions ? 0 : -geometry.size.width)
+                .cardEdgeShadow()
+                .offset(x: activeMenu == .actions ? 0 : -cardTravel(geometry))
                 .accessibilityHidden(activeMenu != .actions)
             }
-            .animation(.easeInOut(duration: 0.3), value: activeMenu)
+            // Cards paint edge to edge; controls inset themselves using the
+            // insets captured here, before the safe area is ignored.
+            .environment(\.cardSafeAreaInsets, geometry.safeAreaInsets)
+            .ignoresSafeArea()
+            // Ease-in-out cubic: cubic-bezier(0.65, 0, 0.35, 1)
+            .animation(.timingCurve(0.65, 0, 0.35, 1, duration: 0.3), value: activeMenu)
         }
         .task {
             contentService.load()
@@ -74,6 +81,15 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             likeService?.loadLikedIds()
         }
+    }
+
+    /// Distance a card travels to clear the screen. `size.width` excludes the
+    /// safe area, which sits on the left and right edges in landscape, while
+    /// the cards paint edge to edge. Without the insets they stop short.
+    private func cardTravel(_ geometry: GeometryProxy) -> CGFloat {
+        geometry.size.width
+            + geometry.safeAreaInsets.leading
+            + geometry.safeAreaInsets.trailing
     }
 
     // MARK: - Practice Card Triggers
